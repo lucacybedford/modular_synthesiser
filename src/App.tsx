@@ -1,5 +1,3 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import {ReactElement} from "react";
 
@@ -120,9 +118,6 @@ function navigatorBegin() {
     }
 }
 
-
-
-
 function App(): ReactElement {
     if (!navigator.requestMIDIAccess) {
         console.error("Web MIDI API is not supported in this browser.");
@@ -132,15 +127,7 @@ function App(): ReactElement {
 
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo" />
-                </a>
-            </div>
-            <h1>Vite + React</h1>
+            <h1>Modular Synthesiser</h1>
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
@@ -154,9 +141,6 @@ function App(): ReactElement {
                     </select>
                 </div>
             </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
         </>
     )
 }
