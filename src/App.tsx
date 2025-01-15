@@ -30,29 +30,36 @@ function noteOn(note: number, velocity: number){
         const velocityGain = ctx.createGain();
         velocityGain.gain.value = velocityGainAmount;
 
-
         osc.type = getValue();
         osc.frequency.value = midiToFreq(note);
 
-        const biquadFilter1 = ctx.createBiquadFilter();
+        const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain, velocityGain];
+
         const effect1 = getEffect("effect_1");
         if (effect1 != "none") {
+            const biquadFilter1 = ctx.createBiquadFilter();
             biquadFilter1.type = effect1 as BiquadFilterType;
             biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
+            connectionChain.push(biquadFilter1);
         }
 
-        const biquadFilter2 = ctx.createBiquadFilter();
+
         const effect2 = getEffect("effect_2");
         if (effect2 != "none") {
+            const biquadFilter2 = ctx.createBiquadFilter();
             biquadFilter2.type = effect2 as BiquadFilterType;
             biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime);
+            connectionChain.push(biquadFilter2);
         }
 
-        osc.connect(oscGain);
-        oscGain.connect(velocityGain);
-        velocityGain.connect(biquadFilter1);
-        biquadFilter1.connect(biquadFilter2);
-        biquadFilter2.connect(ctx.destination);
+        connectionChain.push(ctx.destination);
+
+
+        for (let i = 0; i < connectionChain.length-1; i++) {
+            const first = connectionChain[i];
+            const second = connectionChain[i+1];
+            first.connect(second);
+        }
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
 
@@ -162,8 +169,6 @@ function App(): ReactElement {
                         <option value='highpass'>Highpass</option>
                         <option value='bandpass'>Bandpass</option>
                         <option value='notch'>Notch</option>
-                        <option value='lowshelf'>Lowshelf</option>
-                        <option value='highshelf'>Highshelf</option>
                     </select>
                     <input
                         type="range"
@@ -181,8 +186,6 @@ function App(): ReactElement {
                         <option value='highpass'>Highpass</option>
                         <option value='bandpass'>Bandpass</option>
                         <option value='notch'>Notch</option>
-                        <option value='lowshelf'>Lowshelf</option>
-                        <option value='highshelf'>Highshelf</option>
                     </select>
                     <input
                         type="range"
