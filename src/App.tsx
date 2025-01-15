@@ -36,19 +36,9 @@ function noteOn(note: number, velocity: number){
         osc.type = getValue();
         osc.frequency.value = midiToFreq(note);
 
-        const biquadFilter = ctx.createBiquadFilter();
-        biquadFilter.type = getEffect("effect_1");
-        biquadFilter.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime + 1);
-
-        const biquadFilter2 = ctx.createBiquadFilter();
-        biquadFilter2.type = getEffect("effect_2");
-        biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime + 1);
-
         osc.connect(oscGain);
         oscGain.connect(velocityGain);
-        velocityGain.connect(biquadFilter);
-        biquadFilter.connect(biquadFilter2);
-        biquadFilter2.connect(ctx.destination);
+        velocityGain.connect(ctx.destination);
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
         console.log(oscillators);
@@ -61,13 +51,6 @@ function getValue(): OscillatorType {
     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
 }
 
-function getEffect(effect: string): BiquadFilterType {
-    return (document.getElementById(effect) as HTMLSelectElement).value as BiquadFilterType;
-}
-
-function getEffectValue(effect: string): number {
-    return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
-}
 
 function noteOff(note: number) {
     const osc = oscillators[note.toString()]?.oscillator;
@@ -169,44 +152,6 @@ function App(): ReactElement {
                         <option value='sawtooth'>Saw</option>
                         <option value='triangle'>Triangle</option>
                     </select>
-                </div>
-                <div id={"oscillator"}>
-                    <label htmlFor="effect_1">Select Effect: </label>
-                    <select id="effect_1">
-                        <option value='none'>None</option>
-                        <option value='lowpass'>Lowpass</option>
-                        <option value='highpass'>Highpass</option>
-                        <option value='bandpass'>Bandpass</option>
-                        <option value='notch'>Notch</option>
-                        <option value='lowshelf'>Lowshelf</option>
-                        <option value='highshelf'>Highshelf</option>
-                    </select>
-                    <input
-                        type="range"
-                        id="effect_1_slider"
-                        min="40"
-                        max="20000"
-                        defaultValue="10000"
-                    />
-                </div>
-                <div id={"oscillator"}>
-                    <label htmlFor="effect_2">Select Effect: </label>
-                    <select id="effect_2">
-                        <option value='none'>None</option>
-                        <option value='lowpass'>Lowpass</option>
-                        <option value='highpass'>Highpass</option>
-                        <option value='bandpass'>Bandpass</option>
-                        <option value='notch'>Notch</option>
-                        <option value='lowshelf'>Lowshelf</option>
-                        <option value='highshelf'>Highshelf</option>
-                    </select>
-                    <input
-                        type="range"
-                        id="effect_2_slider"
-                        min="0"
-                        max="100"
-                        defaultValue="50"
-                    />
                 </div>
             </div>
             <p className="read-the-docs">
