@@ -184,7 +184,7 @@ function App(): ReactElement {
                     <input
                         type="range"
                         id="effect_1_slider"
-                        min="40"
+                        min="20"
                         max="20000"
                         defaultValue="10000"
                     />
@@ -203,9 +203,9 @@ function App(): ReactElement {
                     <input
                         type="range"
                         id="effect_2_slider"
-                        min="0"
-                        max="100"
-                        defaultValue="50"
+                        min="20"
+                        max="20000"
+                        defaultValue="10000"
                     />
                 </div>
             </div>
