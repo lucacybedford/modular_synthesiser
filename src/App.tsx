@@ -71,8 +71,8 @@ function getValue(): OscillatorType {
     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
 }
 
-function getEffect(effect: string): BiquadFilterType {
-    return (document.getElementById(effect) as HTMLSelectElement).value as BiquadFilterType;
+function getEffect(effect: string): string {
+    return (document.getElementById(effect) as HTMLSelectElement).value;
 }
 
 function getEffectValue(effect: string): number {
