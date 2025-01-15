@@ -192,17 +192,6 @@ function App(): ReactElement {
                         defaultValue="10000"
                     />
                 </div>
-                <div id={"sustain"}>
-                    <label htmlFor="sustain">Sustain (s): </label>
-                    <input
-                        type="range"
-                        id="sustain_time"
-                        min="0.03"
-                        max="3"
-                        step="0.01"
-                        defaultValue="0.03"
-                    />
-                </div>
             </div>
         </>
     )
