@@ -79,7 +79,7 @@ function getEffectValue(effect: string): number {
 }
 
 function getSustain(): number {
-    return parseInt((document.getElementById("sustain") as HTMLSelectElement).value);
+    return parseFloat((document.getElementById("sustain_time") as HTMLSelectElement).value);
 }
 
 function noteOff(note: number) {
