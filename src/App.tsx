@@ -19,12 +19,12 @@ function midiToFreq(number: number) {
 function noteOn(note: number, velocity: number){
     // create the oscillator for that note
     if (ctx) {
-        console.log("creating note");
+        console.log("creating note:", note);
         const osc = ctx.createOscillator();
 
 
         const oscGain = ctx.createGain();
-        oscGain.gain.value = 0.25;
+        oscGain.gain.value = 0.2;
 
         const velocityGainAmount = velocity / 127;
         const velocityGain = ctx.createGain();
@@ -55,7 +55,6 @@ function noteOn(note: number, velocity: number){
         biquadFilter2.connect(ctx.destination);
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
-        console.log(oscillators);
 
         osc.start();
     }
@@ -87,13 +86,7 @@ function noteOff(note: number) {
         osc?.disconnect();
     }, trailTime * 1000 + 10);
     delete oscillators[note.toString()];
-    console.log(oscillators);
-    console.log(oscillators[0]?.oscillator);
-
-
-    if (oscillators) {
-        console.log(oscillators);
-    }
+    console.log("Note off");
 }
 
 
@@ -105,9 +98,6 @@ function handleInput(input: MIDIMessageEvent) {
     if (input.data) {
         const command = input.data[0];
         const note = input.data[1];
-        if (command == 144 || command == 128) {
-            console.log(input.data);
-        }
         if (command == 144) {
             const velocity = input.data[2];
             if (velocity > 0) {
@@ -157,9 +147,7 @@ function App(): ReactElement {
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
-                    <select
-                        id="waveform"
-                    >
+                    <select id="waveform">
                         <option value='sine'>Sine</option>
                         <option value='square'>Square</option>
                         <option value='sawtooth'>Saw</option>
