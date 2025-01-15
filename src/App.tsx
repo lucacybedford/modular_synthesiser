@@ -79,14 +79,10 @@ function getEffectValue(effect: string): number {
     return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
 }
 
-function getSustain(): number {
-    return parseInt((document.getElementById("sustain") as HTMLSelectElement).value);
-}
-
 function noteOff(note: number) {
     const osc = oscillators[note.toString()]?.oscillator;
     const oscGain = oscillators[note.toString()]?.gain;
-    const trailTime = getSustain();
+    const trailTime = 0.03;
 
     const curve = new Float32Array([oscGain?.gain.value, 0]);
     oscGain?.gain.setValueCurveAtTime(curve, ctx.currentTime, trailTime);
@@ -142,6 +138,9 @@ function navigatorBegin() {
     }
 }
 
+
+
+
 function App(): ReactElement {
     if (!navigator.requestMIDIAccess) {
         console.error("Web MIDI API is not supported in this browser.");
@@ -194,17 +193,6 @@ function App(): ReactElement {
                         min="20"
                         max="20000"
                         defaultValue="10000"
-                    />
-                </div>
-                <div id={"sustain"}>
-                    <label htmlFor="sustain">Sustain (s): </label>
-                    <input
-                        type="range"
-                        id="sustain_time"
-                        min="0.03"
-                        max="3"
-                        step="0.01"
-                        defaultValue="0.03"
                     />
                 </div>
             </div>
