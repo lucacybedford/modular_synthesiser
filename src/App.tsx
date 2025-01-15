@@ -82,7 +82,7 @@ function getEffectValue(effect: string): number {
 function noteOff(note: number) {
     const osc = oscillators[note.toString()]?.oscillator;
     const oscGain = oscillators[note.toString()]?.gain;
-    const trailTime = 0.3;
+    const trailTime = 0.03;
 
     const curve = new Float32Array([oscGain?.gain.value, 0]);
     oscGain?.gain.setValueCurveAtTime(curve, ctx.currentTime, trailTime);
