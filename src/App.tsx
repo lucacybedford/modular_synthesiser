@@ -43,7 +43,6 @@ function noteOn(note: number, velocity: number){
             connectionChain.push(biquadFilter1);
         }
 
-
         const effect2 = getEffect("effect_2");
         if (effect2 != "none") {
             const biquadFilter2 = ctx.createBiquadFilter();
@@ -87,6 +86,7 @@ function noteOff(note: number) {
     const osc = oscillators[note.toString()]?.oscillator;
     const oscGain = oscillators[note.toString()]?.gain;
     const trailTime = getSustain();
+    console.log(trailTime);
 
     const curve = new Float32Array([oscGain?.gain.value, 0]);
     oscGain?.gain.setValueCurveAtTime(curve, ctx.currentTime, trailTime);
