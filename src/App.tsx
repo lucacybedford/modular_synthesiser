@@ -79,14 +79,10 @@ function getEffectValue(effect: string): number {
     return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
 }
 
-function getSustain(): number {
-    return parseInt((document.getElementById("sustain") as HTMLSelectElement).value);
-}
-
 function noteOff(note: number) {
     const osc = oscillators[note.toString()]?.oscillator;
     const oscGain = oscillators[note.toString()]?.gain;
-    const trailTime = getSustain();
+    const trailTime = 0.3;
 
     const curve = new Float32Array([oscGain?.gain.value, 0]);
     oscGain?.gain.setValueCurveAtTime(curve, ctx.currentTime, trailTime);
