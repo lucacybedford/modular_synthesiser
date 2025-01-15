@@ -1,5 +1,3 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import {ReactElement} from "react";
 
@@ -36,18 +34,24 @@ function noteOn(note: number, velocity: number){
         osc.type = getValue();
         osc.frequency.value = midiToFreq(note);
 
-        const biquadFilter = ctx.createBiquadFilter();
-        biquadFilter.type = getEffect("effect_1");
-        biquadFilter.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime + 1);
+        const biquadFilter1 = ctx.createBiquadFilter();
+        const effect1 = getEffect("effect_1");
+        if (effect1 != "none") {
+            biquadFilter1.type = effect1 as BiquadFilterType;
+            biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
+        }
 
         const biquadFilter2 = ctx.createBiquadFilter();
-        biquadFilter2.type = getEffect("effect_2");
-        biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime + 1);
+        const effect2 = getEffect("effect_2");
+        if (effect2 != "none") {
+            biquadFilter2.type = effect2 as BiquadFilterType;
+            biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime);
+        }
 
         osc.connect(oscGain);
         oscGain.connect(velocityGain);
-        velocityGain.connect(biquadFilter);
-        biquadFilter.connect(biquadFilter2);
+        velocityGain.connect(biquadFilter1);
+        biquadFilter1.connect(biquadFilter2);
         biquadFilter2.connect(ctx.destination);
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
@@ -61,8 +65,8 @@ function getValue(): OscillatorType {
     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
 }
 
-function getEffect(effect: string): BiquadFilterType {
-    return (document.getElementById(effect) as HTMLSelectElement).value as BiquadFilterType;
+function getEffect(effect: string): string {
+    return (document.getElementById(effect) as HTMLSelectElement).value;
 }
 
 function getEffectValue(effect: string): number {
@@ -149,15 +153,7 @@ function App(): ReactElement {
 
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo" />
-                </a>
-            </div>
-            <h1>Vite + React</h1>
+            <h1>Modular Synthesiser</h1>
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
@@ -209,9 +205,6 @@ function App(): ReactElement {
                     />
                 </div>
             </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
         </>
     )
 }
