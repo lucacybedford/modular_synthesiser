@@ -1,5 +1,3 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import {ReactElement} from "react";
 
@@ -24,9 +22,8 @@ function noteOn(note: number, velocity: number){
         console.log("creating note");
         const osc = ctx.createOscillator();
 
-
         const oscGain = ctx.createGain();
-        oscGain.gain.value = 0.25;
+        oscGain.gain.value = 0.2;
 
         const velocityGainAmount = velocity / 127;
         const velocityGain = ctx.createGain();
@@ -36,18 +33,24 @@ function noteOn(note: number, velocity: number){
         osc.type = getValue();
         osc.frequency.value = midiToFreq(note);
 
-        const biquadFilter = ctx.createBiquadFilter();
-        biquadFilter.type = getEffect("effect_1");
-        biquadFilter.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime + 1);
+        const biquadFilter1 = ctx.createBiquadFilter();
+        const effect1 = getEffect("effect_1");
+        if (effect1 != "none") {
+            biquadFilter1.type = effect1 as BiquadFilterType;
+            biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
+        }
 
         const biquadFilter2 = ctx.createBiquadFilter();
-        biquadFilter2.type = getEffect("effect_2");
-        biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime + 1);
+        const effect2 = getEffect("effect_2");
+        if (effect2 != "none") {
+            biquadFilter2.type = effect2 as BiquadFilterType;
+            biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime);
+        }
 
         osc.connect(oscGain);
         oscGain.connect(velocityGain);
-        velocityGain.connect(biquadFilter);
-        biquadFilter.connect(biquadFilter2);
+        velocityGain.connect(biquadFilter1);
+        biquadFilter1.connect(biquadFilter2);
         biquadFilter2.connect(ctx.destination);
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
@@ -61,18 +64,22 @@ function getValue(): OscillatorType {
     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
 }
 
-function getEffect(effect: string): BiquadFilterType {
-    return (document.getElementById(effect) as HTMLSelectElement).value as BiquadFilterType;
+function getEffect(effect: string): string {
+    return (document.getElementById(effect) as HTMLSelectElement).value;
 }
 
 function getEffectValue(effect: string): number {
     return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
 }
 
+function getSustain(): number {
+    return parseInt((document.getElementById("sustain") as HTMLSelectElement).value);
+}
+
 function noteOff(note: number) {
     const osc = oscillators[note.toString()]?.oscillator;
     const oscGain = oscillators[note.toString()]?.gain;
-    const trailTime = 0.03;
+    const trailTime = getSustain();
 
     const curve = new Float32Array([oscGain?.gain.value, 0]);
     oscGain?.gain.setValueCurveAtTime(curve, ctx.currentTime, trailTime);
@@ -137,9 +144,6 @@ function navigatorBegin() {
     }
 }
 
-
-
-
 function App(): ReactElement {
     if (!navigator.requestMIDIAccess) {
         console.error("Web MIDI API is not supported in this browser.");
@@ -149,15 +153,7 @@ function App(): ReactElement {
 
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo" />
-                </a>
-            </div>
-            <h1>Vite + React</h1>
+            <h1>Modular Synthesiser</h1>
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
@@ -184,7 +180,7 @@ function App(): ReactElement {
                     <input
                         type="range"
                         id="effect_1_slider"
-                        min="40"
+                        min="20"
                         max="20000"
                         defaultValue="10000"
                     />
@@ -200,18 +196,28 @@ function App(): ReactElement {
                         <option value='lowshelf'>Lowshelf</option>
                         <option value='highshelf'>Highshelf</option>
                     </select>
+                    <div>
+                        <input
+                            type="range"
+                            id="effect_2_slider"
+                            min="20"
+                            max="20000"
+                            defaultValue="10000"
+                        />
+                    </div>
+                </div>
+                <div id={"sustain"}>
+                    <label htmlFor="sustain">Sustain (s): </label>
                     <input
                         type="range"
-                        id="effect_2_slider"
-                        min="0"
-                        max="100"
-                        defaultValue="50"
+                        id="sustain_time"
+                        min="0.03"
+                        max="3"
+                        step="0.01"
+                        defaultValue="0.03"
                     />
                 </div>
             </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
         </>
     )
 }
