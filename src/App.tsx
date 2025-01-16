@@ -1,5 +1,6 @@
 import './App.css'
-import {ReactElement} from "react";
+import {ReactElement, useEffect, useState} from "react";
+import keyboardMockup from './assets/keyboard.png';
 
 type WrappedOsc = {
     oscillator: OscillatorNode;
@@ -16,7 +17,7 @@ function midiToFreq(number: number) {
 }
 
 
-function noteOn(note: number, velocity: number){
+function noteOn(note: number, velocity: number, octave: number = 0){
     // create the oscillator for that note
     if (ctx) {
         console.log("creating note:", note);
@@ -31,7 +32,12 @@ function noteOn(note: number, velocity: number){
         velocityGain.gain.value = velocityGainAmount;
 
         osc.type = getValue();
-        osc.frequency.value = midiToFreq(note);
+        osc.frequency.value = midiToFreq(note + octave * 12);
+        osc.connect(oscGain);
+        oscGain.connect(velocityGain);
+        velocityGain.connect(
+            osc.frequency
+        );
 
         const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain, velocityGain];
 
@@ -142,16 +148,112 @@ function navigatorBegin() {
     }
 }
 
+const keyToNote: { [key: string]: number } = {
+    q: 48, // C3
+    2: 49, // C#3
+    w: 50, // D3
+    3: 51, // D#3
+    e: 52, // E3
+    r: 53, // F3
+    5: 54, // F#3
+    t: 55, // G3
+    6: 56, // G#3
+    y: 57, // A3
+    7: 58, // A#3
+    u: 59, // B3
+    i: 60, // Middle C4
+    9: 61, // C#4
+    o: 62, // B4
+    0: 63, // B#4
+    p: 64, // E4
+    z: 65, // F4
+    s: 66, // F#4
+    x: 67, // G4
+    d: 68, // G#4
+    c: 69, // A4
+    f: 70, // A#4
+    v: 71, // B4
+    b: 72, // C5
+    h: 73, // C#5
+    n: 74, // D5
+    j: 75, // D#5
+    m: 76, // E5
+};
+
 function App(): ReactElement {
-    if (!navigator.requestMIDIAccess) {
-        console.error("Web MIDI API is not supported in this browser.");
-    }
+    const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+    const [octave, setOctave] = useState(0);
+    const [isMIDICompatible, setIsMIDICompatible] = useState(true);
+
+    useEffect(() => {
+        if (!navigator.requestMIDIAccess) {
+            setIsMIDICompatible(false);
+            console.error("Web MIDI API is not supported in this browser.");
+        }
+    }, []);
+
+
 
     navigatorBegin();
+
+
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key == 'ArrowDown') {
+                console.log("octave down");
+                setOctave(octave - 1);
+            } else if (event.key == 'ArrowUp') {
+                setOctave(octave + 1);
+            } else {
+                const note = keyToNote[event.key];
+                if (note && !pressedKeys.has(event.key)) {
+                    setPressedKeys((prev) => new Set(prev).add(event.key));
+                    noteOn(note, 127, octave);
+                }
+            }
+        };
+
+        const handleKeyUp = (event: KeyboardEvent) => {
+            if (event.key != 'ArrowDown' && event.key != 'ArrowUp') {
+                const note = keyToNote[event.key];
+                if (note) {
+                    setPressedKeys((prev) => {
+                        const updated = new Set(prev);
+                        updated.delete(event.key);
+                        return updated;
+                    });
+                    noteOff(note);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, [pressedKeys, octave]);
+
 
     return (
         <>
             <h1>Modular Synthesiser</h1>
+            <div className="keyboard-mockup">
+                <img
+                    src={keyboardMockup}
+                    alt="Keyboard Mockup"
+                    style={{
+                        width: '100%',  // Adjust as needed
+                        maxWidth: '800px',  // Keep the image responsive
+                        height: 'auto',
+                        display: 'block',
+                        margin: '0 auto',
+                    }}
+                />
+            </div>
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
@@ -208,6 +310,13 @@ function App(): ReactElement {
                     />
                 </div>
             </div>
+            {!isMIDICompatible && (
+                <div className="midi_warning">
+                    <p>
+                        This browser does not support the Web MIDI API.
+                    </p>
+                </div>
+            )}
         </>
     )
 }
