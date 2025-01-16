@@ -240,7 +240,8 @@ function App(): ReactElement {
 
     return (
         <>
-            <h1>Modular Synthesiser</h1>
+            <h1>SynthWeb</h1>
+            <h2>Modular Synthesiser</h2>
             <div className="keyboard-mockup">
                 <img
                     src={keyboardMockup}
