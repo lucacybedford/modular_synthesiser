@@ -1,5 +1,5 @@
 import './App.css'
-import {ReactElement, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 
 type WrappedOsc = {
     oscillator: OscillatorNode;
@@ -142,6 +142,23 @@ function navigatorBegin() {
     }
 }
 
+// Mapping of keyboard keys to MIDI note numbers
+const keyToNote: { [key: string]: number } = {
+    a: 60, // Middle C (C4)
+    w: 61, // C#4
+    s: 62, // D4
+    e: 63, // D#4
+    d: 64, // E4
+    f: 65, // F4
+    t: 66, // F#4
+    g: 67, // G4
+    y: 68, // G#4
+    h: 69, // A4
+    u: 70, // A#4
+    j: 71, // B4
+    k: 72, // C5
+};
+
 function App(): ReactElement {
     if (!navigator.requestMIDIAccess) {
         console.error("Web MIDI API is not supported in this browser.");
@@ -149,17 +166,43 @@ function App(): ReactElement {
 
     navigatorBegin();
 
-    const [keyPressed, setKeyPressed] = useState<string | null>(null);
+    const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
 
-    // Event handler
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        setKeyPressed(event.key); // `event.key` gives the key pressed as a string
-    };
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const note = keyToNote[event.key];
+            if (note && !pressedKeys.has(event.key)) {
+                setPressedKeys((prev) => new Set(prev).add(event.key));
+                noteOn(note, 127);
+            }
+        };
+
+        const handleKeyUp = (event: KeyboardEvent) => {
+            const note = keyToNote[event.key];
+            if (note) {
+                setPressedKeys((prev) => {
+                    const updated = new Set(prev);
+                    updated.delete(event.key);
+                    return updated;
+                });
+                noteOff(note);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, [pressedKeys]);
 
 
     return (
         <>
             <h1>Modular Synthesiser</h1>
+            <p>Use the keys A, W, S, E, D, F, T, G, Y, H, U, J, K to play notes.</p>
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
