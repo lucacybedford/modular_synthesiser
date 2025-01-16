@@ -16,7 +16,7 @@ function midiToFreq(number: number) {
 }
 
 
-function noteOn(note: number, velocity: number){
+function noteOn(note: number, velocity: number, octave: number = 0){
     // create the oscillator for that note
     if (ctx) {
         console.log("creating note:", note);
@@ -31,7 +31,12 @@ function noteOn(note: number, velocity: number){
         velocityGain.gain.value = velocityGainAmount;
 
         osc.type = getValue();
-        osc.frequency.value = midiToFreq(note);
+        osc.frequency.value = midiToFreq(note + octave * 12);
+        osc.connect(oscGain);
+        oscGain.connect(velocityGain);
+        velocityGain.connect(
+            osc.frequency
+        );
 
         const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain, velocityGain];
 
@@ -142,21 +147,36 @@ function navigatorBegin() {
     }
 }
 
-// Mapping of keyboard keys to MIDI note numbers
 const keyToNote: { [key: string]: number } = {
-    a: 60, // Middle C (C4)
-    w: 61, // C#4
-    s: 62, // D4
-    e: 63, // D#4
-    d: 64, // E4
-    f: 65, // F4
-    t: 66, // F#4
-    g: 67, // G4
-    y: 68, // G#4
-    h: 69, // A4
-    u: 70, // A#4
-    j: 71, // B4
-    k: 72, // C5
+    q: 48, // C3
+    2: 49, // C#3
+    w: 50, // D3
+    3: 51, // D#3
+    e: 52, // E3
+    r: 53, // F3
+    5: 54, // F#3
+    t: 55, // G3
+    6: 56, // G#3
+    y: 57, // A3
+    7: 58, // A#3
+    u: 59, // B3
+    i: 60, // Middle C4
+    9: 61, // C#4
+    o: 62, // B4
+    0: 63, // B#4
+    p: 64, // E4
+    z: 65, // F4
+    s: 66, // F#4
+    x: 67, // G4
+    d: 68, // G#4
+    c: 69, // A4
+    f: 70, // A#4
+    v: 71, // B4
+    b: 72, // C5
+    h: 73, // C#5
+    n: 74, // D5
+    j: 75, // D#5
+    m: 76, // E5
 };
 
 function App(): ReactElement {
@@ -167,25 +187,35 @@ function App(): ReactElement {
     navigatorBegin();
 
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+    const [octave, setOctave] = useState(0);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            const note = keyToNote[event.key];
-            if (note && !pressedKeys.has(event.key)) {
-                setPressedKeys((prev) => new Set(prev).add(event.key));
-                noteOn(note, 127);
+            if (event.key == 'ArrowDown') {
+                console.log("octave down");
+                setOctave(octave - 1);
+            } else if (event.key == 'ArrowUp') {
+                setOctave(octave + 1);
+            } else {
+                const note = keyToNote[event.key];
+                if (note && !pressedKeys.has(event.key)) {
+                    setPressedKeys((prev) => new Set(prev).add(event.key));
+                    noteOn(note, 127, octave);
+                }
             }
         };
 
         const handleKeyUp = (event: KeyboardEvent) => {
-            const note = keyToNote[event.key];
-            if (note) {
-                setPressedKeys((prev) => {
-                    const updated = new Set(prev);
-                    updated.delete(event.key);
-                    return updated;
-                });
-                noteOff(note);
+            if (event.key != 'ArrowDown' && event.key != 'ArrowUp') {
+                const note = keyToNote[event.key];
+                if (note) {
+                    setPressedKeys((prev) => {
+                        const updated = new Set(prev);
+                        updated.delete(event.key);
+                        return updated;
+                    });
+                    noteOff(note);
+                }
             }
         };
 
@@ -196,7 +226,7 @@ function App(): ReactElement {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, [pressedKeys]);
+    }, [pressedKeys, octave]);
 
 
     return (
