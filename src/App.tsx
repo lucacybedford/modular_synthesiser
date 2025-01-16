@@ -1,5 +1,5 @@
 import './App.css'
-import {ReactElement} from "react";
+import {ReactElement, useState} from "react";
 
 type WrappedOsc = {
     oscillator: OscillatorNode;
@@ -148,6 +148,14 @@ function App(): ReactElement {
     }
 
     navigatorBegin();
+
+    const [keyPressed, setKeyPressed] = useState<string | null>(null);
+
+    // Event handler
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        setKeyPressed(event.key); // `event.key` gives the key pressed as a string
+    };
+
 
     return (
         <>
