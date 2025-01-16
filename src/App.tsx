@@ -1,5 +1,6 @@
 import './App.css'
 import {ReactElement, useEffect, useState} from "react";
+import keyboardMockup from './assets/keyboard.png';
 
 type WrappedOsc = {
     oscillator: OscillatorNode;
@@ -180,14 +181,22 @@ const keyToNote: { [key: string]: number } = {
 };
 
 function App(): ReactElement {
-    if (!navigator.requestMIDIAccess) {
-        console.error("Web MIDI API is not supported in this browser.");
-    }
+    const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+    const [octave, setOctave] = useState(0);
+    const [isMIDICompatible, setIsMIDICompatible] = useState(true);
+
+    useEffect(() => {
+        if (!navigator.requestMIDIAccess) {
+            setIsMIDICompatible(false);
+            console.error("Web MIDI API is not supported in this browser.");
+        }
+    }, []);
+
+
 
     navigatorBegin();
 
-    const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-    const [octave, setOctave] = useState(0);
+
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -232,7 +241,19 @@ function App(): ReactElement {
     return (
         <>
             <h1>Modular Synthesiser</h1>
-            <p>Use the keys A, W, S, E, D, F, T, G, Y, H, U, J, K to play notes.</p>
+            <div className="keyboard-mockup">
+                <img
+                    src={keyboardMockup}
+                    alt="Keyboard Mockup"
+                    style={{
+                        width: '100%',  // Adjust as needed
+                        maxWidth: '800px',  // Keep the image responsive
+                        height: 'auto',
+                        display: 'block',
+                        margin: '0 auto',
+                    }}
+                />
+            </div>
             <div className="card">
                 <div id={"oscillator"}>
                     <label htmlFor="waveform">Select Waveform: </label>
@@ -289,6 +310,13 @@ function App(): ReactElement {
                     />
                 </div>
             </div>
+            {!isMIDICompatible && (
+                <div className="midi_warning">
+                    <p>
+                        This browser does not support the Web MIDI API.
+                    </p>
+                </div>
+            )}
         </>
     )
 }
