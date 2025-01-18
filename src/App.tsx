@@ -256,48 +256,61 @@ function App(): ReactElement {
                 />
             </div>
             <div className="card">
-                <div id={"oscillator"}>
-                    <label htmlFor="waveform">Select Waveform: </label>
-                    <select id="waveform">
+
+                <div className={"oscillator"}>
+                    <label className={"waveform_item"}>Select Waveform: </label>
+                    <select className={"waveform_item"} id="waveform">
                         <option value='sine'>Sine</option>
                         <option value='square'>Square</option>
                         <option value='sawtooth'>Saw</option>
                         <option value='triangle'>Triangle</option>
                     </select>
                 </div>
-                <div id={"oscillator"}>
-                    <label htmlFor="effect_1">Select Effect: </label>
-                    <select id="effect_1">
-                        <option value='none'>None</option>
-                        <option value='lowpass'>Lowpass</option>
-                        <option value='highpass'>Highpass</option>
-                        <option value='bandpass'>Bandpass</option>
-                        <option value='notch'>Notch</option>
-                    </select>
-                    <input
-                        type="range"
-                        id="effect_1_slider"
-                        min="20"
-                        max="20000"
-                        defaultValue="10000"
-                    />
+
+                <div className={"oscillator"}>
+                    <div className={"osc_container"}>
+                        <div className={"effect_select"}>
+                            <label className={"waveform_item"}>Select Effect: </label>
+                            <select id="effect_1" className={"waveform_item"}>
+                                <option value='none'>None</option>
+                                <option value='lowpass'>Lowpass</option>
+                                <option value='highpass'>Highpass</option>
+                                <option value='bandpass'>Bandpass</option>
+                                <option value='notch'>Notch</option>
+                            </select>
+                        </div>
+                        <input
+                            className={"effect_select"}
+                            type="range"
+                            id="effect_1_slider"
+                            min="20"
+                            max="20000"
+                            defaultValue="10000"
+                        />
+                    </div>
                 </div>
-                <div id={"oscillator"}>
-                    <label htmlFor="effect_2">Select Effect: </label>
-                    <select id="effect_2">
-                        <option value='none'>None</option>
-                        <option value='lowpass'>Lowpass</option>
-                        <option value='highpass'>Highpass</option>
-                        <option value='bandpass'>Bandpass</option>
-                        <option value='notch'>Notch</option>
-                    </select>
-                    <input
-                        type="range"
-                        id="effect_2_slider"
-                        min="20"
-                        max="20000"
-                        defaultValue="10000"
-                    />
+                <div className={"oscillator"}>
+                    <div className={"osc_container"}>
+                        <div className={"effect_select"}>
+                            <label className={"waveform_item"}>Select Effect: </label>
+                            <select id="effect_2" className={"waveform_item"}>
+                                <option value='none'>None</option>
+                                <option value='lowpass'>Lowpass</option>
+                                <option value='highpass'>Highpass</option>
+                                <option value='bandpass'>Bandpass</option>
+                                <option value='notch'>Notch</option>
+                            </select>
+                        </div>
+                        <div className={"effect_slider"}>
+                            <input
+                                type="range"
+                                id="effect_2_slider"
+                                min="20"
+                                max="20000"
+                                defaultValue="10000"
+                            />
+                        </div>
+                    </div>
                 </div>
                 <div id={"sustain"}>
                     <label htmlFor="sustain">Sustain (s): </label>
