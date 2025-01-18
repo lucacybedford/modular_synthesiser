@@ -239,7 +239,7 @@ function App(): ReactElement {
 
 
     return (
-        <>
+        <body>
             <h1>SynthWeb</h1>
             <h2>Modular Synthesiser</h2>
             <div className="keyboard-mockup">
@@ -257,30 +257,31 @@ function App(): ReactElement {
             </div>
             <div className="card">
 
-                <div className={"oscillator"}>
-                    <label className={"waveform_item"}>Select Waveform: </label>
-                    <select className={"waveform_item"} id="waveform">
-                        <option value='sine'>Sine</option>
-                        <option value='square'>Square</option>
-                        <option value='sawtooth'>Saw</option>
-                        <option value='triangle'>Triangle</option>
-                    </select>
-                </div>
+                <div id={"horizontal"}>
+                    <div className={"oscillator"}>
+                        <label className={"waveform_item"}>Select Waveform: </label>
+                        <select className={"waveform_item"} id="waveform">
+                            <option value='sine'>Sine</option>
+                            <option value='square'>Square</option>
+                            <option value='sawtooth'>Saw</option>
+                            <option value='triangle'>Triangle</option>
+                        </select>
+                    </div>
 
-                <div className={"oscillator"}>
-                    <div className={"osc_container"}>
-                        <div className={"effect_select"}>
-                            <label className={"waveform_item"}>Select Effect: </label>
-                            <select id="effect_1" className={"waveform_item"}>
-                                <option value='none'>None</option>
-                                <option value='lowpass'>Lowpass</option>
-                                <option value='highpass'>Highpass</option>
-                                <option value='bandpass'>Bandpass</option>
-                                <option value='notch'>Notch</option>
-                            </select>
+                    <div className={"vertical"}>
+                        <div className={"oscillator"}>
+                            <div className={"effect_select"}>
+                                <label>Select Effect: </label>
+                                <select id="effect_1">
+                                    <option value='none'>None</option>
+                                    <option value='lowpass'>Lowpass</option>
+                                    <option value='highpass'>Highpass</option>
+                                    <option value='bandpass'>Bandpass</option>
+                                    <option value='notch'>Notch</option>
+                                </select>
+                            </div>
                         </div>
                         <input
-                            className={"effect_select"}
                             type="range"
                             id="effect_1_slider"
                             min="20"
@@ -288,28 +289,26 @@ function App(): ReactElement {
                             defaultValue="10000"
                         />
                     </div>
-                </div>
-                <div className={"oscillator"}>
-                    <div className={"osc_container"}>
-                        <div className={"effect_select"}>
-                            <label className={"waveform_item"}>Select Effect: </label>
-                            <select id="effect_2" className={"waveform_item"}>
-                                <option value='none'>None</option>
-                                <option value='lowpass'>Lowpass</option>
-                                <option value='highpass'>Highpass</option>
-                                <option value='bandpass'>Bandpass</option>
-                                <option value='notch'>Notch</option>
-                            </select>
+                    <div className={"vertical"}>
+                        <div className={"oscillator"}>
+                            <div className={"effect_select"}>
+                                <label className={"waveform_item"}>Select Effect: </label>
+                                <select id="effect_2" className={"waveform_item"}>
+                                    <option value='none'>None</option>
+                                    <option value='lowpass'>Lowpass</option>
+                                    <option value='highpass'>Highpass</option>
+                                    <option value='bandpass'>Bandpass</option>
+                                    <option value='notch'>Notch</option>
+                                </select>
+                            </div>
                         </div>
-                        <div className={"effect_slider"}>
-                            <input
-                                type="range"
-                                id="effect_2_slider"
-                                min="20"
-                                max="20000"
-                                defaultValue="10000"
-                            />
-                        </div>
+                        <input
+                            type="range"
+                            id="effect_2_slider"
+                            min="20"
+                            max="20000"
+                            defaultValue="10000"
+                        />
                     </div>
                 </div>
                 <div id={"sustain"}>
@@ -331,7 +330,7 @@ function App(): ReactElement {
                     </p>
                 </div>
             )}
-        </>
+        </body>
     )
 }
 
