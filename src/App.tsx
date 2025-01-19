@@ -3,7 +3,7 @@ import {ReactElement, useEffect, useState} from "react";
 import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
-const synths: { [key: string]: Tone.Synth } = {};
+const synths: { [key: string]: Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.DuoSynth } = {};
 
 
 function midiToFreq(number: number) {
@@ -12,22 +12,22 @@ function midiToFreq(number: number) {
 }
 
 
-function noteOn(note: number, velocity: number, octave: number = 0){
+function noteOn(note: number, velocity: number, octave: number = 0, waveform: string){
 
-    // const synth = new Tone.Synth({
-    //     oscillator: {
-    //         type: getWaveform()
-    //     },
-    //     envelope: {
-    //         attack: 0.01,
-    //         decay: 0,
-    //         sustain: 1,
-    //         release: getSustain()
-    //     }
-    // });
+    const synth = new Tone.Synth({
+        oscillator: {
+            type: waveform as "sine"
+        },
+        envelope: {
+            attack: 0.01,
+            decay: 0,
+            sustain: 1,
+            release: getSustain()
+        }
+    });
     const now = Tone.now();
 
-    const synth = new Tone.AMSynth({harmonicity: 4});
+    // const synth = new Tone.AMSynth({harmonicity: 4});
 
     // synth.connect(new Tone.Vibrato().toDestination());
     synth.toDestination();
@@ -91,9 +91,9 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 }
 
 
-function getWaveform(): OscillatorType {
-    return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
-}
+// function getWaveform(): OscillatorType {
+//     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
+// }
 
 // function getEffect(effect: string): string {
 //     return (document.getElementById(effect) as HTMLSelectElement).value;
@@ -120,47 +120,6 @@ function updateDevices(event: MIDIConnectionEvent) {
     console.log(`Name: ${event.port?.name}$, Brand: ${event.port?.manufacturer}$, State: ${event.port?.state}$, Type: ${event.port?.type}$`);
 }
 
-function handleInput(input: MIDIMessageEvent) {
-    if (input.data) {
-        const command = input.data[0];
-        const note = input.data[1];
-        if (command == 144) {
-            const velocity = input.data[2];
-            if (velocity > 0) {
-                noteOn(note, velocity);
-            }
-        } else if (command == 128) {
-            noteOff(note);
-        }
-    }
-}
-
-function success(midiAccess: MIDIAccess) {
-    console.log("success");
-    midiAccess.addEventListener('statechange', (e) => updateDevices(e as MIDIConnectionEvent));
-
-    const inputs = midiAccess.inputs;
-
-    inputs.forEach((input) => {
-        input.addEventListener('midimessage', handleInput)
-    });
-}
-
-function failure() {
-    console.log("Failed ");
-}
-
-let isInitialised = false;
-
-function navigatorBegin() {
-    if (!isInitialised) {
-        console.log("navigatorBegin");
-        if (navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(success, failure);
-        }
-        isInitialised = true;
-    }
-}
 
 const keyToNote: { [key: string]: number } = {
     q: 48, // C3
@@ -200,6 +159,54 @@ function App(): ReactElement {
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
     const [useDecay, setUseDecay] = useState(false);
 
+    const [waveform, setWaveform] = useState<string>("sine");
+
+
+    function handleInput(input: MIDIMessageEvent) {
+        if (input.data) {
+            const command = input.data[0];
+            const note = input.data[1];
+            if (command == 144) {
+                const velocity = input.data[2];
+                if (velocity > 0) {
+                    noteOn(note, velocity, 0, waveform);
+                }
+            } else if (command == 128) {
+                noteOff(note);
+            }
+        }
+    }
+
+    function success(midiAccess: MIDIAccess) {
+        console.log("success");
+        midiAccess.addEventListener('statechange', (e) => updateDevices(e as MIDIConnectionEvent));
+
+        const inputs = midiAccess.inputs;
+
+        inputs.forEach((input) => {
+            input.addEventListener('midimessage', handleInput)
+        });
+    }
+
+
+    function failure() {
+        console.log("Failed ");
+    }
+
+    let isInitialised = false;
+
+    function navigatorBegin() {
+        if (!isInitialised) {
+            console.log("navigatorBegin");
+            if (navigator.requestMIDIAccess) {
+                navigator.requestMIDIAccess().then(success, failure);
+            }
+            isInitialised = true;
+        }
+    }
+
+
+
     navigatorBegin();
 
     useEffect(() => {
@@ -220,7 +227,7 @@ function App(): ReactElement {
                 const note = keyToNote[event.key];
                 if (note && !pressedKeys.has(event.key)) {
                     setPressedKeys((prev) => new Set(prev).add(event.key));
-                    noteOn(note, 127, octave);
+                    noteOn(note, 127, octave, waveform);
                 }
             }
         };
@@ -246,7 +253,8 @@ function App(): ReactElement {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, [pressedKeys, octave]);
+    }, [pressedKeys, octave, waveform]);
+
 
 
     return (
@@ -272,7 +280,7 @@ function App(): ReactElement {
                     <div className={"vertical"}>
                         <div className={"oscillator"}>
                             <label>Select Waveform: </label>
-                            <select id="waveform">
+                            <select id="waveform" onChange={(e) => setWaveform(e.target.value)}>
                                 <option value='sine'>Sine</option>
                                 <option value='square'>Square</option>
                                 <option value='sawtooth'>Saw</option>
