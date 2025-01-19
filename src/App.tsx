@@ -18,7 +18,7 @@ function noteOn(note: number, velocity: number, octave: number = 0){
             type: getWaveform()
         },
         envelope: {
-            attack: 0.01,
+            attack: 0.05,
             decay: 0,
             sustain: 1,
             release: getSustain()
@@ -27,11 +27,13 @@ function noteOn(note: number, velocity: number, octave: number = 0){
     const now = Tone.now();
 
     // synth.connect(new Tone.Delay(0.1).toDestination());
-    synth.toDestination();
+
+    const limiter = new Tone.Limiter(-6).toDestination();
+    synth.connect(limiter);
 
 
     synth.triggerAttack(midiToFreq(note + octave * 12), now);
-    synth.volume.value = Tone.gainToDb(velocity / 127);
+    synth.volume.value = Tone.gainToDb(velocity / (127 * 5));
     console.log(velocity);
 
     // create the oscillator for that note
