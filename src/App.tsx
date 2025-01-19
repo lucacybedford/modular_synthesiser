@@ -22,10 +22,18 @@ function noteOn(note: number, velocity: number, octave: number = 0){
     if (ctx) {
         console.log("creating note:", note);
         const osc = ctx.createOscillator();
-
-
         const oscGain = ctx.createGain();
-        oscGain.gain.value = 0.2;
+        // oscGain.gain.value = 0.15;
+        oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
+
+        const useDecay = getUseDecay();
+        // oscGain.gain.linearRampToValueAtTime(1, ctx.currentTime+0.4);
+
+        if (useDecay) {
+            oscGain.gain.cancelScheduledValues(ctx.currentTime);
+            const decayTime = getSustain();
+            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime)
+        }
 
         const velocityGainAmount = velocity / 127;
         const velocityGain = ctx.createGain();
@@ -33,11 +41,10 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 
         osc.type = getValue();
         osc.frequency.value = midiToFreq(note + octave * 12);
+
         osc.connect(oscGain);
         oscGain.connect(velocityGain);
-        velocityGain.connect(
-            osc.frequency
-        );
+        velocityGain.connect(osc.frequency);
 
         const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain, velocityGain];
 
@@ -73,6 +80,10 @@ function noteOn(note: number, velocity: number, octave: number = 0){
     }
 }
 
+function getUseDecay(): boolean {
+    return (document.getElementById("decay_toggle") as HTMLInputElement).checked;
+}
+
 function getValue(): OscillatorType {
     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
 }
@@ -94,16 +105,22 @@ function noteOff(note: number) {
     const oscGain = oscillators[note.toString()]?.gain;
     const trailTime = getSustain();
 
-    const curve = new Float32Array([oscGain?.gain.value, 0]);
-    oscGain?.gain.setValueCurveAtTime(curve, ctx.currentTime, trailTime);
-    oscGain?.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + trailTime);
+    if (osc && oscGain) {
+        oscGain.gain.cancelScheduledValues(ctx.currentTime);
 
-    setTimeout(() => {
-        osc?.stop();
-        osc?.disconnect();
-    }, trailTime * 1000 + 10);
-    delete oscillators[note.toString()];
-    console.log("Note off");
+        oscGain.gain.setValueAtTime(oscGain.gain.value, ctx.currentTime);
+        oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + trailTime);
+
+        setTimeout(() => {
+            osc.stop()
+            osc.disconnect();
+            oscGain.disconnect();
+        }, trailTime * 1000 + 10);
+
+        delete oscillators[note.toString()];
+    } else {
+        console.warn("No active oscillator found");
+    }
 }
 
 
@@ -184,6 +201,7 @@ function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [octave, setOctave] = useState(0);
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
+    const [useDecay, setUseDecay] = useState(false);
 
     useEffect(() => {
         if (!navigator.requestMIDIAccess) {
@@ -257,7 +275,7 @@ function App(): ReactElement {
             </div>
             <div className="card">
 
-                <div id={"horizontal"}>
+                <div className={"horizontal"}>
                     <div className={"vertical"}>
                         <div className={"oscillator"}>
                             <label>Select Waveform: </label>
@@ -309,16 +327,27 @@ function App(): ReactElement {
                         />
                     </div>
                 </div>
-                <div id={"sustain"}>
-                    <label>Sustain (s): </label>
-                    <input
-                        type="range"
-                        id="sustain_time"
-                        min="0.03"
-                        max="3"
-                        step="0.01"
-                        defaultValue="0.03"
-                    />
+                <div className={"horizontal2"}>
+                    <div id={"decay"}>
+                        <label>Decay: </label>
+                        <input
+                            type={"checkbox"}
+                            id={"decay_toggle"}
+                            checked={useDecay}
+                            onChange={(e) => setUseDecay(e.target.checked)}
+                        />
+                    </div>
+                    <div id={"sustain"}>
+                        <label>Sustain (s): </label>
+                        <input
+                            type="range"
+                            id="sustain_time"
+                            min="0.05"
+                            max="3"
+                            step="0.01"
+                            defaultValue="0.05"
+                        />
+                    </div>
                 </div>
             </div>
             {!isMIDICompatible && (
