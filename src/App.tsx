@@ -23,7 +23,6 @@ function noteOn(note: number, velocity: number, octave: number = 0){
         console.log("creating note:", note);
         const osc = ctx.createOscillator();
         const oscGain = ctx.createGain();
-        // oscGain.gain.value = 0.15;
         oscGain.gain.setValueAtTime(0, ctx.currentTime);
 
         const useDecay = getUseDecay();
@@ -157,10 +156,15 @@ function failure() {
     console.log("Failed ");
 }
 
+let isInitialised = false;
+
 function navigatorBegin() {
-    console.log("navigatorBegin");
-    if (navigator.requestMIDIAccess) {
-        navigator.requestMIDIAccess().then(success, failure);
+    if (!isInitialised) {
+        console.log("navigatorBegin");
+        if (navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(success, failure);
+        }
+        isInitialised = true;
     }
 }
 
@@ -202,18 +206,14 @@ function App(): ReactElement {
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
     const [useDecay, setUseDecay] = useState(false);
 
+    navigatorBegin();
+
     useEffect(() => {
         if (!navigator.requestMIDIAccess) {
             setIsMIDICompatible(false);
             console.error("Web MIDI API is not supported in this browser.");
         }
     }, []);
-
-
-
-    navigatorBegin();
-
-
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -264,8 +264,8 @@ function App(): ReactElement {
                     src={keyboardMockup}
                     alt="Keyboard Mockup"
                     style={{
-                        width: '100%',  // Adjust as needed
-                        maxWidth: '800px',  // Keep the image responsive
+                        width: '100%',
+                        maxWidth: '800px',
                         height: 'auto',
                         display: 'block',
                         margin: '0 auto',
