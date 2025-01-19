@@ -26,7 +26,8 @@ function noteOn(note: number, velocity: number, octave: number = 0){
     });
     const now = Tone.now();
 
-    synth.connect(new Tone.Delay(0.1).toDestination());
+    // synth.connect(new Tone.Delay(0.1).toDestination());
+    synth.toDestination();
 
 
     synth.triggerAttack(midiToFreq(note + octave * 12), now);
@@ -246,7 +247,7 @@ function App(): ReactElement {
 
 
     return (
-        <body>
+        <div id={"body"}>
             <h1>SynthWeb</h1>
             <h2>Modular Synthesiser</h2>
             <div className="keyboard-mockup">
@@ -339,14 +340,16 @@ function App(): ReactElement {
                     </div>
                 </div>
             </div>
-            {!isMIDICompatible && (
-                <div className="midi_warning">
-                    <p>
-                        This browser does not support the Web MIDI API.
-                    </p>
-                </div>
-            )}
-        </body>
+            <div>
+                {!isMIDICompatible && (
+                    <div className="midi_warning">
+                        <p>
+                            This browser does not support the Web MIDI API.
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
     )
 }
 
