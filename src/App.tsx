@@ -310,7 +310,7 @@ function App(): ReactElement {
                     </div>
                 </div>
                 <div id={"sustain"}>
-                    <label htmlFor="sustain">Sustain (s): </label>
+                    <label>Sustain (s): </label>
                     <input
                         type="range"
                         id="sustain_time"
