@@ -27,13 +27,7 @@ function noteOn(note: number, velocity: number, octave: number = 0){
         oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
 
         const useDecay = getUseDecay();
-        // oscGain.gain.linearRampToValueAtTime(1, ctx.currentTime+0.4);
 
-        if (useDecay) {
-            oscGain.gain.cancelScheduledValues(ctx.currentTime);
-            const decayTime = getSustain();
-            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime)
-        }
 
         const velocityGainAmount = velocity / 127;
         const velocityGain = ctx.createGain();
@@ -76,6 +70,12 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
 
+        if (useDecay) {
+            oscGain.gain.cancelScheduledValues(ctx.currentTime);
+            const decayTime = getSustain();
+            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime)
+        }
+
         osc.start();
     }
 }
@@ -108,15 +108,20 @@ function noteOff(note: number) {
     if (osc && oscGain) {
         oscGain.gain.cancelScheduledValues(ctx.currentTime);
 
-        oscGain.gain.setValueAtTime(oscGain.gain.value, ctx.currentTime);
-        oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + trailTime);
-
-        setTimeout(() => {
-            osc.stop()
+        if (oscGain.gain.value == 0) {
+            osc.stop();
             osc.disconnect();
             oscGain.disconnect();
-        }, trailTime * 1000 + 10);
+        } else {
+            oscGain.gain.setValueAtTime(oscGain.gain.value, ctx.currentTime);
+            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + trailTime);
 
+            setTimeout(() => {
+                osc.stop()
+                osc.disconnect();
+                oscGain.disconnect();
+            }, trailTime * 1000 + 10);
+        }
         delete oscillators[note.toString()];
     } else {
         console.warn("No active oscillator found");
