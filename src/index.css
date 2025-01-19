@@ -47,7 +47,12 @@ div#sustain {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 2%;
+}
+
+#decay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 label {
@@ -55,11 +60,19 @@ label {
   color: #242425;
 }
 
-#horizontal {
+.horizontal {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   width: 100%;
+}
+
+.horizontal2 {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding-top: 2%;
 }
 
 label {
