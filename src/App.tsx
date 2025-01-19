@@ -23,24 +23,25 @@ function noteOn(note: number, velocity: number, octave: number = 0){
         console.log("creating note:", note);
         const osc = ctx.createOscillator();
         const oscGain = ctx.createGain();
-        // oscGain.gain.value = 0.15;
-        oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
+        oscGain.gain.setValueAtTime(0, ctx.currentTime);
 
         const useDecay = getUseDecay();
 
-
         const velocityGainAmount = velocity / 127;
-        const velocityGain = ctx.createGain();
-        velocityGain.gain.value = velocityGainAmount;
+
+        if (useDecay) {
+            const decayTime = getSustain();
+            const initialGain = 0.15 * velocityGainAmount;
+            oscGain.gain.setValueAtTime(initialGain, ctx.currentTime);
+            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime);
+        } else {
+            oscGain.gain.setValueAtTime(0.15 * velocityGainAmount, ctx.currentTime);
+        }
 
         osc.type = getValue();
         osc.frequency.value = midiToFreq(note + octave * 12);
 
-        osc.connect(oscGain);
-        oscGain.connect(velocityGain);
-        velocityGain.connect(osc.frequency);
-
-        const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain, velocityGain];
+        const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain];
 
         const effect1 = getEffect("effect_1");
         if (effect1 != "none") {
@@ -49,7 +50,6 @@ function noteOn(note: number, velocity: number, octave: number = 0){
             biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
             connectionChain.push(biquadFilter1);
         }
-
 
         const effect2 = getEffect("effect_2");
         if (effect2 != "none") {
@@ -69,13 +69,6 @@ function noteOn(note: number, velocity: number, octave: number = 0){
         }
 
         oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
-
-        if (useDecay) {
-            oscGain.gain.cancelScheduledValues(ctx.currentTime);
-            const decayTime = getSustain();
-            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime)
-        }
-
         osc.start();
     }
 }
@@ -163,10 +156,15 @@ function failure() {
     console.log("Failed ");
 }
 
+let isInitialised = false;
+
 function navigatorBegin() {
-    console.log("navigatorBegin");
-    if (navigator.requestMIDIAccess) {
-        navigator.requestMIDIAccess().then(success, failure);
+    if (!isInitialised) {
+        console.log("navigatorBegin");
+        if (navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(success, failure);
+        }
+        isInitialised = true;
     }
 }
 
@@ -208,18 +206,14 @@ function App(): ReactElement {
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
     const [useDecay, setUseDecay] = useState(false);
 
+    navigatorBegin();
+
     useEffect(() => {
         if (!navigator.requestMIDIAccess) {
             setIsMIDICompatible(false);
             console.error("Web MIDI API is not supported in this browser.");
         }
     }, []);
-
-
-
-    navigatorBegin();
-
-
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -270,8 +264,8 @@ function App(): ReactElement {
                     src={keyboardMockup}
                     alt="Keyboard Mockup"
                     style={{
-                        width: '100%',  // Adjust as needed
-                        maxWidth: '800px',  // Keep the image responsive
+                        width: '100%',
+                        maxWidth: '800px',
                         height: 'auto',
                         display: 'block',
                         margin: '0 auto',
@@ -334,7 +328,7 @@ function App(): ReactElement {
                 </div>
                 <div className={"horizontal2"}>
                     <div id={"decay"}>
-                        <label>Decay: </label>
+                        <label>Auto Decay: </label>
                         <input
                             type={"checkbox"}
                             id={"decay_toggle"}
