@@ -5,6 +5,7 @@ import * as Tone from "tone";
 
 const synths: { [key: string]: Tone.Synth } = {};
 
+
 function midiToFreq(number: number) {
     const a = 440;
     return (a/32) * (2 ** ((number - 9) / 12));
@@ -13,20 +14,23 @@ function midiToFreq(number: number) {
 
 function noteOn(note: number, velocity: number, octave: number = 0){
 
-    const synth = new Tone.Synth({
-        oscillator: {
-            type: getWaveform()
-        },
-        envelope: {
-            attack: 0.01,
-            decay: 0,
-            sustain: 1,
-            release: getSustain()
-        }
-    });
+    // const synth = new Tone.Synth({
+    //     oscillator: {
+    //         type: getWaveform()
+    //     },
+    //     envelope: {
+    //         attack: 0.01,
+    //         decay: 0,
+    //         sustain: 1,
+    //         release: getSustain()
+    //     }
+    // });
     const now = Tone.now();
 
-    synth.connect(new Tone.Delay(0.1).toDestination());
+    const synth = new Tone.AMSynth({harmonicity: 4});
+
+    // synth.connect(new Tone.Vibrato().toDestination());
+    synth.toDestination();
 
 
     synth.triggerAttack(midiToFreq(note + octave * 12), now);
