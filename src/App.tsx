@@ -1,15 +1,9 @@
 import './App.css'
 import {ReactElement, useEffect, useState} from "react";
 import keyboardMockup from './assets/keyboard.png';
+import * as Tone from "tone";
 
-type WrappedOsc = {
-    oscillator: OscillatorNode;
-    gain: GainNode;
-};
-
-const ctx: AudioContext = new AudioContext();
-
-const oscillators = {} as { [key: string]: WrappedOsc };
+const synths: { [key: string]: Tone.Synth } = {};
 
 function midiToFreq(number: number) {
     const a = 440;
@@ -18,107 +12,103 @@ function midiToFreq(number: number) {
 
 
 function noteOn(note: number, velocity: number, octave: number = 0){
+
+    const synth = new Tone.Synth({
+        oscillator: {
+            type: getWaveform()
+        },
+        envelope: {
+            attack: 0.01,
+            decay: 0,
+            sustain: 1,
+            release: getSustain()
+        }
+    });
+    const now = Tone.now();
+
+    synth.connect(new Tone.Delay(0.1).toDestination());
+
+
+    synth.triggerAttack(midiToFreq(note + octave * 12), now);
+    synth.volume.value = Tone.gainToDb(velocity / 127);
+    console.log(velocity);
+
     // create the oscillator for that note
-    if (ctx) {
-        console.log("creating note:", note);
-        const osc = ctx.createOscillator();
-        const oscGain = ctx.createGain();
-        oscGain.gain.setValueAtTime(0, ctx.currentTime);
-
-        const useDecay = getUseDecay();
-
-        const velocityGainAmount = velocity / 127;
-
-        if (useDecay) {
-            const decayTime = getSustain();
-            const initialGain = 0.15 * velocityGainAmount;
-            oscGain.gain.setValueAtTime(initialGain, ctx.currentTime);
-            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime);
-        } else {
-            oscGain.gain.setValueAtTime(0.15 * velocityGainAmount, ctx.currentTime);
-        }
-
-        osc.type = getValue();
-        osc.frequency.value = midiToFreq(note + octave * 12);
-
-        const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain];
-
-        const effect1 = getEffect("effect_1");
-        if (effect1 != "none") {
-            const biquadFilter1 = ctx.createBiquadFilter();
-            biquadFilter1.type = effect1 as BiquadFilterType;
-            biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
-            connectionChain.push(biquadFilter1);
-        }
-
-        const effect2 = getEffect("effect_2");
-        if (effect2 != "none") {
-            const biquadFilter2 = ctx.createBiquadFilter();
-            biquadFilter2.type = effect2 as BiquadFilterType;
-            biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime);
-            connectionChain.push(biquadFilter2);
-        }
-
-        connectionChain.push(ctx.destination);
-
-
-        for (let i = 0; i < connectionChain.length-1; i++) {
-            const first = connectionChain[i];
-            const second = connectionChain[i+1];
-            first.connect(second);
-        }
-
-        oscillators[note.toString()] = {oscillator: osc, gain: oscGain};
-        osc.start();
-    }
+    // if (ctx) {
+    //     console.log("creating note:", note);
+    //     const osc = ctx.createOscillator();
+    //     const oscGain = ctx.createGain();
+    //     oscGain.gain.setValueAtTime(0, ctx.currentTime);
+    //
+    //     const useDecay = getUseDecay();
+    //
+    //     const velocityGainAmount = velocity / 127;
+    //
+    //     if (useDecay) {
+    //         const decayTime = getSustain();
+    //         const initialGain = 0.15 * velocityGainAmount;
+    //         oscGain.gain.setValueAtTime(initialGain, ctx.currentTime);
+    //         oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime);
+    //     } else {
+    //         oscGain.gain.setValueAtTime(0.15 * velocityGainAmount, ctx.currentTime);
+    //     }
+    //
+    //     osc.type = getValue();
+    //     osc.frequency.value = midiToFreq(note + octave * 12);
+    //
+    //     const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain];
+    //
+    //     const effect1 = getEffect("effect_1");
+    //     if (effect1 != "none") {
+    //         const biquadFilter1 = ctx.createBiquadFilter();
+    //         biquadFilter1.type = effect1 as BiquadFilterType;
+    //         biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
+    //         connectionChain.push(biquadFilter1);
+    //     }
+    //
+    //     const effect2 = getEffect("effect_2");
+    //     if (effect2 != "none") {
+    //         const biquadFilter2 = ctx.createBiquadFilter();
+    //         biquadFilter2.type = effect2 as BiquadFilterType;
+    //         biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime);
+    //         connectionChain.push(biquadFilter2);
+    //     }
+    //
+    //     connectionChain.push(ctx.destination);
+    //
+    //
+    //     for (let i = 0; i < connectionChain.length-1; i++) {
+    //         const first = connectionChain[i];
+    //         const second = connectionChain[i+1];
+    //         first.connect(second);
+    //     }
+    // }
+    synths[note.toString()] = synth;
 }
 
-function getUseDecay(): boolean {
-    return (document.getElementById("decay_toggle") as HTMLInputElement).checked;
-}
 
-function getValue(): OscillatorType {
+function getWaveform(): OscillatorType {
     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
 }
 
-function getEffect(effect: string): string {
-    return (document.getElementById(effect) as HTMLSelectElement).value;
-}
-
-function getEffectValue(effect: string): number {
-    return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
-}
+// function getEffect(effect: string): string {
+//     return (document.getElementById(effect) as HTMLSelectElement).value;
+// }
+//
+// function getEffectValue(effect: string): number {
+//     return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
+// }
 
 function getSustain(): number {
     return parseFloat((document.getElementById("sustain_time") as HTMLSelectElement).value);
 }
 
 function noteOff(note: number) {
-    const osc = oscillators[note.toString()]?.oscillator;
-    const oscGain = oscillators[note.toString()]?.gain;
-    const trailTime = getSustain();
 
-    if (osc && oscGain) {
-        oscGain.gain.cancelScheduledValues(ctx.currentTime);
-
-        if (oscGain.gain.value == 0) {
-            osc.stop();
-            osc.disconnect();
-            oscGain.disconnect();
-        } else {
-            oscGain.gain.setValueAtTime(oscGain.gain.value, ctx.currentTime);
-            oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + trailTime);
-
-            setTimeout(() => {
-                osc.stop()
-                osc.disconnect();
-                oscGain.disconnect();
-            }, trailTime * 1000 + 10);
-        }
-        delete oscillators[note.toString()];
-    } else {
-        console.warn("No active oscillator found");
-    }
+    const synth = synths[note.toString()];
+    const now = Tone.now();
+    synth.triggerRelease(now);
+    delete synths[note.toString()];
 }
 
 
