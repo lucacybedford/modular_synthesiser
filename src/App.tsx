@@ -258,28 +258,28 @@ function App(): ReactElement {
             <div className="card">
 
                 <div id={"horizontal"}>
-                    <div className={"oscillator"}>
-                        <label className={"waveform_item"}>Select Waveform: </label>
-                        <select className={"waveform_item"} id="waveform">
-                            <option value='sine'>Sine</option>
-                            <option value='square'>Square</option>
-                            <option value='sawtooth'>Saw</option>
-                            <option value='triangle'>Triangle</option>
-                        </select>
+                    <div className={"vertical"}>
+                        <div className={"oscillator"}>
+                            <label>Select Waveform: </label>
+                            <select id="waveform">
+                                <option value='sine'>Sine</option>
+                                <option value='square'>Square</option>
+                                <option value='sawtooth'>Saw</option>
+                                <option value='triangle'>Triangle</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className={"vertical"}>
                         <div className={"oscillator"}>
-                            <div className={"effect_select"}>
-                                <label>Select Effect: </label>
-                                <select id="effect_1">
-                                    <option value='none'>None</option>
-                                    <option value='lowpass'>Lowpass</option>
-                                    <option value='highpass'>Highpass</option>
-                                    <option value='bandpass'>Bandpass</option>
-                                    <option value='notch'>Notch</option>
-                                </select>
-                            </div>
+                            <label>Select Effect: </label>
+                            <select id="effect_1">
+                                <option value='none'>None</option>
+                                <option value='lowpass'>Lowpass</option>
+                                <option value='highpass'>Highpass</option>
+                                <option value='bandpass'>Bandpass</option>
+                                <option value='notch'>Notch</option>
+                            </select>
                         </div>
                         <input
                             type="range"
@@ -291,16 +291,14 @@ function App(): ReactElement {
                     </div>
                     <div className={"vertical"}>
                         <div className={"oscillator"}>
-                            <div className={"effect_select"}>
-                                <label className={"waveform_item"}>Select Effect: </label>
-                                <select id="effect_2" className={"waveform_item"}>
-                                    <option value='none'>None</option>
-                                    <option value='lowpass'>Lowpass</option>
-                                    <option value='highpass'>Highpass</option>
-                                    <option value='bandpass'>Bandpass</option>
-                                    <option value='notch'>Notch</option>
-                                </select>
-                            </div>
+                            <label>Select Effect: </label>
+                            <select id="effect_2">
+                                <option value='none'>None</option>
+                                <option value='lowpass'>Lowpass</option>
+                                <option value='highpass'>Highpass</option>
+                                <option value='bandpass'>Bandpass</option>
+                                <option value='notch'>Notch</option>
+                            </select>
                         </div>
                         <input
                             type="range"
