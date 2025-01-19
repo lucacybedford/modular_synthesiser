@@ -3,7 +3,7 @@ import {ReactElement, useEffect, useState} from "react";
 import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
-const synths: { [key: string]: Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.DuoSynth } = {};
+const synths: { [key: string]: Tone.Synth | Tone.AMSynth | Tone.FMSynth | Tone.DuoSynth | Tone.PolySynth } = {};
 
 
 function midiToFreq(number: number) {
@@ -25,16 +25,19 @@ function noteOn(note: number, velocity: number, octave: number = 0, waveform: st
             release: getSustain()
         }
     });
+
     const now = Tone.now();
 
     // const synth = new Tone.AMSynth({harmonicity: 4});
 
     // synth.connect(new Tone.Vibrato().toDestination());
-    synth.toDestination();
+    const limiter = new Tone.Limiter(-6).toDestination();
+    synth.connect(limiter);
+    // synth.toDestination();
 
 
     synth.triggerAttack(midiToFreq(note + octave * 12), now);
-    synth.volume.value = Tone.gainToDb(velocity / 127);
+    synth.volume.value = Tone.gainToDb(velocity / (127 * 3));
     console.log(velocity);
 
     // create the oscillator for that note
@@ -153,6 +156,8 @@ const keyToNote: { [key: string]: number } = {
     m: 76, // E5
 };
 
+let isInitialised = false;
+
 function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [octave, setOctave] = useState(0);
@@ -193,7 +198,7 @@ function App(): ReactElement {
         console.log("Failed ");
     }
 
-    let isInitialised = false;
+
 
     function navigatorBegin() {
         if (!isInitialised) {
@@ -204,8 +209,6 @@ function App(): ReactElement {
             isInitialised = true;
         }
     }
-
-
 
     navigatorBegin();
 
@@ -258,7 +261,7 @@ function App(): ReactElement {
 
 
     return (
-        <body>
+        <div id={"body"}>
             <h1>SynthWeb</h1>
             <h2>Modular Synthesiser</h2>
             <div className="keyboard-mockup">
@@ -358,7 +361,7 @@ function App(): ReactElement {
                     </p>
                 </div>
             )}
-        </body>
+        </div>
     )
 }
 
