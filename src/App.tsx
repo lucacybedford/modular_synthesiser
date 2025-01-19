@@ -32,12 +32,13 @@ function noteOn(note: number, velocity: number, octave: number = 0, waveform: st
 
     // synth.connect(new Tone.Vibrato().toDestination());
     const limiter = new Tone.Limiter(-6).toDestination();
+    // const gainNode = new Tone.Gain().toDestination();
     synth.connect(limiter);
     // synth.toDestination();
 
 
     synth.triggerAttack(midiToFreq(note + octave * 12), now);
-    synth.volume.value = Tone.gainToDb(velocity / (127 * 3));
+    synth.volume.value = Tone.gainToDb(velocity / (127 * 5));
     console.log(velocity);
 
     // create the oscillator for that note
