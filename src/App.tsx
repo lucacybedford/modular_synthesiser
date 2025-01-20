@@ -15,18 +15,17 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 
     const synth = new Tone.Synth({
         oscillator: {
-            type: getWaveform()
+            type: "fatsine"
         },
         envelope: {
             attack: 0.05,
             decay: 0,
             sustain: 1,
-            release: getSustain()
+            release: 2
         }
     });
     const now = Tone.now();
 
-    // synth.connect(new Tone.Delay(0.1).toDestination());
 
     const limiter = new Tone.Limiter(-6).toDestination();
     synth.connect(limiter);
@@ -90,9 +89,9 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 }
 
 
-function getWaveform(): OscillatorType {
-    return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
-}
+// function getWaveform(): OscillatorType {
+//     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
+// }
 
 // function getEffect(effect: string): string {
 //     return (document.getElementById(effect) as HTMLSelectElement).value;
@@ -102,9 +101,9 @@ function getWaveform(): OscillatorType {
 //     return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
 // }
 
-function getSustain(): number {
-    return parseFloat((document.getElementById("sustain_time") as HTMLSelectElement).value);
-}
+// function getSustain(): number {
+//     return parseFloat((document.getElementById("sustain_time") as HTMLSelectElement).value);
+// }
 
 function noteOff(note: number) {
 
@@ -197,7 +196,7 @@ function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [octave, setOctave] = useState(0);
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
-    const [useDecay, setUseDecay] = useState(false);
+    // const [useDecay, setUseDecay] = useState(false);
 
     navigatorBegin();
 
@@ -265,82 +264,513 @@ function App(): ReactElement {
                     }}
                 />
             </div>
-            <div className="card">
+            <div className={"card"}>
 
-                <div className={"horizontal"}>
-                    <div className={"vertical"}>
-                        <div className={"oscillator"}>
-                            <label>Select Waveform: </label>
-                            <select id="waveform">
-                                <option value='sine'>Sine</option>
-                                <option value='square'>Square</option>
-                                <option value='sawtooth'>Saw</option>
-                                <option value='triangle'>Triangle</option>
-                            </select>
-                        </div>
+                <div className={"vertical"} id={"synth-column"}>
+                    <div className={"column-title"}>
+                        <h3>Synth</h3>
                     </div>
-
-                    <div className={"vertical"}>
-                        <div className={"oscillator"}>
-                            <label>Select Effect: </label>
-                            <select id="effect_1">
-                                <option value='none'>None</option>
-                                <option value='lowpass'>Lowpass</option>
-                                <option value='highpass'>Highpass</option>
-                                <option value='bandpass'>Bandpass</option>
-                                <option value='notch'>Notch</option>
-                            </select>
-                        </div>
-                        <input
-                            type="range"
-                            id="effect_1_slider"
-                            min="20"
-                            max="20000"
-                            defaultValue="10000"
-                        />
-                    </div>
-                    <div className={"vertical"}>
-                        <div className={"oscillator"}>
-                            <label>Select Effect: </label>
-                            <select id="effect_2">
-                                <option value='none'>None</option>
-                                <option value='lowpass'>Lowpass</option>
-                                <option value='highpass'>Highpass</option>
-                                <option value='bandpass'>Bandpass</option>
-                                <option value='notch'>Notch</option>
-                            </select>
-                        </div>
-                        <input
-                            type="range"
-                            id="effect_2_slider"
-                            min="20"
-                            max="20000"
-                            defaultValue="10000"
-                        />
+                    <div className={"vertical"} id={"synth-choices"}>
+                        <button>Classic</button>
+                        <button>AMSynth</button>
+                        <button>FMSynth</button>
+                        <button>DuoSynth</button>
                     </div>
                 </div>
-                <div className={"horizontal2"}>
-                    <div id={"decay"}>
-                        <label>Auto Decay: </label>
-                        <input
-                            type={"checkbox"}
-                            id={"decay_toggle"}
-                            checked={useDecay}
-                            onChange={(e) => setUseDecay(e.target.checked)}
-                        />
+                <div className={"vertical"} id={"waveform-column"}>
+                    <div className={"column-title"}>
+                        <h3>Waveform</h3>
                     </div>
-                    <div id={"sustain"}>
-                        <label>Sustain (s): </label>
-                        <input
-                            type="range"
-                            id="sustain_time"
-                            min="0.05"
-                            max="3"
-                            step="0.01"
-                            defaultValue="0.05"
-                        />
+                    <div className={"vertical"} id={"waveform-choices"}>
+                        <button>Sine</button>
+                        <button>Square</button>
+                        <button>Saw</button>
+                        <button>Triangle</button>
+                    </div>
+                    <div className={"vertical"} id={"envelope-choices"}>
+                        <div className={"effect"}>
+                            <label>Attack</label>
+                            <input
+                                type={"range"}
+                                id={"attack-slider"}
+                                min={"0.05"}
+                                max={"3"}
+                                defaultValue={"0.05"}
+                                step={"0.01"}
+                            />
+                        </div>
+                        <div className={"effect"}>
+                            <label>Decay</label>
+                            <input
+                                type={"range"}
+                                id={"decay-slider"}
+                                min={"0"}
+                                max={"3"}
+                                defaultValue={"0"}
+                                step={"0.01"}
+                            />
+                        </div>
+                        <div className={"effect"}>
+                            <label>Sustain</label>
+                            <input
+                                type={"range"}
+                                id={"sustain-slider"}
+                                min={"0"}
+                                max={"1"}
+                                defaultValue={"1"}
+                                step={"0.01"}
+                            />
+                        </div>
+                        <div className={"effect"}>
+                            <label>Release</label>
+                            <input
+                                type={"range"}
+                                id={"release-slider"}
+                                min={"0.05"}
+                                max={"3"}
+                                defaultValue={"0.05"}
+                                step={"0.01"}
+                            />
+                        </div>
                     </div>
                 </div>
+                <div className={"vertical"} id={"effects-column"}>
+                    <div className={"column-title"}>
+                        <h3>Modular Effects</h3>
+                    </div>
+                    <input
+                        type={"range"}
+                        id={"wet-slider"}
+                        min={"0"}
+                        max={"1"}
+                        defaultValue={"1"}
+                        step={"0.01"}
+                    />
+                    <div className={"horizontal"}>
+                        <div className={"vertical"}>
+                            <div className={"vertical"}>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"highpass-toggle"}
+                                    />
+                                    <label>Highpass</label>
+                                    <input
+                                        type={"range"}
+                                        id={"highpass-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"lowpass-toggle"}
+                                    />
+                                    <label>Lowpass</label>
+                                    <input
+                                        type={"range"}
+                                        id={"lowpass-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"bandpass-toggle"}
+                                    />
+                                    <label>Bandpass</label>
+                                    <input
+                                        type={"range"}
+                                        id={"bandpass-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"notch-toggle"}
+                                    />
+                                    <label>Notch</label>
+                                    <input
+                                        type={"range"}
+                                        id={"notch-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                            </div>
+                            <div className={"vertical"}>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"delay-toggle"}
+                                    />
+                                    <label>Delay</label>
+                                    <input
+                                        type={"range"}
+                                        id={"delay-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"reverb-toggle"}
+                                    />
+                                    <label>Reverb</label>
+                                    <input
+                                        type={"range"}
+                                        id={"reverb-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"feedback-toggle"}
+                                    />
+                                    <label>Feedback</label>
+                                    <div className={"vertical"}>
+                                        <input
+                                            type={"range"}
+                                            id={"feedback-slider-1"}
+                                            min={"0"}
+                                            max={"1"}
+                                            defaultValue={"1"}
+                                            step={"0.01"}
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"feedback-slider-2"}
+                                            min={"0"}
+                                            max={"1"}
+                                            defaultValue={"1"}
+                                            step={"0.01"}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={"effect"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"pingpong-toggle"}
+                                    />
+                                    <label>PingPong</label>
+                                    <div className={"vertical"}>
+                                        <input
+                                            type={"range"}
+                                            id={"pingpong-slider-1"}
+                                            min={"0"}
+                                            max={"1"}
+                                            defaultValue={"1"}
+                                            step={"0.01"}
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"pingpong-slider-2"}
+                                            min={"0"}
+                                            max={"1"}
+                                            defaultValue={"1"}
+                                            step={"0.01"}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={"vertical"}>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"chorus-toggle"}
+                                />
+                                <label>Chorus</label>
+                                <div className={"vertical"}>
+                                    <input
+                                        type={"range"}
+                                        id={"highpass-slider-1"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"highpass-slider-2"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"distortion-toggle"}
+                                />
+                                <label>Distortion</label>
+                                <input
+                                    type={"range"}
+                                    id={"distortion-slider"}
+                                    min={"0"}
+                                    max={"1"}
+                                    defaultValue={"1"}
+                                    step={"0.01"}
+                                />
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"wah-toggle"}
+                                />
+                                <label>Wah</label>
+                                <input
+                                    type={"range"}
+                                    id={"wah-slider"}
+                                    min={"0"}
+                                    max={"1"}
+                                    defaultValue={"1"}
+                                    step={"0.01"}
+                                />
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"phaser-toggle"}
+                                />
+                                <label>Phaser</label>
+                                <div className={"vertical"}>
+                                    <input
+                                        type={"range"}
+                                        id={"phaser-slider-1"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"phaser-slider-2"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"widener-toggle"}
+                                />
+                                <label>Widener</label>
+                                <input
+                                    type={"range"}
+                                    id={"widener-slider"}
+                                    min={"0"}
+                                    max={"1"}
+                                    defaultValue={"1"}
+                                    step={"0.01"}
+                                />
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"vibrato-toggle"}
+                                />
+                                <label>Vibrato</label>
+                                <div className={"vertical"}>
+                                    <input
+                                        type={"range"}
+                                        id={"vibrato-slider-1"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"vibrato-slider-2"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"bitcrusher-toggle"}
+                                />
+                                <label>Bit Crusher</label>
+                                <input
+                                    type={"range"}
+                                    id={"bitcrusher-slider"}
+                                    min={"0"}
+                                    max={"1"}
+                                    defaultValue={"1"}
+                                    step={"0.01"}
+                                />
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"chebyshev-toggle"}
+                                />
+                                <label>Chebyshev</label>
+                                <input
+                                    type={"range"}
+                                    id={"chebyshev-slider"}
+                                    min={"0"}
+                                    max={"1"}
+                                    defaultValue={"1"}
+                                    step={"0.01"}
+                                />
+                            </div>
+                            <div className={"effect"}>
+                                <input
+                                    type={"checkbox"}
+                                    id={"partials-toggle"}
+                                />
+                                <label>Partials</label>
+                                <div className={"vertical"}>
+                                    <input
+                                        type={"range"}
+                                        id={"partials-slider-1"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"partials-slider-2"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"partials-slider-3"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"partials-slider-4"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={"1"}
+                                        step={"0.01"}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+            {/*    <div className={"horizontal"}>*/}
+            {/*        <div className={"vertical"}>*/}
+            {/*            <div className={"oscillator"}>*/}
+            {/*                <label>Select Waveform: </label>*/}
+            {/*                <select id="waveform">*/}
+            {/*                    <option value='sine'>Sine</option>*/}
+            {/*                    <option value='square'>Square</option>*/}
+            {/*                    <option value='sawtooth'>Saw</option>*/}
+            {/*                    <option value='triangle'>Triangle</option>*/}
+            {/*                </select>*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+
+            {/*        <div className={"vertical"}>*/}
+            {/*            <div className={"oscillator"}>*/}
+            {/*                <label>Select Effect: </label>*/}
+            {/*                <select id="effect_1">*/}
+            {/*                    <option value='none'>None</option>*/}
+            {/*                    <option value='lowpass'>Lowpass</option>*/}
+            {/*                    <option value='highpass'>Highpass</option>*/}
+            {/*                    <option value='bandpass'>Bandpass</option>*/}
+            {/*                    <option value='notch'>Notch</option>*/}
+            {/*                </select>*/}
+            {/*            </div>*/}
+            {/*            <input*/}
+            {/*                type="range"*/}
+            {/*                id="effect_1_slider"*/}
+            {/*                min="20"*/}
+            {/*                max="20000"*/}
+            {/*                defaultValue="10000"*/}
+            {/*            />*/}
+            {/*        </div>*/}
+            {/*        <div className={"vertical"}>*/}
+            {/*            <div className={"oscillator"}>*/}
+            {/*                <label>Select Effect: </label>*/}
+            {/*                <select id="effect_2">*/}
+            {/*                    <option value='none'>None</option>*/}
+            {/*                    <option value='lowpass'>Lowpass</option>*/}
+            {/*                    <option value='highpass'>Highpass</option>*/}
+            {/*                    <option value='bandpass'>Bandpass</option>*/}
+            {/*                    <option value='notch'>Notch</option>*/}
+            {/*                </select>*/}
+            {/*            </div>*/}
+            {/*            <input*/}
+            {/*                type="range"*/}
+            {/*                id="effect_2_slider"*/}
+            {/*                min="20"*/}
+            {/*                max="20000"*/}
+            {/*                defaultValue="10000"*/}
+            {/*            />*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*    <div className={"horizontal2"}>*/}
+            {/*        <div id={"decay"}>*/}
+            {/*            <label>Auto Decay: </label>*/}
+            {/*            <input*/}
+            {/*                type={"checkbox"}*/}
+            {/*                id={"decay_toggle"}*/}
+            {/*                checked={useDecay}*/}
+            {/*                onChange={(e) => setUseDecay(e.target.checked)}*/}
+            {/*            />*/}
+            {/*        </div>*/}
+            {/*        <div id={"sustain"}>*/}
+            {/*            <label>Sustain (s): </label>*/}
+            {/*            <input*/}
+            {/*                type="range"*/}
+            {/*                id="sustain_time"*/}
+            {/*                min="0.05"*/}
+            {/*                max="3"*/}
+            {/*                step="0.01"*/}
+            {/*                defaultValue="0.05"*/}
+            {/*            />*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
             </div>
             <div>
                 {!isMIDICompatible && (
@@ -355,4 +785,4 @@ function App(): ReactElement {
     )
 }
 
-export default App
+export default App;

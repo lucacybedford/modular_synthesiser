@@ -32,15 +32,53 @@ a:hover {
 
 .card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   background-color: #dab9a4;
-  border: 1px solid white;
+  border: 2px solid white;
   border-radius: 10px;
   padding: 2%;
   margin: 2%;
-  width: 90%;
+  width: 100%;
+}
+
+.horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+#synth-column {
+  max-width: 20%;
+}
+
+#waveform-column {
+  max-width: 20%;
+}
+
+#effects-column {
+  max-width: 50%;
+}
+
+.effect input[type="range"] {
+  margin-left: auto;
+}
+
+.effect {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 3%;
 }
 
 div#sustain {
@@ -60,12 +98,7 @@ label {
   color: #242425;
 }
 
-.horizontal {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-}
+
 
 .horizontal2 {
   display: flex;
@@ -77,13 +110,6 @@ label {
 
 label {
   padding-right: 2%
-}
-
-.vertical {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 33%;
 }
 
 .oscillator {
