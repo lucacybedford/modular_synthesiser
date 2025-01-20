@@ -30,6 +30,7 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 
     // const connectionChain: (Tone.Synth | Tone.Filter | Tone.Delay | Tone.Reverb | Tone.FeedbackDelay | Tone.PingPongDelay | Tone.Chorus | Tone.Distortion | Tone.AutoWah | Tone.Phaser | Tone.StereoWidener | Tone.Vibrato | Tone.BitCrusher | Tone.Chebyshev | Tone.Limiter)[] = [synth];
 
+
     if (getToggle("highpass-toggle")) {
         connectionChain.push(new Tone.Filter(getSliderValue("highpass-slider"), "highpass"));
     }
