@@ -18,92 +18,105 @@ function noteOn(note: number, velocity: number, octave: number = 0){
             type: "fatsine"
         },
         envelope: {
-            attack: 0.05,
-            decay: 0,
-            sustain: 1,
-            release: 2
+            attack: getSliderValue("attack-slider"),
+            decay: getSliderValue("decay-slider"),
+            sustain: getSliderValue("sustain-slider"),
+            release: getSliderValue("release-slider"),
         }
     });
     const now = Tone.now();
 
+    const connectionChain: (Tone.Synth | Tone.Filter | Tone.Delay | Tone.Reverb | Tone.FeedbackDelay | Tone.PingPongDelay | Tone.Chorus | Tone.Distortion | Tone.AutoWah | Tone.Phaser | Tone.StereoWidener | Tone.Vibrato | Tone.BitCrusher | Tone.Chebyshev | Tone.Limiter)[] = [synth];
+
+    if (getToggle("highpass-toggle")) {
+        connectionChain.push(new Tone.Filter(getSliderValue("highpass-slider"), "highpass"));
+    }
+
+    if (getToggle("lowpass-toggle")) {
+        connectionChain.push(new Tone.Filter(getSliderValue("lowpass-slider"), "lowpass"));
+    }
+
+    if (getToggle("bandpass-toggle")) {
+        connectionChain.push(new Tone.Filter(getSliderValue("bandpass-slider"), "bandpass"));
+    }
+
+    if (getToggle("notch-toggle")) {
+        connectionChain.push(new Tone.Filter(getSliderValue("notch-slider"), "notch"));
+    }
+
+    if (getToggle("delay-toggle")) {
+        connectionChain.push(new Tone.Delay(getSliderValue("delay-slider")));
+    }
+
+    if (getToggle("reverb-toggle")) {
+        connectionChain.push(new Tone.Reverb(getSliderValue("reverb-slider")));
+    }
+
+    if (getToggle("feedback-toggle")) {
+        connectionChain.push(new Tone.FeedbackDelay(getSliderValue("feedback-slider-1"), getSliderValue("feedback-slider-2")));
+    }
+
+    if (getToggle("pingpong-toggle")) {
+        connectionChain.push(new Tone.PingPongDelay(getSliderValue("pingpong-slider-1"), getSliderValue("pingpong-slider-2")));
+    }
+
+    if (getToggle("chorus-toggle")) {
+        connectionChain.push(new Tone.Chorus(1.5, getSliderValue("chorus-slider-1"), getSliderValue("chorus-slider-2")));
+    }
+
+    if (getToggle("distortion-toggle")) {
+        connectionChain.push(new Tone.Distortion(getSliderValue("distortion-slider")));
+    }
+
+    if (getToggle("wah-toggle")) {
+        connectionChain.push(new Tone.AutoWah(100, getSliderValue("wah-slider")));
+    }
+
+    if (getToggle("phaser-toggle")) {
+        connectionChain.push(new Tone.Phaser(getSliderValue("phaser-slider-1"), getSliderValue("phaser-slider-2")));
+    }
+
+    if (getToggle("widener-toggle")) {
+        connectionChain.push(new Tone.StereoWidener(getSliderValue("widener-slider")));
+    }
+
+    if (getToggle("vibrato-toggle")) {
+        connectionChain.push(new Tone.Vibrato(getSliderValue("vibrato-slider-1"), getSliderValue("vibrato-slider-2")));
+    }
+
+    if (getToggle("bitcrusher-toggle")) {
+        connectionChain.push(new Tone.BitCrusher(getSliderValue("bitcrusher-slider")));
+    }
+
+    if (getToggle("chebyshev-toggle")) {
+        connectionChain.push(new Tone.Chebyshev(getSliderValue("chebyshev-slider")));
+    }
+
 
     const limiter = new Tone.Limiter(-6).toDestination();
-    synth.connect(limiter);
+    connectionChain.push(limiter);
+
+    for (let i = 0; i < connectionChain.length - 1; i++) {
+        const first = connectionChain[i];
+        const second = connectionChain[i+1];
+        first.connect(second);
+    }
 
 
     synth.triggerAttack(midiToFreq(note + octave * 12), now);
     synth.volume.value = Tone.gainToDb(velocity / (127 * 5));
-    console.log(velocity);
 
-    // create the oscillator for that note
-    // if (ctx) {
-    //     console.log("creating note:", note);
-    //     const osc = ctx.createOscillator();
-    //     const oscGain = ctx.createGain();
-    //     oscGain.gain.setValueAtTime(0, ctx.currentTime);
-    //
-    //     const useDecay = getUseDecay();
-    //
-    //     const velocityGainAmount = velocity / 127;
-    //
-    //     if (useDecay) {
-    //         const decayTime = getSustain();
-    //         const initialGain = 0.15 * velocityGainAmount;
-    //         oscGain.gain.setValueAtTime(initialGain, ctx.currentTime);
-    //         oscGain.gain.linearRampToValueAtTime(0, ctx.currentTime + decayTime);
-    //     } else {
-    //         oscGain.gain.setValueAtTime(0.15 * velocityGainAmount, ctx.currentTime);
-    //     }
-    //
-    //     osc.type = getValue();
-    //     osc.frequency.value = midiToFreq(note + octave * 12);
-    //
-    //     const connectionChain: (OscillatorNode | GainNode | BiquadFilterNode | AudioDestinationNode)[] = [osc, oscGain];
-    //
-    //     const effect1 = getEffect("effect_1");
-    //     if (effect1 != "none") {
-    //         const biquadFilter1 = ctx.createBiquadFilter();
-    //         biquadFilter1.type = effect1 as BiquadFilterType;
-    //         biquadFilter1.frequency.setValueAtTime(getEffectValue("effect_1_slider"), ctx.currentTime);
-    //         connectionChain.push(biquadFilter1);
-    //     }
-    //
-    //     const effect2 = getEffect("effect_2");
-    //     if (effect2 != "none") {
-    //         const biquadFilter2 = ctx.createBiquadFilter();
-    //         biquadFilter2.type = effect2 as BiquadFilterType;
-    //         biquadFilter2.frequency.setValueAtTime(getEffectValue("effect_2_slider"), ctx.currentTime);
-    //         connectionChain.push(biquadFilter2);
-    //     }
-    //
-    //     connectionChain.push(ctx.destination);
-    //
-    //
-    //     for (let i = 0; i < connectionChain.length-1; i++) {
-    //         const first = connectionChain[i];
-    //         const second = connectionChain[i+1];
-    //         first.connect(second);
-    //     }
-    // }
+
     synths[note.toString()] = synth;
 }
 
+function getSliderValue(element: string): number {
+    return parseFloat((document.getElementById(element) as HTMLSelectElement).value);
+}
 
-// function getWaveform(): OscillatorType {
-//     return (document.getElementById("waveform") as HTMLSelectElement).value as OscillatorType;
-// }
-
-// function getEffect(effect: string): string {
-//     return (document.getElementById(effect) as HTMLSelectElement).value;
-// }
-//
-// function getEffectValue(effect: string): number {
-//     return parseInt((document.getElementById(effect) as HTMLSelectElement)?.value);
-// }
-
-// function getSustain(): number {
-//     return parseFloat((document.getElementById("sustain_time") as HTMLSelectElement).value);
-// }
+function getToggle(element: string): boolean {
+    return (document.getElementById(element) as HTMLInputElement).checked;
+}
 
 function noteOff(note: number) {
 
@@ -358,10 +371,10 @@ function App(): ReactElement {
                                     <input
                                         type={"range"}
                                         id={"highpass-slider"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
+                                        min={"20"}
+                                        max={"5000"}
+                                        defaultValue={"1000"}
+                                        step={"1"}
                                     />
                                 </div>
                                 <div className={"effect"}>
@@ -373,10 +386,10 @@ function App(): ReactElement {
                                     <input
                                         type={"range"}
                                         id={"lowpass-slider"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
+                                        min={"20"}
+                                        max={"5000"}
+                                        defaultValue={"1000"}
+                                        step={"1"}
                                     />
                                 </div>
                                 <div className={"effect"}>
@@ -388,10 +401,10 @@ function App(): ReactElement {
                                     <input
                                         type={"range"}
                                         id={"bandpass-slider"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
+                                        min={"20"}
+                                        max={"5000"}
+                                        defaultValue={"1000"}
+                                        step={"1"}
                                     />
                                 </div>
                                 <div className={"effect"}>
@@ -403,10 +416,10 @@ function App(): ReactElement {
                                     <input
                                         type={"range"}
                                         id={"notch-slider"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
+                                        min={"20"}
+                                        max={"5000"}
+                                        defaultValue={"1000"}
+                                        step={"1"}
                                     />
                                 </div>
                             </div>
@@ -421,7 +434,7 @@ function App(): ReactElement {
                                         type={"range"}
                                         id={"delay-slider"}
                                         min={"0"}
-                                        max={"1"}
+                                        max={"3"}
                                         defaultValue={"1"}
                                         step={"0.01"}
                                     />
@@ -436,7 +449,7 @@ function App(): ReactElement {
                                         type={"range"}
                                         id={"reverb-slider"}
                                         min={"0"}
-                                        max={"1"}
+                                        max={"5"}
                                         defaultValue={"1"}
                                         step={"0.01"}
                                     />
@@ -452,7 +465,7 @@ function App(): ReactElement {
                                             type={"range"}
                                             id={"feedback-slider-1"}
                                             min={"0"}
-                                            max={"1"}
+                                            max={"2"}
                                             defaultValue={"1"}
                                             step={"0.01"}
                                         />
@@ -461,7 +474,7 @@ function App(): ReactElement {
                                             id={"feedback-slider-2"}
                                             min={"0"}
                                             max={"1"}
-                                            defaultValue={"1"}
+                                            defaultValue={"0.5"}
                                             step={"0.01"}
                                         />
                                     </div>
@@ -477,7 +490,7 @@ function App(): ReactElement {
                                             type={"range"}
                                             id={"pingpong-slider-1"}
                                             min={"0"}
-                                            max={"1"}
+                                            max={"2"}
                                             defaultValue={"1"}
                                             step={"0.01"}
                                         />
@@ -486,7 +499,7 @@ function App(): ReactElement {
                                             id={"pingpong-slider-2"}
                                             min={"0"}
                                             max={"1"}
-                                            defaultValue={"1"}
+                                            defaultValue={"0.5"}
                                             step={"0.01"}
                                         />
                                     </div>
@@ -503,19 +516,19 @@ function App(): ReactElement {
                                 <div className={"vertical"}>
                                     <input
                                         type={"range"}
-                                        id={"highpass-slider-1"}
+                                        id={"chorus-slider-1"}
                                         min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
+                                        max={"100"}
+                                        defaultValue={"10"}
+                                        step={"1"}
                                     />
                                     <input
                                         type={"range"}
-                                        id={"highpass-slider-2"}
+                                        id={"chorus-slider-2"}
                                         min={"0"}
-                                        max={"1"}
+                                        max={"5"}
                                         defaultValue={"1"}
-                                        step={"0.01"}
+                                        step={"0.1"}
                                     />
                                 </div>
                             </div>
@@ -530,7 +543,7 @@ function App(): ReactElement {
                                     id={"distortion-slider"}
                                     min={"0"}
                                     max={"1"}
-                                    defaultValue={"1"}
+                                    defaultValue={"0.5"}
                                     step={"0.01"}
                                 />
                             </div>
@@ -544,9 +557,9 @@ function App(): ReactElement {
                                     type={"range"}
                                     id={"wah-slider"}
                                     min={"0"}
-                                    max={"1"}
+                                    max={"10"}
                                     defaultValue={"1"}
-                                    step={"0.01"}
+                                    step={"0.1"}
                                 />
                             </div>
                             <div className={"effect"}>
@@ -560,7 +573,7 @@ function App(): ReactElement {
                                         type={"range"}
                                         id={"phaser-slider-1"}
                                         min={"0"}
-                                        max={"1"}
+                                        max={"3"}
                                         defaultValue={"1"}
                                         step={"0.01"}
                                     />
@@ -568,9 +581,9 @@ function App(): ReactElement {
                                         type={"range"}
                                         id={"phaser-slider-2"}
                                         min={"0"}
-                                        max={"1"}
+                                        max={"10"}
                                         defaultValue={"1"}
-                                        step={"0.01"}
+                                        step={"0.1"}
                                     />
                                 </div>
                             </div>
@@ -585,7 +598,7 @@ function App(): ReactElement {
                                     id={"widener-slider"}
                                     min={"0"}
                                     max={"1"}
-                                    defaultValue={"1"}
+                                    defaultValue={"0.5"}
                                     step={"0.01"}
                                 />
                             </div>
@@ -599,9 +612,9 @@ function App(): ReactElement {
                                     <input
                                         type={"range"}
                                         id={"vibrato-slider-1"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
+                                        min={"2"}
+                                        max={"20"}
+                                        defaultValue={"5"}
                                         step={"0.01"}
                                     />
                                     <input
@@ -609,7 +622,7 @@ function App(): ReactElement {
                                         id={"vibrato-slider-2"}
                                         min={"0"}
                                         max={"1"}
-                                        defaultValue={"1"}
+                                        defaultValue={"0.1"}
                                         step={"0.01"}
                                     />
                                 </div>
@@ -623,10 +636,10 @@ function App(): ReactElement {
                                 <input
                                     type={"range"}
                                     id={"bitcrusher-slider"}
-                                    min={"0"}
-                                    max={"1"}
-                                    defaultValue={"1"}
-                                    step={"0.01"}
+                                    min={"1"}
+                                    max={"8"}
+                                    defaultValue={"4"}
+                                    step={"1"}
                                 />
                             </div>
                             <div className={"effect"}>
@@ -638,10 +651,10 @@ function App(): ReactElement {
                                 <input
                                     type={"range"}
                                     id={"chebyshev-slider"}
-                                    min={"0"}
-                                    max={"1"}
+                                    min={"1"}
+                                    max={"100"}
                                     defaultValue={"1"}
-                                    step={"0.01"}
+                                    step={"1"}
                                 />
                             </div>
                             <div className={"effect"}>
@@ -688,89 +701,6 @@ function App(): ReactElement {
                         </div>
                     </div>
                 </div>
-
-
-
-
-
-
-
-
-            {/*    <div className={"horizontal"}>*/}
-            {/*        <div className={"vertical"}>*/}
-            {/*            <div className={"oscillator"}>*/}
-            {/*                <label>Select Waveform: </label>*/}
-            {/*                <select id="waveform">*/}
-            {/*                    <option value='sine'>Sine</option>*/}
-            {/*                    <option value='square'>Square</option>*/}
-            {/*                    <option value='sawtooth'>Saw</option>*/}
-            {/*                    <option value='triangle'>Triangle</option>*/}
-            {/*                </select>*/}
-            {/*            </div>*/}
-            {/*        </div>*/}
-
-            {/*        <div className={"vertical"}>*/}
-            {/*            <div className={"oscillator"}>*/}
-            {/*                <label>Select Effect: </label>*/}
-            {/*                <select id="effect_1">*/}
-            {/*                    <option value='none'>None</option>*/}
-            {/*                    <option value='lowpass'>Lowpass</option>*/}
-            {/*                    <option value='highpass'>Highpass</option>*/}
-            {/*                    <option value='bandpass'>Bandpass</option>*/}
-            {/*                    <option value='notch'>Notch</option>*/}
-            {/*                </select>*/}
-            {/*            </div>*/}
-            {/*            <input*/}
-            {/*                type="range"*/}
-            {/*                id="effect_1_slider"*/}
-            {/*                min="20"*/}
-            {/*                max="20000"*/}
-            {/*                defaultValue="10000"*/}
-            {/*            />*/}
-            {/*        </div>*/}
-            {/*        <div className={"vertical"}>*/}
-            {/*            <div className={"oscillator"}>*/}
-            {/*                <label>Select Effect: </label>*/}
-            {/*                <select id="effect_2">*/}
-            {/*                    <option value='none'>None</option>*/}
-            {/*                    <option value='lowpass'>Lowpass</option>*/}
-            {/*                    <option value='highpass'>Highpass</option>*/}
-            {/*                    <option value='bandpass'>Bandpass</option>*/}
-            {/*                    <option value='notch'>Notch</option>*/}
-            {/*                </select>*/}
-            {/*            </div>*/}
-            {/*            <input*/}
-            {/*                type="range"*/}
-            {/*                id="effect_2_slider"*/}
-            {/*                min="20"*/}
-            {/*                max="20000"*/}
-            {/*                defaultValue="10000"*/}
-            {/*            />*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*    <div className={"horizontal2"}>*/}
-            {/*        <div id={"decay"}>*/}
-            {/*            <label>Auto Decay: </label>*/}
-            {/*            <input*/}
-            {/*                type={"checkbox"}*/}
-            {/*                id={"decay_toggle"}*/}
-            {/*                checked={useDecay}*/}
-            {/*                onChange={(e) => setUseDecay(e.target.checked)}*/}
-            {/*            />*/}
-            {/*        </div>*/}
-            {/*        <div id={"sustain"}>*/}
-            {/*            <label>Sustain (s): </label>*/}
-            {/*            <input*/}
-            {/*                type="range"*/}
-            {/*                id="sustain_time"*/}
-            {/*                min="0.05"*/}
-            {/*                max="3"*/}
-            {/*                step="0.01"*/}
-            {/*                defaultValue="0.05"*/}
-            {/*            />*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
             </div>
             <div>
                 {!isMIDICompatible && (
