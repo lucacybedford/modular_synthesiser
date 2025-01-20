@@ -209,7 +209,6 @@ function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [octave, setOctave] = useState(0);
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
-    // const [useDecay, setUseDecay] = useState(false);
 
     navigatorBegin();
 
