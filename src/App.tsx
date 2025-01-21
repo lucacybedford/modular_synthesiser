@@ -12,6 +12,8 @@ currentSynth.set({
     }
 })
 
+currentSynth.set({oscillator: {}})
+
 
 currentSynth.connect(new Tone.Limiter(-12).toDestination());
 currentSynth.volume.value = -10;
@@ -254,10 +256,10 @@ function App(): ReactElement {
                             <input
                                 type={"range"}
                                 id={"attack-slider"}
-                                min={"0.1"}
+                                min={"0.005"}
                                 max={"3"}
-                                defaultValue={"0.1"}
-                                step={"0.1"}
+                                defaultValue={"0.005"}
+                                step={"0.001"}
                                 onChange={e => currentSynth.set({envelope: {attack: parseFloat(e.target.value)}})}
                             />
                         </div>
@@ -268,8 +270,8 @@ function App(): ReactElement {
                                 id={"decay-slider"}
                                 min={"0.1"}
                                 max={"3"}
-                                defaultValue={"0.2"}
-                                step={"0.1"}
+                                defaultValue={"0.1"}
+                                step={"0.01"}
                                 onChange={e => currentSynth.set({envelope: {decay: parseFloat(e.target.value)}})}
                             />
                         </div>
@@ -280,8 +282,8 @@ function App(): ReactElement {
                                 id={"sustain-slider"}
                                 min={"0"}
                                 max={"1"}
-                                defaultValue={"1"}
-                                step={"0.1"}
+                                defaultValue={"0.3"}
+                                step={"0.01"}
                                 onChange={e => currentSynth.set({envelope: {sustain: parseFloat(e.target.value)}})}
                             />
                         </div>
@@ -290,10 +292,10 @@ function App(): ReactElement {
                             <input
                                 type={"range"}
                                 id={"release-slider"}
-                                min={"0.1"}
+                                min={"0.01"}
                                 max={"3"}
-                                defaultValue={"0.8"}
-                                step={"0.1"}
+                                defaultValue={"1"}
+                                step={"0.01"}
                                 onChange={e => currentSynth.set({envelope: {release: parseFloat(e.target.value)}})}
                             />
                         </div>
