@@ -3,17 +3,28 @@ import {ReactElement, useEffect, useState} from "react";
 import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
-const synthVoice = Tone.Synth;
-const currentSynth = new Tone.PolySynth(synthVoice);
 
-currentSynth.set({
-    oscillator: {
-        type: "sine",
+// function updateSynth() {
+//     currentSynth.dispose();
+//
+//     currentSynth = new Tone.PolySynth(synthVoice);
+//
+//
+// }
+
+function connectChain() {
+    for (let i = 0; i < moduleChain.length - 1; i++) {
+        const first = moduleChain[i];
+        const second = moduleChain[i+1];
+        first.connect(second);
     }
-})
+    moduleChain[moduleChain.length-1].toDestination();
+}
 
-currentSynth.connect(new Tone.Limiter(-12).toDestination());
-currentSynth.volume.value = -10;
+// function reconnectSynth() {
+//
+//
+// }
 
 
 // currentSynth.toDestination();
@@ -53,7 +64,6 @@ function midiToFreq(number: number) {
     return (a/32) * (2 ** ((number - 9) / 12));
 }
 
-
 function noteOn(note: number, velocity: number, octave: number = 0){
 
     // const connectionChain: (Tone.ToneAudioNode)[] = [currentSynth]
@@ -62,18 +72,9 @@ function noteOn(note: number, velocity: number, octave: number = 0){
     console.log(currentSynth.activeVoices);
 }
 
-// function getSliderValue(element: string): number {
-//     return parseFloat((document.getElementById(element) as HTMLSelectElement).value);
-// }
-
-// function getToggle(element: string): boolean {
-//     return (document.getElementById(element) as HTMLInputElement).checked;
-// }
-
 function noteOff(note: number, octave: number = 0) {
     currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
 }
-
 
 function updateDevices(event: MIDIConnectionEvent) {
     console.log(`Name: ${event.port?.name}$, Brand: ${event.port?.manufacturer}$, State: ${event.port?.state}$, Type: ${event.port?.type}$`);
@@ -109,15 +110,10 @@ function failure() {
     console.log("Failed ");
 }
 
-let isInitialised = false;
-
 function navigatorBegin() {
-    if (!isInitialised) {
-        console.log("navigatorBegin");
-        if (navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(success, failure);
-        }
-        isInitialised = true;
+    console.log("navigatorBegin");
+    if (navigator.requestMIDIAccess) {
+        navigator.requestMIDIAccess().then(success, failure);
     }
 }
 
@@ -153,12 +149,84 @@ const keyToNote: { [key: string]: number } = {
     m: 76, // E5
 };
 
+
+
+const synthVoice = Tone.Synth;
+const currentSynth = new Tone.PolySynth(synthVoice);
+currentSynth.volume.value = -10;
+
+const limiter = new Tone.Limiter(-12);
+
+const moduleChain = [currentSynth, new Tone.Delay(1), limiter];
+
+navigatorBegin();
+
+connectChain();
+
+currentSynth.set({
+    oscillator: {
+        type: "sine",
+    }
+})
+
+
+// moduleChain[1].delay
+
+// const activeEffects = {
+//     highpass: false,
+//     lowpass: false,
+//     bandpass: false,
+//     notch: false,
+//     delay: false,
+//     reverb: false,
+//     feedback: false,
+//     pingpong: false,
+//     chorus: false,
+//     distortion: false,
+//     wah: false,
+//     phaser: false,
+//     widener: false,
+//     vibrato: false,
+//     bitcrusher: false,
+//     chebyshev: false,
+//     partials: false
+// }
+
+const sliderSettings = {
+    attack: 0.005,
+    decay: 0.1,
+    sustain: 0.3,
+    release: 1,
+    highpass: 1000,
+    lowpass: 1000,
+    bandpass: 1000,
+    notch: 1000,
+    delay: 1,
+    reverb: 1,
+    feedback1: 1,
+    feedback2: 0.5,
+    pingpong1: 1,
+    pingpong2: 0.5,
+    chorus1: 10,
+    chorus2: 1,
+    distortion: 0.5,
+    wah: 1,
+    phaser1: 1,
+    phaser2: 1,
+    widener: 0.5,
+    vibrato1: 5,
+    vibrato2: 0.1,
+    bitcrusher: 4,
+    chebyshev: 1
+}
+
+// updateSynth();
+
+
 function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [octave, setOctave] = useState(0);
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
-
-    navigatorBegin();
 
     useEffect(() => {
         if (!navigator.requestMIDIAccess) {
@@ -255,9 +323,9 @@ function App(): ReactElement {
                                 id={"attack-slider"}
                                 min={"0.005"}
                                 max={"3"}
-                                defaultValue={"0.005"}
+                                defaultValue={sliderSettings.attack}
                                 step={"0.001"}
-                                onChange={e => currentSynth.set({envelope: {attack: parseFloat(e.target.value)}})}
+                                onChange={(e) => currentSynth.set({envelope: {attack: parseFloat(e.target.value)}})}
                             />
                         </div>
                         <div className={"effect"}>
@@ -267,9 +335,16 @@ function App(): ReactElement {
                                 id={"decay-slider"}
                                 min={"0.1"}
                                 max={"3"}
-                                defaultValue={"0.1"}
+                                defaultValue={sliderSettings.decay}
                                 step={"0.01"}
-                                onChange={e => currentSynth.set({envelope: {decay: parseFloat(e.target.value)}})}
+                                onChange={(e) => {
+                                    currentSynth.set({
+                                        envelope: {
+                                            decay: parseFloat(e.target.value)
+                                        }
+                                    })
+                                }
+                            }
                             />
                         </div>
                         <div className={"effect"}>
@@ -279,9 +354,9 @@ function App(): ReactElement {
                                 id={"sustain-slider"}
                                 min={"0"}
                                 max={"1"}
-                                defaultValue={"0.3"}
+                                defaultValue={sliderSettings.sustain}
                                 step={"0.01"}
-                                onChange={e => currentSynth.set({envelope: {sustain: parseFloat(e.target.value)}})}
+                                onChange={(e) => currentSynth.set({envelope: {sustain: parseFloat(e.target.value)}})}
                             />
                         </div>
                         <div className={"effect"}>
@@ -291,9 +366,9 @@ function App(): ReactElement {
                                 id={"release-slider"}
                                 min={"0.01"}
                                 max={"3"}
-                                defaultValue={"1"}
+                                defaultValue={sliderSettings.release}
                                 step={"0.01"}
-                                onChange={e => currentSynth.set({envelope: {release: parseFloat(e.target.value)}})}
+                                onChange={(e) => currentSynth.set({envelope: {release: parseFloat(e.target.value)}})}
                             />
                         </div>
                     </div>
@@ -324,7 +399,7 @@ function App(): ReactElement {
                                         id={"highpass-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={"1000"}
+                                        defaultValue={sliderSettings.highpass}
                                         step={"1"}
                                     />
                                 </div>
@@ -339,7 +414,7 @@ function App(): ReactElement {
                                         id={"lowpass-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={"1000"}
+                                        defaultValue={sliderSettings.lowpass}
                                         step={"1"}
                                     />
                                 </div>
@@ -354,7 +429,7 @@ function App(): ReactElement {
                                         id={"bandpass-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={"1000"}
+                                        defaultValue={sliderSettings.bandpass}
                                         step={"1"}
                                     />
                                 </div>
@@ -369,7 +444,7 @@ function App(): ReactElement {
                                         id={"notch-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={"1000"}
+                                        defaultValue={sliderSettings.notch}
                                         step={"1"}
                                     />
                                 </div>
@@ -386,7 +461,7 @@ function App(): ReactElement {
                                         id={"delay-slider"}
                                         min={"0"}
                                         max={"3"}
-                                        defaultValue={"1"}
+                                        defaultValue={sliderSettings.delay}
                                         step={"0.01"}
                                     />
                                 </div>
@@ -401,7 +476,7 @@ function App(): ReactElement {
                                         id={"reverb-slider"}
                                         min={"0"}
                                         max={"5"}
-                                        defaultValue={"1"}
+                                        defaultValue={sliderSettings.reverb}
                                         step={"0.01"}
                                     />
                                 </div>
@@ -417,7 +492,7 @@ function App(): ReactElement {
                                             id={"feedback-slider-1"}
                                             min={"0"}
                                             max={"2"}
-                                            defaultValue={"1"}
+                                            defaultValue={sliderSettings.feedback1}
                                             step={"0.01"}
                                         />
                                         <input
@@ -425,7 +500,7 @@ function App(): ReactElement {
                                             id={"feedback-slider-2"}
                                             min={"0"}
                                             max={"1"}
-                                            defaultValue={"0.5"}
+                                            defaultValue={sliderSettings.feedback2}
                                             step={"0.01"}
                                         />
                                     </div>
@@ -442,7 +517,7 @@ function App(): ReactElement {
                                             id={"pingpong-slider-1"}
                                             min={"0"}
                                             max={"2"}
-                                            defaultValue={"1"}
+                                            defaultValue={sliderSettings.pingpong1}
                                             step={"0.01"}
                                         />
                                         <input
@@ -450,7 +525,7 @@ function App(): ReactElement {
                                             id={"pingpong-slider-2"}
                                             min={"0"}
                                             max={"1"}
-                                            defaultValue={"0.5"}
+                                            defaultValue={sliderSettings.pingpong2}
                                             step={"0.01"}
                                         />
                                     </div>
@@ -470,7 +545,7 @@ function App(): ReactElement {
                                         id={"chorus-slider-1"}
                                         min={"0"}
                                         max={"100"}
-                                        defaultValue={"10"}
+                                        defaultValue={sliderSettings.chorus1}
                                         step={"1"}
                                     />
                                     <input
@@ -478,7 +553,7 @@ function App(): ReactElement {
                                         id={"chorus-slider-2"}
                                         min={"0"}
                                         max={"5"}
-                                        defaultValue={"1"}
+                                        defaultValue={sliderSettings.chorus2}
                                         step={"0.1"}
                                     />
                                 </div>
@@ -494,7 +569,7 @@ function App(): ReactElement {
                                     id={"distortion-slider"}
                                     min={"0"}
                                     max={"1"}
-                                    defaultValue={"0.5"}
+                                    defaultValue={sliderSettings.distortion}
                                     step={"0.01"}
                                 />
                             </div>
@@ -509,7 +584,7 @@ function App(): ReactElement {
                                     id={"wah-slider"}
                                     min={"0"}
                                     max={"10"}
-                                    defaultValue={"1"}
+                                    defaultValue={sliderSettings.wah}
                                     step={"0.1"}
                                 />
                             </div>
@@ -525,7 +600,7 @@ function App(): ReactElement {
                                         id={"phaser-slider-1"}
                                         min={"0"}
                                         max={"3"}
-                                        defaultValue={"1"}
+                                        defaultValue={sliderSettings.phaser1}
                                         step={"0.01"}
                                     />
                                     <input
@@ -533,7 +608,7 @@ function App(): ReactElement {
                                         id={"phaser-slider-2"}
                                         min={"0"}
                                         max={"10"}
-                                        defaultValue={"1"}
+                                        defaultValue={sliderSettings.phaser2}
                                         step={"0.1"}
                                     />
                                 </div>
@@ -549,7 +624,7 @@ function App(): ReactElement {
                                     id={"widener-slider"}
                                     min={"0"}
                                     max={"1"}
-                                    defaultValue={"0.5"}
+                                    defaultValue={sliderSettings.widener}
                                     step={"0.01"}
                                 />
                             </div>
@@ -565,7 +640,7 @@ function App(): ReactElement {
                                         id={"vibrato-slider-1"}
                                         min={"2"}
                                         max={"20"}
-                                        defaultValue={"5"}
+                                        defaultValue={sliderSettings.vibrato1}
                                         step={"0.01"}
                                     />
                                     <input
@@ -573,7 +648,7 @@ function App(): ReactElement {
                                         id={"vibrato-slider-2"}
                                         min={"0"}
                                         max={"1"}
-                                        defaultValue={"0.1"}
+                                        defaultValue={sliderSettings.vibrato2}
                                         step={"0.01"}
                                     />
                                 </div>
@@ -589,7 +664,7 @@ function App(): ReactElement {
                                     id={"bitcrusher-slider"}
                                     min={"1"}
                                     max={"8"}
-                                    defaultValue={"4"}
+                                    defaultValue={sliderSettings.bitcrusher}
                                     step={"1"}
                                 />
                             </div>
@@ -604,7 +679,7 @@ function App(): ReactElement {
                                     id={"chebyshev-slider"}
                                     min={"1"}
                                     max={"100"}
-                                    defaultValue={"1"}
+                                    defaultValue={sliderSettings.chebyshev}
                                     step={"1"}
                                 />
                             </div>
