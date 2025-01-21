@@ -133,40 +133,40 @@ function addModule (moduleType: string) {
 
     switch (moduleType) {
         case "delay":
-            module = new Tone.Delay(sliderSettings.delay);
+            module = new Tone.Delay(effectValues.delay);
             break;
         case "reverb":
-            module = new Tone.Reverb(sliderSettings.reverb);
+            module = new Tone.Reverb(effectValues.reverb);
             break;
         case "feedback":
-            module = new Tone.FeedbackDelay(sliderSettings.feedback1, sliderSettings.feedback2);
+            module = new Tone.FeedbackDelay(effectValues.feedback1, effectValues.feedback2);
             break;
         case "pingpong":
-            module = new Tone.PingPongDelay(sliderSettings.pingpong1, sliderSettings.pingpong2);
+            module = new Tone.PingPongDelay(effectValues.pingpong1, effectValues.pingpong2);
             break;
         case "chorus":
-            module = new Tone.Chorus(1.5, sliderSettings.chorus1, sliderSettings.chorus2);
+            module = new Tone.Chorus(1.5, effectValues.chorus1, effectValues.chorus2);
             break;
         case "distortion":
-            module = new Tone.Distortion(sliderSettings.distortion);
+            module = new Tone.Distortion(effectValues.distortion);
             break;
         case "wah":
-            module = new Tone.AutoWah(100, sliderSettings.wah);
+            module = new Tone.AutoWah(100, effectValues.wah);
             break;
         case "phaser":
-            module = new Tone.Phaser(sliderSettings.phaser1, sliderSettings.phaser2);
+            module = new Tone.Phaser(effectValues.phaser1, effectValues.phaser2);
             break;
         case "widener":
-            module = new Tone.StereoWidener(sliderSettings.widener);
+            module = new Tone.StereoWidener(effectValues.widener);
             break;
         case "vibrato":
-            module = new Tone.Vibrato(sliderSettings.vibrato1, sliderSettings.vibrato2);
+            module = new Tone.Vibrato(effectValues.vibrato1, effectValues.vibrato2);
             break;
         case "bitcrusher":
-            module = new Tone.BitCrusher(sliderSettings.bitcrusher);
+            module = new Tone.BitCrusher(effectValues.bitcrusher);
             break;
         case "chebyshev":
-            module = new Tone.Chebyshev(sliderSettings.chebyshev);
+            module = new Tone.Chebyshev(effectValues.chebyshev);
             break;
         default:
             console.warn(`Unknown module type: ${moduleType}`)
@@ -354,14 +354,13 @@ const synthEnvelope = {
 //     "partials": false
 // };
 
-const sliderSettings = {
-    "harmonicity": 3,
-    "modulation_index": 10,
+
+const effectValues = {
     "highpass": 1000,
     "lowpass": 1000,
     "bandpass": 1000,
     "notch": 1000,
-    "delay": 1,
+    "delay": 0.5,
     "reverb": 1,
     "feedback1": 1,
     "feedback2": 0.5,
@@ -487,11 +486,11 @@ function App(): ReactElement {
                             id={"harmonicity-slider"}
                             min={"1"}
                             max={"10"}
-                            defaultValue={sliderSettings.harmonicity}
+                            defaultValue={synthType.harmonicity}
                             step={"1"}
                             onChange={
                                 (e) =>  {
-                                    sliderSettings.harmonicity = parseFloat(e.target.value);
+                                    synthType.harmonicity = parseFloat(e.target.value);
                                     updateSynthSlider("harmonicity");
                                 }
                             }
@@ -501,11 +500,11 @@ function App(): ReactElement {
                             id={"modulation-index-slider"}
                             min={"1"}
                             max={"20"}
-                            defaultValue={sliderSettings.modulation_index}
+                            defaultValue={synthType.modulation_index}
                             step={"1"}
                             onChange={
                                 (e) =>  {
-                                    sliderSettings.modulation_index = parseFloat(e.target.value);
+                                    synthType.modulation_index = parseFloat(e.target.value);
                                     updateSynthSlider("modulation_index");
                                 }
                             }
@@ -668,7 +667,7 @@ function App(): ReactElement {
                                         id={"highpass-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={sliderSettings.highpass}
+                                        defaultValue={effectValues.highpass}
                                         step={"1"}
                                     />
                                 </div>
@@ -683,7 +682,7 @@ function App(): ReactElement {
                                         id={"lowpass-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={sliderSettings.lowpass}
+                                        defaultValue={effectValues.lowpass}
                                         step={"1"}
                                     />
                                 </div>
@@ -698,7 +697,7 @@ function App(): ReactElement {
                                         id={"bandpass-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={sliderSettings.bandpass}
+                                        defaultValue={effectValues.bandpass}
                                         step={"1"}
                                     />
                                 </div>
@@ -713,7 +712,7 @@ function App(): ReactElement {
                                         id={"notch-slider"}
                                         min={"20"}
                                         max={"5000"}
-                                        defaultValue={sliderSettings.notch}
+                                        defaultValue={effectValues.notch}
                                         step={"1"}
                                     />
                                 </div>
@@ -739,9 +738,19 @@ function App(): ReactElement {
                                         type={"range"}
                                         id={"delay-slider"}
                                         min={"0"}
-                                        max={"3"}
-                                        defaultValue={sliderSettings.delay}
+                                        max={"1"}
+                                        defaultValue={effectValues.delay}
                                         step={"0.01"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.delay = value;
+                                                if (existingModules.some(module => module.id === "delay")) {
+                                                    const { instance } = existingModules.find(module => module.id === "delay")!;
+                                                    (instance as Tone.Delay).delayTime.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                                 <div className={"effect"}>
@@ -755,7 +764,7 @@ function App(): ReactElement {
                                         id={"reverb-slider"}
                                         min={"0"}
                                         max={"5"}
-                                        defaultValue={sliderSettings.reverb}
+                                        defaultValue={effectValues.reverb}
                                         step={"0.01"}
                                     />
                                 </div>
@@ -771,7 +780,7 @@ function App(): ReactElement {
                                             id={"feedback-slider-1"}
                                             min={"0"}
                                             max={"2"}
-                                            defaultValue={sliderSettings.feedback1}
+                                            defaultValue={effectValues.feedback1}
                                             step={"0.01"}
                                         />
                                         <input
@@ -779,7 +788,7 @@ function App(): ReactElement {
                                             id={"feedback-slider-2"}
                                             min={"0"}
                                             max={"1"}
-                                            defaultValue={sliderSettings.feedback2}
+                                            defaultValue={effectValues.feedback2}
                                             step={"0.01"}
                                         />
                                     </div>
@@ -796,7 +805,7 @@ function App(): ReactElement {
                                             id={"pingpong-slider-1"}
                                             min={"0"}
                                             max={"2"}
-                                            defaultValue={sliderSettings.pingpong1}
+                                            defaultValue={effectValues.pingpong1}
                                             step={"0.01"}
                                         />
                                         <input
@@ -804,7 +813,7 @@ function App(): ReactElement {
                                             id={"pingpong-slider-2"}
                                             min={"0"}
                                             max={"1"}
-                                            defaultValue={sliderSettings.pingpong2}
+                                            defaultValue={effectValues.pingpong2}
                                             step={"0.01"}
                                         />
                                     </div>
@@ -824,7 +833,7 @@ function App(): ReactElement {
                                         id={"chorus-slider-1"}
                                         min={"0"}
                                         max={"100"}
-                                        defaultValue={sliderSettings.chorus1}
+                                        defaultValue={effectValues.chorus1}
                                         step={"1"}
                                     />
                                     <input
@@ -832,7 +841,7 @@ function App(): ReactElement {
                                         id={"chorus-slider-2"}
                                         min={"0"}
                                         max={"5"}
-                                        defaultValue={sliderSettings.chorus2}
+                                        defaultValue={effectValues.chorus2}
                                         step={"0.1"}
                                     />
                                 </div>
@@ -848,7 +857,7 @@ function App(): ReactElement {
                                     id={"distortion-slider"}
                                     min={"0"}
                                     max={"1"}
-                                    defaultValue={sliderSettings.distortion}
+                                    defaultValue={effectValues.distortion}
                                     step={"0.01"}
                                 />
                             </div>
@@ -863,7 +872,7 @@ function App(): ReactElement {
                                     id={"wah-slider"}
                                     min={"0"}
                                     max={"10"}
-                                    defaultValue={sliderSettings.wah}
+                                    defaultValue={effectValues.wah}
                                     step={"0.1"}
                                 />
                             </div>
@@ -879,7 +888,7 @@ function App(): ReactElement {
                                         id={"phaser-slider-1"}
                                         min={"0"}
                                         max={"3"}
-                                        defaultValue={sliderSettings.phaser1}
+                                        defaultValue={effectValues.phaser1}
                                         step={"0.01"}
                                     />
                                     <input
@@ -887,7 +896,7 @@ function App(): ReactElement {
                                         id={"phaser-slider-2"}
                                         min={"0"}
                                         max={"10"}
-                                        defaultValue={sliderSettings.phaser2}
+                                        defaultValue={effectValues.phaser2}
                                         step={"0.1"}
                                     />
                                 </div>
@@ -903,7 +912,7 @@ function App(): ReactElement {
                                     id={"widener-slider"}
                                     min={"0"}
                                     max={"1"}
-                                    defaultValue={sliderSettings.widener}
+                                    defaultValue={effectValues.widener}
                                     step={"0.01"}
                                 />
                             </div>
@@ -919,7 +928,7 @@ function App(): ReactElement {
                                         id={"vibrato-slider-1"}
                                         min={"2"}
                                         max={"20"}
-                                        defaultValue={sliderSettings.vibrato1}
+                                        defaultValue={effectValues.vibrato1}
                                         step={"0.01"}
                                     />
                                     <input
@@ -927,7 +936,7 @@ function App(): ReactElement {
                                         id={"vibrato-slider-2"}
                                         min={"0"}
                                         max={"1"}
-                                        defaultValue={sliderSettings.vibrato2}
+                                        defaultValue={effectValues.vibrato2}
                                         step={"0.01"}
                                     />
                                 </div>
@@ -943,7 +952,7 @@ function App(): ReactElement {
                                     id={"bitcrusher-slider"}
                                     min={"1"}
                                     max={"8"}
-                                    defaultValue={sliderSettings.bitcrusher}
+                                    defaultValue={effectValues.bitcrusher}
                                     step={"1"}
                                 />
                             </div>
@@ -958,7 +967,7 @@ function App(): ReactElement {
                                     id={"chebyshev-slider"}
                                     min={"1"}
                                     max={"100"}
-                                    defaultValue={sliderSettings.chebyshev}
+                                    defaultValue={effectValues.chebyshev}
                                     step={"1"}
                                 />
                             </div>
