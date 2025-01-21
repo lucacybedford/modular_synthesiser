@@ -15,59 +15,86 @@ function connectChain() {
     for (let i = 0; i < moduleChain.length - 1; i++) {
         const first = moduleChain[i];
         const second = moduleChain[i+1];
+        first.disconnect();
         first.connect(second);
     }
     moduleChain[moduleChain.length-1].toDestination();
 }
 
-// function addModule(module: Tone.ToneAudioNode) {
-//
-//
-//     moduleChain[moduleChain.length-1].disconnect();
-//     moduleChain.pop();
-//     moduleChain.push(module);
-//     moduleChain.push(limiter);
-//     moduleChain[moduleChain.length-1].toDestination();
-// }
-
 
 function addModule (moduleType: string) {
-    let module: Tone.ToneAudioNode | null = null;
+    let module: Tone.ToneAudioNode;
 
     switch (moduleType) {
-        case "delay": {
+        case "delay":
             module = new Tone.Delay(sliderSettings.delay);
             break;
-        }
-        case "reverb": {
+        case "reverb":
             module = new Tone.Reverb(sliderSettings.reverb);
             break;
-        }
-        case "feedback": {
-            module = new Tone.Reverb(sliderSettings.feedback1, sliderSettings.feedback2);
+        case "feedback":
+            module = new Tone.FeedbackDelay(sliderSettings.feedback1, sliderSettings.feedback2);
             break;
-        }
+        case "pingpong":
+            module = new Tone.PingPongDelay(sliderSettings.pingpong1, sliderSettings.pingpong2);
+            break;
+        case "chorus":
+            module = new Tone.Chorus(1.5, sliderSettings.chorus1, sliderSettings.chorus2);
+            break;
+        case "distortion":
+            module = new Tone.Distortion(sliderSettings.distortion);
+            break;
+        case "wah":
+            module = new Tone.AutoWah(100, sliderSettings.wah);
+            break;
+        case "phaser":
+            module = new Tone.Phaser(sliderSettings.phaser1, sliderSettings.phaser2);
+            break;
+        case "widener":
+            module = new Tone.StereoWidener(sliderSettings.widener);
+            break;
+        case "vibrato":
+            module = new Tone.Vibrato(sliderSettings.vibrato1, sliderSettings.vibrato2);
+            break;
+        case "bitcrusher":
+            module = new Tone.BitCrusher(sliderSettings.bitcrusher);
+            break;
+        case "chebyshev":
+            module = new Tone.Chebyshev(sliderSettings.chebyshev);
+            break;
+        default:
+            console.warn(`Unknown module type: ${moduleType}`)
+            return;
     }
+    existingModules.push({id: moduleType, instance: module});
+
+    moduleChain.pop();
+    moduleChain.push(module);
+    moduleChain.push(limiter);
+
+    connectChain();
+    console.log(moduleChain);
 }
 
-// function addModule(moduleType: string) {
-//     switch (moduleType) {
-//         case "delay": {
-//             const module = new Tone.Delay(sliderSettings.delay);
-//             break;
-//         }
-//         default: {
-//             break;
-//         }
-//     }
-//
-//     moduleChain[moduleChain.length-1].disconnect();
-//     moduleChain.pop();
-//     moduleChain.push(module);
-//     moduleChain.push(limiter);
-//     moduleChain[moduleChain.length-1].toDestination();
-// }
+function removeModule(moduleType: string) {
+    const moduleIndex = existingModules.findIndex(module => module.id == moduleType);
+    if (moduleIndex === -1) {
+        console.warn(`Module ${moduleType} not found`);
+        return;
+    }
 
+    const { instance } = existingModules[moduleIndex];
+    existingModules.splice(moduleIndex, 1);
+
+    const chainIndex = moduleChain.indexOf(instance);
+    if (chainIndex !== -1) {
+        moduleChain[chainIndex].dispose();
+        moduleChain.splice(chainIndex, 1);
+    }
+
+    connectChain();
+    console.log(moduleChain);
+}
 
 function midiToFreq(number: number) {
     const a = 440;
@@ -163,13 +190,14 @@ const keyToNote: { [key: string]: number } = {
 
 const synthVoice = Tone.Synth;
 const currentSynth = new Tone.PolySynth(synthVoice);
-currentSynth.volume.value = -10;
+currentSynth.volume.value = -6;
 
-const limiter = new Tone.Limiter(-12);
+// const limiter = new Tone.Limiter(-12);
+const limiter = new Tone.Limiter(-6);
 
 const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
-const existingModules: Tone.ToneAudioNode[] = [];
+const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
 navigatorBegin();
 
@@ -182,25 +210,25 @@ currentSynth.set({
 });
 
 
-const activeEffects = {
-    highpass: false,
-    lowpass: false,
-    bandpass: false,
-    notch: false,
-    delay: false,
-    reverb: false,
-    feedback: false,
-    pingpong: false,
-    chorus: false,
-    distortion: false,
-    wah: false,
-    phaser: false,
-    widener: false,
-    vibrato: false,
-    bitcrusher: false,
-    chebyshev: false,
-    partials: false
-}
+// const activeEffects = {
+//     highpass: false,
+//     lowpass: false,
+//     bandpass: false,
+//     notch: false,
+//     delay: false,
+//     reverb: false,
+//     feedback: false,
+//     pingpong: false,
+//     chorus: false,
+//     distortion: false,
+//     wah: false,
+//     phaser: false,
+//     widener: false,
+//     vibrato: false,
+//     bitcrusher: false,
+//     chebyshev: false,
+//     partials: false
+// }
 
 const sliderSettings = {
     attack: 0.005,
@@ -335,7 +363,13 @@ function App(): ReactElement {
                                 max={"3"}
                                 defaultValue={sliderSettings.attack}
                                 step={"0.001"}
-                                onChange={(e) => currentSynth.set({envelope: {attack: parseFloat(e.target.value)}})}
+                                onChange={
+                                    (e) => currentSynth.set({
+                                        envelope: {
+                                            attack: parseFloat(e.target.value)
+                                        }
+                                    })
+                                }
                             />
                         </div>
                         <div className={"effect"}>
@@ -466,17 +500,12 @@ function App(): ReactElement {
                                         id={"delay-toggle"}
                                         onChange = {
                                             (e) => {
-                                                if (e.target.value) {
-                                                    const delay = new Tone.Delay(sliderSettings.delay);
-                                                    activeEffects.delay = true;
-                                                    existingModules.push(delay);
-                                                    addModule(delay);
+                                                if (e.target.checked) {
+                                                    addModule("delay");
                                                 }
-                                                // else {
-                                                //     activeEffects.delay = false;
-                                                //     const delay = existingModules[]
-                                                //     existingModules.splice(existingModules.findIndex(delay), 1)
-                                                // }
+                                                else {
+                                                    removeModule("delay");
+                                                }
                                             }
                                         }
                                     />
