@@ -6,27 +6,24 @@ import * as Tone from "tone";
 
 // ------------ Synth Functions ------------
 
-function updateSynth(newSynthVoice: string) {
+function updateSynth() {
     currentSynth.dispose();
     let newSynth: Tone.PolySynth;
 
-    switch (newSynthVoice) {
+    switch (activeEffects.synth) {
         case "synth": {
             newSynth = new Tone.PolySynth(Tone.Synth);
-            activeEffects.synth = "synth";
             break;
         }
         case "amsynth": {
             newSynth = new Tone.PolySynth(Tone.AMSynth);
-            activeEffects.synth = "amsynth";
             (newSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity});
             break;
         }
         case "fmsynth": {
             newSynth = new Tone.PolySynth(Tone.FMSynth);
-            activeEffects.synth = "fmsynth";
             (newSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity});
-            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings["modulation-index"]});
+            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings.modulation_index});
             break;
         }
         default: {
@@ -34,18 +31,16 @@ function updateSynth(newSynthVoice: string) {
         }
     }
 
-
-    /// SET ALL ENVELOPE AND WAVEFORM AND OSCILLATOR TYPE(AM FM FAT...)
-
-
     newSynth.volume.value = -6;
 
     moduleChain[0] = newSynth;
     currentSynth = newSynth;
 
+    /// SET ALL ENVELOPE AND WAVEFORM AND OSCILLATOR TYPE(AM FM FAT...)
+    updateButton();
     connectChain();
     console.log(moduleChain[0]);
-}
+} // updates the base synth object with all its parameters
 
 function midiToFreq(number: number) {
     const a = 440;
@@ -55,11 +50,11 @@ function midiToFreq(number: number) {
 function noteOn(note: number, velocity: number, octave: number = 0){
     currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
     console.log(currentSynth.activeVoices);
-}
+} // triggers a note
 
 function noteOff(note: number, octave: number = 0) {
     currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
-}
+} // releases the note
 
 function updateSlider (element: keyof typeof activeEffects) {
     if (activeEffects[element]) {
@@ -76,11 +71,19 @@ function updateSlider (element: keyof typeof activeEffects) {
             }
 
             else if (element == "modulation-index") {
-                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings["modulation-index"]})
+                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings.modulation_index})
             }
         }
     }
-}
+} // uses slider to change the sliderSettings values
+
+function updateButton () {
+    let oscillatorType = activeEffects.waveform as EffectTypes;
+    if (oscillatorType!= "pulse" && oscillatorType != "pwm") {
+        oscillatorType = activeEffects.oscillator_type+oscillatorType as EffectTypes;
+    }
+    currentSynth.set({oscillator: {type: oscillatorType as EffectTypes}});
+} // sets the oscillator to the chosen type from buttons
 
 
 
@@ -216,6 +219,29 @@ function navigatorBegin() {
 }
 
 
+type EffectTypes =
+    "sine"
+    | "square"
+    | "sawtooth"
+    | "triangle"
+
+    | "fatsine"
+    | "fatsquare"
+    | "fatsawtooth"
+    | "fattriangle"
+
+    | "fmsine"
+    | "fmsquare"
+    | "fmsawtooth"
+    | "fmtriangle"
+
+    | "amsine"
+    | "amsquare"
+    | "amsawtooth"
+    | "amtriangle"
+
+    | "pulse"
+    | "pwm";
 
 const keyToNote: { [key: string]: number } = {
     q: 48, // C3
@@ -258,19 +284,10 @@ const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
-navigatorBegin();
-
-connectChain();
-
-currentSynth.set({
-    oscillator: {
-        type: "sine",
-    }
-});
-
-
 const activeEffects = {
     "synth": "synth",
+    "waveform": "sine",
+    "oscillator_type": "",
     "harmonicity": true,
     "modulation-index": true,
     "highpass": false,
@@ -294,7 +311,7 @@ const activeEffects = {
 
 const sliderSettings = {
     "harmonicity": 3,
-    "modulation-index": 10,
+    "modulation_index": 10,
     "attack": 0.005,
     "decay": 0.1,
     "sustain": 0.3,
@@ -322,6 +339,12 @@ const sliderSettings = {
     "chebyshev": 1
 };
 
+
+navigatorBegin();
+
+connectChain();
+
+updateSynth();
 
 function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
@@ -401,13 +424,22 @@ function App(): ReactElement {
                     </div>
                     <div className={"vertical"} id={"synth-choices"}>
                         <button onClick={
-                            () => updateSynth("synth")
+                            () => {
+                                activeEffects.synth = "synth";
+                                updateSynth();
+                            }
                         }>Classic</button>
                         <button onClick={
-                            () => updateSynth("amsynth")
+                            () => {
+                                activeEffects.synth = "amsynth";
+                                updateSynth();
+                            }
                         }>AMSynth</button>
                         <button onClick={
-                            () => updateSynth("fmsynth")
+                            () => {
+                                activeEffects.synth = "fmsynth";
+                                updateSynth();
+                            }
                         }>FMSynth</button>
                         <input
                             type={"range"}
@@ -428,11 +460,11 @@ function App(): ReactElement {
                             id={"modulation-index-slider"}
                             min={"1"}
                             max={"20"}
-                            defaultValue={sliderSettings["modulation-index"]}
+                            defaultValue={sliderSettings.modulation_index}
                             step={"1"}
                             onChange={
                                 (e) =>  {
-                                    sliderSettings["modulation-index"] = parseFloat(e.target.value);
+                                    sliderSettings.modulation_index = parseFloat(e.target.value);
                                     updateSlider("modulation-index");
                                 }
                             }
@@ -444,10 +476,42 @@ function App(): ReactElement {
                         <h3>Waveform</h3>
                     </div>
                     <div className={"vertical"} id={"waveform-choices"}>
-                        <button>Sine</button>
-                        <button>Square</button>
-                        <button>Saw</button>
-                        <button>Triangle</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.waveform = "sine";
+                                updateButton();
+                            }
+                        }>Sine</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.waveform = "square";
+                                updateButton();
+                            }
+                        }>Square</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.waveform = "sawtooth";
+                                updateButton();
+                            }
+                        }>Saw</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.waveform = "triangle";
+                                updateButton();
+                            }
+                        }>Triangle</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.waveform = "pulse";
+                                updateButton();
+                            }
+                        }>Pulse</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.waveform = "pwm";
+                                updateButton();
+                            }
+                        }>PWM</button>
                     </div>
                     <div className={"vertical"} id={"envelope-choices"}>
                         <div className={"effect"}>
@@ -511,20 +575,37 @@ function App(): ReactElement {
                                 onChange={(e) => currentSynth.set({envelope: {release: parseFloat(e.target.value)}})}
                             />
                         </div>
+
+                        <button onClick={
+                            () => {
+                                activeEffects.oscillator_type = "";
+                                updateButton();
+                            }
+                        }>NONE</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.oscillator_type = "am";
+                                updateButton();
+                            }
+                        }>AM</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.oscillator_type = "fm";
+                                updateButton();
+                            }
+                        }>FM</button>
+                        <button onClick={
+                            () => {
+                                activeEffects.oscillator_type = "fat";
+                                updateButton();
+                            }
+                        }>FAT</button>
                     </div>
                 </div>
                 <div className={"vertical"} id={"effects-column"}>
                     <div className={"column-title"}>
                         <h3>Modular Effects</h3>
                     </div>
-                    <input
-                        type={"range"}
-                        id={"wet-slider"}
-                        min={"0"}
-                        max={"1"}
-                        defaultValue={"1"}
-                        step={"0.01"}
-                    />
                     <div className={"horizontal"}>
                         <div className={"vertical"}>
                             <div className={"vertical"}>
