@@ -612,7 +612,7 @@ function App(): ReactElement {
                                 type={"range"}
                                 id={"release-slider"}
                                 min={"0.01"}
-                                max={"10"}
+                                max={"5"}
                                 defaultValue={synthEnvelope.release}
                                 step={"0.01"}
                                 onChange={
