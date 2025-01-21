@@ -443,6 +443,11 @@ function App(): ReactElement {
                                                     existingModules.push(delay);
                                                     addModule(delay);
                                                 }
+                                                // else {
+                                                //     activeEffects.delay = false;
+                                                //     const delay = existingModules[]
+                                                //     existingModules.splice(existingModules.findIndex(delay), 1)
+                                                // }
                                             }
                                         }
                                     />
