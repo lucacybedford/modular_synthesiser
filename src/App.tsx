@@ -4,6 +4,8 @@ import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
 
+// ------------ Synth Functions ------------
+
 function updateSynth(newSynthVoice: string) {
     currentSynth.dispose();
     let newSynth: Tone.PolySynth;
@@ -41,15 +43,48 @@ function updateSynth(newSynthVoice: string) {
     moduleChain[0] = newSynth;
     currentSynth = newSynth;
 
-    applySynthSettings();
-
     connectChain();
     console.log(moduleChain[0]);
 }
 
-function applySynthSettings() {
-
+function midiToFreq(number: number) {
+    const a = 440;
+    return (a/32) * (2 ** ((number - 9) / 12));
 }
+
+function noteOn(note: number, velocity: number, octave: number = 0){
+    currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
+    console.log(currentSynth.activeVoices);
+}
+
+function noteOff(note: number, octave: number = 0) {
+    currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
+}
+
+function updateSlider (element: keyof typeof activeEffects) {
+    if (activeEffects[element]) {
+        console.log(`Updating slider ${element}`);
+        if (activeEffects.synth == "amsynth") {
+            if (element == "harmonicity") {
+                (currentSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity})
+            }
+        }
+
+        else if (activeEffects.synth == "fmsynth") {
+            if (element == "harmonicity") {
+                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity})
+            }
+
+            else if (element == "modulation-index") {
+                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings["modulation-index"]})
+            }
+        }
+    }
+}
+
+
+
+// ------------ Module Chain Functions ------------
 
 function connectChain() {
     for (let i = 0; i < moduleChain.length - 1; i++) {
@@ -135,40 +170,9 @@ function removeModule (moduleType: string) {
     console.log(moduleChain);
 }
 
-function updateSlider (element: keyof typeof activeEffects) {
-    if (activeEffects[element]) {
-        console.log(`Updating slider ${element}`);
-        if (activeEffects.synth == "amsynth") {
-            if (element == "harmonicity") {
-                (currentSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity})
-            }
-        }
 
-        else if (activeEffects.synth == "fmsynth") {
-            if (element == "harmonicity") {
-                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity})
-            }
 
-            else if (element == "modulation-index") {
-                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings["modulation-index"]})
-            }
-        }
-    }
-}
-
-function midiToFreq(number: number) {
-    const a = 440;
-    return (a/32) * (2 ** ((number - 9) / 12));
-}
-
-function noteOn(note: number, velocity: number, octave: number = 0){
-    currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
-    console.log(currentSynth.activeVoices);
-}
-
-function noteOff(note: number, octave: number = 0) {
-    currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
-}
+// ------------ API Functions ------------
 
 function updateDevices(event: MIDIConnectionEvent) {
     console.log(`Name: ${event.port?.name}$, Brand: ${event.port?.manufacturer}$, State: ${event.port?.state}$, Type: ${event.port?.type}$`);
@@ -211,6 +215,8 @@ function navigatorBegin() {
     }
 }
 
+
+
 const keyToNote: { [key: string]: number } = {
     q: 48, // C3
     2: 49, // C#3
@@ -242,8 +248,6 @@ const keyToNote: { [key: string]: number } = {
     j: 75, // D#5
     m: 76, // E5
 };
-
-
 
 let currentSynth = new Tone.PolySynth();
 currentSynth.volume.value = -6;
