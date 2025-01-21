@@ -6,6 +6,19 @@ import * as Tone from "tone";
 const synthVoice = Tone.Synth;
 const currentSynth = new Tone.PolySynth(synthVoice);
 
+currentSynth.set({
+    oscillator: {
+        type: "sine",
+    }
+})
+
+
+currentSynth.connect(new Tone.Limiter(-12).toDestination());
+currentSynth.volume.value = -10;
+
+
+// currentSynth.toDestination();
+
 // const [sliderSettings, setSliderSettings] = useState({
 //     attack: 0.05,
 //     decay: 0,
@@ -44,90 +57,8 @@ function midiToFreq(number: number) {
 
 function noteOn(note: number, velocity: number, octave: number = 0){
 
-    currentSynth.set({
-        oscillator: {
-            type: "sine",
-        }
-    })
-
-
     // const connectionChain: (Tone.ToneAudioNode)[] = [currentSynth]
 
-    // if (getToggle("highpass-toggle")) {
-    //     connectionChain.push(new Tone.Filter(getSliderValue("highpass-slider"), "highpass"));
-    // }
-    //
-    // if (getToggle("lowpass-toggle")) {
-    //     connectionChain.push(new Tone.Filter(getSliderValue("lowpass-slider"), "lowpass"));
-    // }
-    //
-    // if (getToggle("bandpass-toggle")) {
-    //     connectionChain.push(new Tone.Filter(getSliderValue("bandpass-slider"), "bandpass"));
-    // }
-    //
-    // if (getToggle("notch-toggle")) {
-    //     connectionChain.push(new Tone.Filter(getSliderValue("notch-slider"), "notch"));
-    // }
-    //
-    // if (getToggle("delay-toggle")) {
-    //     connectionChain.push(new Tone.Delay(getSliderValue("delay-slider")));
-    // }
-    //
-    // if (getToggle("reverb-toggle")) {
-    //     connectionChain.push(new Tone.Reverb(getSliderValue("reverb-slider")));
-    // }
-    //
-    // if (getToggle("feedback-toggle")) {
-    //     connectionChain.push(new Tone.FeedbackDelay(getSliderValue("feedback-slider-1"), getSliderValue("feedback-slider-2")));
-    // }
-    //
-    // if (getToggle("pingpong-toggle")) {
-    //     connectionChain.push(new Tone.PingPongDelay(getSliderValue("pingpong-slider-1"), getSliderValue("pingpong-slider-2")));
-    // }
-    //
-    // if (getToggle("chorus-toggle")) {
-    //     connectionChain.push(new Tone.Chorus(1.5, getSliderValue("chorus-slider-1"), getSliderValue("chorus-slider-2")));
-    // }
-    //
-    // if (getToggle("distortion-toggle")) {
-    //     connectionChain.push(new Tone.Distortion(getSliderValue("distortion-slider")));
-    // }
-    //
-    // if (getToggle("wah-toggle")) {
-    //     connectionChain.push(new Tone.AutoWah(100, getSliderValue("wah-slider")));
-    // }
-    //
-    // if (getToggle("phaser-toggle")) {
-    //     connectionChain.push(new Tone.Phaser(getSliderValue("phaser-slider-1"), getSliderValue("phaser-slider-2")));
-    // }
-    //
-    // if (getToggle("widener-toggle")) {
-    //     connectionChain.push(new Tone.StereoWidener(getSliderValue("widener-slider")));
-    // }
-    //
-    // if (getToggle("vibrato-toggle")) {
-    //     connectionChain.push(new Tone.Vibrato(getSliderValue("vibrato-slider-1"), getSliderValue("vibrato-slider-2")));
-    // }
-    //
-    // if (getToggle("bitcrusher-toggle")) {
-    //     connectionChain.push(new Tone.BitCrusher(getSliderValue("bitcrusher-slider")));
-    // }
-    //
-    // if (getToggle("chebyshev-toggle")) {
-    //     connectionChain.push(new Tone.Chebyshev(getSliderValue("chebyshev-slider")));
-    // }
-    //
-    //
-    // const limiter = new Tone.Limiter(-6).toDestination();
-    // connectionChain.push(limiter);
-    //
-    // for (let i = 0; i < connectionChain.length - 1; i++) {
-    //     const first = connectionChain[i];
-    //     const second = connectionChain[i+1];
-    //     first.connect(second);
-    // }
-
-    currentSynth.toDestination();
     currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
     console.log(currentSynth.activeVoices);
 }
