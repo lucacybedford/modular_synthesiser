@@ -3,7 +3,38 @@ import {ReactElement, useEffect, useState} from "react";
 import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
-const synths: { [key: string]: Tone.Synth } = {};
+const synthVoice = Tone.Synth;
+const currentSynth = new Tone.PolySynth(synthVoice);
+
+// const [sliderSettings, setSliderSettings] = useState({
+//     attack: 0.05,
+//     decay: 0,
+//     sustain: 1,
+//     release: 0.05,
+//     highpass: 1000
+// });
+//
+// const [effectToggles, setEffectToggles] = useState({
+//     highpass: false,
+//     lowpass: false,
+//     bandpass: false,
+//     notch: false,
+//     delay: false,
+//     reverb: false,
+//     feedback: false,
+//     pingpong: false,
+//     chorus: false,
+//     distortion: false,
+// })
+//
+// function getSliderValue(element: string): number {
+//     return sliderSettings[element];
+// }
+//
+// function getToggle(element: string): boolean {
+//     return effectToggles[element];
+// }
+
 
 function midiToFreq(number: number) {
     const a = 440;
@@ -13,120 +44,110 @@ function midiToFreq(number: number) {
 
 function noteOn(note: number, velocity: number, octave: number = 0){
 
-    const synth = new Tone.Synth({
+    currentSynth.set({
         oscillator: {
-            type: "fatsine"
+            type: "fatsine",
         },
         envelope: {
             attack: getSliderValue("attack-slider"),
             decay: getSliderValue("decay-slider"),
             sustain: getSliderValue("sustain-slider"),
-            release: getSliderValue("release-slider"),
+            release: getSliderValue("release-slider")
         }
-    });
-    const now = Tone.now();
-
-    const connectionChain: (Tone.ToneAudioNode)[] = [synth]
-
-    // const connectionChain: (Tone.Synth | Tone.Filter | Tone.Delay | Tone.Reverb | Tone.FeedbackDelay | Tone.PingPongDelay | Tone.Chorus | Tone.Distortion | Tone.AutoWah | Tone.Phaser | Tone.StereoWidener | Tone.Vibrato | Tone.BitCrusher | Tone.Chebyshev | Tone.Limiter)[] = [synth];
+    })
 
 
-    if (getToggle("highpass-toggle")) {
-        connectionChain.push(new Tone.Filter(getSliderValue("highpass-slider"), "highpass"));
-    }
+    // const connectionChain: (Tone.ToneAudioNode)[] = [currentSynth]
 
-    if (getToggle("lowpass-toggle")) {
-        connectionChain.push(new Tone.Filter(getSliderValue("lowpass-slider"), "lowpass"));
-    }
+    // if (getToggle("highpass-toggle")) {
+    //     connectionChain.push(new Tone.Filter(getSliderValue("highpass-slider"), "highpass"));
+    // }
+    //
+    // if (getToggle("lowpass-toggle")) {
+    //     connectionChain.push(new Tone.Filter(getSliderValue("lowpass-slider"), "lowpass"));
+    // }
+    //
+    // if (getToggle("bandpass-toggle")) {
+    //     connectionChain.push(new Tone.Filter(getSliderValue("bandpass-slider"), "bandpass"));
+    // }
+    //
+    // if (getToggle("notch-toggle")) {
+    //     connectionChain.push(new Tone.Filter(getSliderValue("notch-slider"), "notch"));
+    // }
+    //
+    // if (getToggle("delay-toggle")) {
+    //     connectionChain.push(new Tone.Delay(getSliderValue("delay-slider")));
+    // }
+    //
+    // if (getToggle("reverb-toggle")) {
+    //     connectionChain.push(new Tone.Reverb(getSliderValue("reverb-slider")));
+    // }
+    //
+    // if (getToggle("feedback-toggle")) {
+    //     connectionChain.push(new Tone.FeedbackDelay(getSliderValue("feedback-slider-1"), getSliderValue("feedback-slider-2")));
+    // }
+    //
+    // if (getToggle("pingpong-toggle")) {
+    //     connectionChain.push(new Tone.PingPongDelay(getSliderValue("pingpong-slider-1"), getSliderValue("pingpong-slider-2")));
+    // }
+    //
+    // if (getToggle("chorus-toggle")) {
+    //     connectionChain.push(new Tone.Chorus(1.5, getSliderValue("chorus-slider-1"), getSliderValue("chorus-slider-2")));
+    // }
+    //
+    // if (getToggle("distortion-toggle")) {
+    //     connectionChain.push(new Tone.Distortion(getSliderValue("distortion-slider")));
+    // }
+    //
+    // if (getToggle("wah-toggle")) {
+    //     connectionChain.push(new Tone.AutoWah(100, getSliderValue("wah-slider")));
+    // }
+    //
+    // if (getToggle("phaser-toggle")) {
+    //     connectionChain.push(new Tone.Phaser(getSliderValue("phaser-slider-1"), getSliderValue("phaser-slider-2")));
+    // }
+    //
+    // if (getToggle("widener-toggle")) {
+    //     connectionChain.push(new Tone.StereoWidener(getSliderValue("widener-slider")));
+    // }
+    //
+    // if (getToggle("vibrato-toggle")) {
+    //     connectionChain.push(new Tone.Vibrato(getSliderValue("vibrato-slider-1"), getSliderValue("vibrato-slider-2")));
+    // }
+    //
+    // if (getToggle("bitcrusher-toggle")) {
+    //     connectionChain.push(new Tone.BitCrusher(getSliderValue("bitcrusher-slider")));
+    // }
+    //
+    // if (getToggle("chebyshev-toggle")) {
+    //     connectionChain.push(new Tone.Chebyshev(getSliderValue("chebyshev-slider")));
+    // }
+    //
+    //
+    // const limiter = new Tone.Limiter(-6).toDestination();
+    // connectionChain.push(limiter);
+    //
+    // for (let i = 0; i < connectionChain.length - 1; i++) {
+    //     const first = connectionChain[i];
+    //     const second = connectionChain[i+1];
+    //     first.connect(second);
+    // }
 
-    if (getToggle("bandpass-toggle")) {
-        connectionChain.push(new Tone.Filter(getSliderValue("bandpass-slider"), "bandpass"));
-    }
-
-    if (getToggle("notch-toggle")) {
-        connectionChain.push(new Tone.Filter(getSliderValue("notch-slider"), "notch"));
-    }
-
-    if (getToggle("delay-toggle")) {
-        connectionChain.push(new Tone.Delay(getSliderValue("delay-slider")));
-    }
-
-    if (getToggle("reverb-toggle")) {
-        connectionChain.push(new Tone.Reverb(getSliderValue("reverb-slider")));
-    }
-
-    if (getToggle("feedback-toggle")) {
-        connectionChain.push(new Tone.FeedbackDelay(getSliderValue("feedback-slider-1"), getSliderValue("feedback-slider-2")));
-    }
-
-    if (getToggle("pingpong-toggle")) {
-        connectionChain.push(new Tone.PingPongDelay(getSliderValue("pingpong-slider-1"), getSliderValue("pingpong-slider-2")));
-    }
-
-    if (getToggle("chorus-toggle")) {
-        connectionChain.push(new Tone.Chorus(1.5, getSliderValue("chorus-slider-1"), getSliderValue("chorus-slider-2")));
-    }
-
-    if (getToggle("distortion-toggle")) {
-        connectionChain.push(new Tone.Distortion(getSliderValue("distortion-slider")));
-    }
-
-    if (getToggle("wah-toggle")) {
-        connectionChain.push(new Tone.AutoWah(100, getSliderValue("wah-slider")));
-    }
-
-    if (getToggle("phaser-toggle")) {
-        connectionChain.push(new Tone.Phaser(getSliderValue("phaser-slider-1"), getSliderValue("phaser-slider-2")));
-    }
-
-    if (getToggle("widener-toggle")) {
-        connectionChain.push(new Tone.StereoWidener(getSliderValue("widener-slider")));
-    }
-
-    if (getToggle("vibrato-toggle")) {
-        connectionChain.push(new Tone.Vibrato(getSliderValue("vibrato-slider-1"), getSliderValue("vibrato-slider-2")));
-    }
-
-    if (getToggle("bitcrusher-toggle")) {
-        connectionChain.push(new Tone.BitCrusher(getSliderValue("bitcrusher-slider")));
-    }
-
-    if (getToggle("chebyshev-toggle")) {
-        connectionChain.push(new Tone.Chebyshev(getSliderValue("chebyshev-slider")));
-    }
-
-
-    const limiter = new Tone.Limiter(-6).toDestination();
-    connectionChain.push(limiter);
-
-    for (let i = 0; i < connectionChain.length - 1; i++) {
-        const first = connectionChain[i];
-        const second = connectionChain[i+1];
-        first.connect(second);
-    }
-
-
-    synth.triggerAttack(midiToFreq(note + octave * 12), now);
-    synth.volume.value = Tone.gainToDb(velocity / (127 * 5));
-
-
-    synths[note.toString()] = synth;
+    currentSynth.toDestination();
+    currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
+    console.log(currentSynth.activeVoices);
 }
 
 function getSliderValue(element: string): number {
     return parseFloat((document.getElementById(element) as HTMLSelectElement).value);
 }
 
-function getToggle(element: string): boolean {
-    return (document.getElementById(element) as HTMLInputElement).checked;
-}
+// function getToggle(element: string): boolean {
+//     return (document.getElementById(element) as HTMLInputElement).checked;
+// }
 
-function noteOff(note: number) {
-
-    const synth = synths[note.toString()];
-    const now = Tone.now();
-    synth.triggerRelease(now);
-    delete synths[note.toString()];
+function noteOff(note: number, octave: number = 0) {
+    currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
 }
 
 
@@ -247,7 +268,7 @@ function App(): ReactElement {
                         updated.delete(event.key);
                         return updated;
                     });
-                    noteOff(note);
+                    noteOff(note, octave);
                 }
             }
         };
@@ -308,10 +329,11 @@ function App(): ReactElement {
                             <input
                                 type={"range"}
                                 id={"attack-slider"}
-                                min={"0.05"}
+                                min={"0.1"}
                                 max={"3"}
-                                defaultValue={"0.05"}
-                                step={"0.01"}
+                                defaultValue={"0.1"}
+                                step={"0.1"}
+                                // onChange={e => setSliderSettings({...sliderSettings, attack: parseFloat(e.target.value)})}
                             />
                         </div>
                         <div className={"effect"}>
@@ -319,10 +341,10 @@ function App(): ReactElement {
                             <input
                                 type={"range"}
                                 id={"decay-slider"}
-                                min={"0"}
+                                min={"0.1"}
                                 max={"3"}
-                                defaultValue={"0"}
-                                step={"0.01"}
+                                defaultValue={"0.2"}
+                                step={"0.1"}
                             />
                         </div>
                         <div className={"effect"}>
@@ -333,7 +355,7 @@ function App(): ReactElement {
                                 min={"0"}
                                 max={"1"}
                                 defaultValue={"1"}
-                                step={"0.01"}
+                                step={"0.1"}
                             />
                         </div>
                         <div className={"effect"}>
@@ -341,10 +363,10 @@ function App(): ReactElement {
                             <input
                                 type={"range"}
                                 id={"release-slider"}
-                                min={"0.05"}
+                                min={"0.1"}
                                 max={"3"}
-                                defaultValue={"0.05"}
-                                step={"0.01"}
+                                defaultValue={"0.8"}
+                                step={"0.1"}
                             />
                         </div>
                     </div>
