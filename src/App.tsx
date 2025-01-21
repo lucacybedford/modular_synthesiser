@@ -127,10 +127,9 @@ currentSynth.volume.value = -10;
 
 const limiter = new Tone.Limiter(-12);
 
-const delay = new Tone.Delay(1);
+const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
-const moduleChain: Tone.ToneAudioNode[] = [currentSynth, delay, limiter];
-
+const existingModules: Tone.ToneAudioNode[] = [];
 
 navigatorBegin();
 
@@ -145,25 +144,25 @@ currentSynth.set({
 
 (moduleChain[1] as Tone.Delay).delayTime.value = 1000;
 
-// const activeEffects = {
-//     highpass: false,
-//     lowpass: false,
-//     bandpass: false,
-//     notch: false,
-//     delay: false,
-//     reverb: false,
-//     feedback: false,
-//     pingpong: false,
-//     chorus: false,
-//     distortion: false,
-//     wah: false,
-//     phaser: false,
-//     widener: false,
-//     vibrato: false,
-//     bitcrusher: false,
-//     chebyshev: false,
-//     partials: false
-// }
+const activeEffects = {
+    highpass: false,
+    lowpass: false,
+    bandpass: false,
+    notch: false,
+    delay: false,
+    reverb: false,
+    feedback: false,
+    pingpong: false,
+    chorus: false,
+    distortion: false,
+    wah: false,
+    phaser: false,
+    widener: false,
+    vibrato: false,
+    bitcrusher: false,
+    chebyshev: false,
+    partials: false
+}
 
 const sliderSettings = {
     attack: 0.005,
@@ -439,12 +438,10 @@ function App(): ReactElement {
                                         onChange = {
                                             (e) => {
                                                 if (e.target.value) {
-                                                    if (delay) {
-                                                        addModule(delay);
-                                                    } else {
-                                                        const delay = new Tone.Delay();
-                                                        addModule(delay);
-                                                    }
+                                                    const delay = new Tone.Delay(sliderSettings.delay);
+                                                    activeEffects.delay = true;
+                                                    existingModules.push(delay);
+                                                    addModule(delay);
                                                 }
                                             }
                                         }
