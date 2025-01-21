@@ -4,12 +4,11 @@ import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
 
-// function updateSynth() {
+// function updateSynth(newSynthVoice: Tone.ToneAudioNode) {
 //     currentSynth.dispose();
 //
-//     currentSynth = new Tone.PolySynth(synthVoice);
-//
-//
+//     currentSynth = new Tone.PolySynth(newSynthVoice);
+//     connectChain();
 // }
 
 function connectChain() {
@@ -21,42 +20,13 @@ function connectChain() {
     moduleChain[moduleChain.length-1].toDestination();
 }
 
-// function reconnectSynth() {
-//
-//
-// }
-
-
-// currentSynth.toDestination();
-
-// const [sliderSettings, setSliderSettings] = useState({
-//     attack: 0.05,
-//     decay: 0,
-//     sustain: 1,
-//     release: 0.05,
-//     highpass: 1000
-// });
-//
-// const [effectToggles, setEffectToggles] = useState({
-//     highpass: false,
-//     lowpass: false,
-//     bandpass: false,
-//     notch: false,
-//     delay: false,
-//     reverb: false,
-//     feedback: false,
-//     pingpong: false,
-//     chorus: false,
-//     distortion: false,
-// })
-//
-// function getSliderValue(element: string): number {
-//     return sliderSettings[element];
-// }
-//
-// function getToggle(element: string): boolean {
-//     return effectToggles[element];
-// }
+function addModule(module: Tone.ToneAudioNode) {
+    moduleChain[moduleChain.length-1].disconnect();
+    moduleChain.pop();
+    moduleChain.push(module);
+    moduleChain.push(limiter);
+    moduleChain[moduleChain.length-1].toDestination();
+}
 
 
 function midiToFreq(number: number) {
@@ -157,7 +127,10 @@ currentSynth.volume.value = -10;
 
 const limiter = new Tone.Limiter(-12);
 
-const moduleChain = [currentSynth, new Tone.Delay(1), limiter];
+const delay = new Tone.Delay(1);
+
+const moduleChain: Tone.ToneAudioNode[] = [currentSynth, delay, limiter];
+
 
 navigatorBegin();
 
@@ -167,10 +140,10 @@ currentSynth.set({
     oscillator: {
         type: "sine",
     }
-})
+});
 
 
-// moduleChain[1].delay
+(moduleChain[1] as Tone.Delay).delayTime.value = 1000;
 
 // const activeEffects = {
 //     highpass: false,
@@ -463,6 +436,18 @@ function App(): ReactElement {
                                         max={"3"}
                                         defaultValue={sliderSettings.delay}
                                         step={"0.01"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.value) {
+                                                    if (delay) {
+                                                        addModule(delay);
+                                                    } else {
+                                                        const delay = new Tone.Delay();
+                                                        addModule(delay);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                                 <div className={"effect"}>
