@@ -4,12 +4,52 @@ import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
 
-// function updateSynth(newSynthVoice: Tone.ToneAudioNode) {
-//     currentSynth.dispose();
-//
-//     currentSynth = new Tone.PolySynth(newSynthVoice);
-//     connectChain();
-// }
+function updateSynth(newSynthVoice: string) {
+    currentSynth.dispose();
+    let newSynth: Tone.PolySynth;
+
+    switch (newSynthVoice) {
+        case "synth": {
+            newSynth = new Tone.PolySynth(Tone.Synth);
+            activeEffects.synth = "synth";
+            break;
+        }
+        case "amsynth": {
+            newSynth = new Tone.PolySynth(Tone.AMSynth);
+            activeEffects.synth = "amsynth";
+            (newSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity});
+            break;
+        }
+        case "fmsynth": {
+            newSynth = new Tone.PolySynth(Tone.FMSynth);
+            activeEffects.synth = "fmsynth";
+            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity});
+            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings["modulation-index"]});
+            break;
+        }
+        default: {
+            return;
+        }
+    }
+
+
+    /// SET ALL ENVELOPE AND WAVEFORM AND OSCILLATOR TYPE(AM FM FAT...)
+
+
+    newSynth.volume.value = -6;
+
+    moduleChain[0] = newSynth;
+    currentSynth = newSynth;
+
+    applySynthSettings();
+
+    connectChain();
+    console.log(moduleChain[0]);
+}
+
+function applySynthSettings() {
+
+}
 
 function connectChain() {
     for (let i = 0; i < moduleChain.length - 1; i++) {
@@ -20,7 +60,6 @@ function connectChain() {
     }
     moduleChain[moduleChain.length-1].toDestination();
 }
-
 
 function addModule (moduleType: string) {
     let module: Tone.ToneAudioNode;
@@ -76,7 +115,7 @@ function addModule (moduleType: string) {
     console.log(moduleChain);
 }
 
-function removeModule(moduleType: string) {
+function removeModule (moduleType: string) {
     const moduleIndex = existingModules.findIndex(module => module.id == moduleType);
     if (moduleIndex === -1) {
         console.warn(`Module ${moduleType} not found`);
@@ -96,15 +135,33 @@ function removeModule(moduleType: string) {
     console.log(moduleChain);
 }
 
+function updateSlider (element: keyof typeof activeEffects) {
+    if (activeEffects[element]) {
+        console.log(`Updating slider ${element}`);
+        if (activeEffects.synth == "amsynth") {
+            if (element == "harmonicity") {
+                (currentSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity})
+            }
+        }
+
+        else if (activeEffects.synth == "fmsynth") {
+            if (element == "harmonicity") {
+                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity})
+            }
+
+            else if (element == "modulation-index") {
+                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings["modulation-index"]})
+            }
+        }
+    }
+}
+
 function midiToFreq(number: number) {
     const a = 440;
     return (a/32) * (2 ** ((number - 9) / 12));
 }
 
 function noteOn(note: number, velocity: number, octave: number = 0){
-
-    // const connectionChain: (Tone.ToneAudioNode)[] = [currentSynth]
-
     currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
     console.log(currentSynth.activeVoices);
 }
@@ -188,11 +245,9 @@ const keyToNote: { [key: string]: number } = {
 
 
 
-const synthVoice = Tone.Synth;
-const currentSynth = new Tone.PolySynth(synthVoice);
+let currentSynth = new Tone.PolySynth();
 currentSynth.volume.value = -6;
 
-// const limiter = new Tone.Limiter(-12);
 const limiter = new Tone.Limiter(-6);
 
 const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
@@ -210,61 +265,65 @@ currentSynth.set({
 });
 
 
-// const activeEffects = {
-//     highpass: false,
-//     lowpass: false,
-//     bandpass: false,
-//     notch: false,
-//     delay: false,
-//     reverb: false,
-//     feedback: false,
-//     pingpong: false,
-//     chorus: false,
-//     distortion: false,
-//     wah: false,
-//     phaser: false,
-//     widener: false,
-//     vibrato: false,
-//     bitcrusher: false,
-//     chebyshev: false,
-//     partials: false
-// }
+const activeEffects = {
+    "synth": "synth",
+    "harmonicity": true,
+    "modulation-index": true,
+    "highpass": false,
+    "lowpass": false,
+    "bandpass": false,
+    "notch": false,
+    "delay": false,
+    "reverb": false,
+    "feedback": false,
+    "pingpong": false,
+    "chorus": false,
+    "distortion": false,
+    "wah": false,
+    "phaser": false,
+    "widener": false,
+    "vibrato": false,
+    "bitcrusher": false,
+    "chebyshev": false,
+    "partials": false
+};
 
 const sliderSettings = {
-    attack: 0.005,
-    decay: 0.1,
-    sustain: 0.3,
-    release: 1,
-    highpass: 1000,
-    lowpass: 1000,
-    bandpass: 1000,
-    notch: 1000,
-    delay: 1,
-    reverb: 1,
-    feedback1: 1,
-    feedback2: 0.5,
-    pingpong1: 1,
-    pingpong2: 0.5,
-    chorus1: 10,
-    chorus2: 1,
-    distortion: 0.5,
-    wah: 1,
-    phaser1: 1,
-    phaser2: 1,
-    widener: 0.5,
-    vibrato1: 5,
-    vibrato2: 0.1,
-    bitcrusher: 4,
-    chebyshev: 1
-}
-
-// updateSynth();
+    "harmonicity": 3,
+    "modulation-index": 10,
+    "attack": 0.005,
+    "decay": 0.1,
+    "sustain": 0.3,
+    "release": 1,
+    "highpass": 1000,
+    "lowpass": 1000,
+    "bandpass": 1000,
+    "notch": 1000,
+    "delay": 1,
+    "reverb": 1,
+    "feedback1": 1,
+    "feedback2": 0.5,
+    "pingpong1": 1,
+    "pingpong2": 0.5,
+    "chorus1": 10,
+    "chorus2": 1,
+    "distortion": 0.5,
+    "wah": 1,
+    "phaser1": 1,
+    "phaser2": 1,
+    "widener": 0.5,
+    "vibrato1": 5,
+    "vibrato2": 0.1,
+    "bitcrusher": 4,
+    "chebyshev": 1
+};
 
 
 function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [octave, setOctave] = useState(0);
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
+
 
     useEffect(() => {
         if (!navigator.requestMIDIAccess) {
@@ -337,10 +396,43 @@ function App(): ReactElement {
                         <h3>Synth</h3>
                     </div>
                     <div className={"vertical"} id={"synth-choices"}>
-                        <button>Classic</button>
-                        <button>AMSynth</button>
-                        <button>FMSynth</button>
-                        <button>DuoSynth</button>
+                        <button onClick={
+                            () => updateSynth("synth")
+                        }>Classic</button>
+                        <button onClick={
+                            () => updateSynth("amsynth")
+                        }>AMSynth</button>
+                        <button onClick={
+                            () => updateSynth("fmsynth")
+                        }>FMSynth</button>
+                        <input
+                            type={"range"}
+                            id={"harmonicity-slider"}
+                            min={"1"}
+                            max={"10"}
+                            defaultValue={sliderSettings.harmonicity}
+                            step={"1"}
+                            onChange={
+                                (e) =>  {
+                                    sliderSettings.harmonicity = parseFloat(e.target.value);
+                                    updateSlider("harmonicity");
+                                }
+                            }
+                        />
+                        <input
+                            type={"range"}
+                            id={"modulation-index-slider"}
+                            min={"1"}
+                            max={"20"}
+                            defaultValue={sliderSettings["modulation-index"]}
+                            step={"1"}
+                            onChange={
+                                (e) =>  {
+                                    sliderSettings["modulation-index"] = parseFloat(e.target.value);
+                                    updateSlider("modulation-index");
+                                }
+                            }
+                        />
                     </div>
                 </div>
                 <div className={"vertical"} id={"waveform-column"}>
