@@ -20,13 +20,53 @@ function connectChain() {
     moduleChain[moduleChain.length-1].toDestination();
 }
 
-function addModule(module: Tone.ToneAudioNode) {
-    moduleChain[moduleChain.length-1].disconnect();
-    moduleChain.pop();
-    moduleChain.push(module);
-    moduleChain.push(limiter);
-    moduleChain[moduleChain.length-1].toDestination();
+// function addModule(module: Tone.ToneAudioNode) {
+//
+//
+//     moduleChain[moduleChain.length-1].disconnect();
+//     moduleChain.pop();
+//     moduleChain.push(module);
+//     moduleChain.push(limiter);
+//     moduleChain[moduleChain.length-1].toDestination();
+// }
+
+
+function addModule (moduleType: string) {
+    let module: Tone.ToneAudioNode | null = null;
+
+    switch (moduleType) {
+        case "delay": {
+            module = new Tone.Delay(sliderSettings.delay);
+            break;
+        }
+        case "reverb": {
+            module = new Tone.Reverb(sliderSettings.reverb);
+            break;
+        }
+        case "feedback": {
+            module = new Tone.Reverb(sliderSettings.feedback1, sliderSettings.feedback2);
+            break;
+        }
+    }
 }
+
+// function addModule(moduleType: string) {
+//     switch (moduleType) {
+//         case "delay": {
+//             const module = new Tone.Delay(sliderSettings.delay);
+//             break;
+//         }
+//         default: {
+//             break;
+//         }
+//     }
+//
+//     moduleChain[moduleChain.length-1].disconnect();
+//     moduleChain.pop();
+//     moduleChain.push(module);
+//     moduleChain.push(limiter);
+//     moduleChain[moduleChain.length-1].toDestination();
+// }
 
 
 function midiToFreq(number: number) {
@@ -141,8 +181,6 @@ currentSynth.set({
     }
 });
 
-
-(moduleChain[1] as Tone.Delay).delayTime.value = 1000;
 
 const activeEffects = {
     highpass: false,
@@ -426,15 +464,6 @@ function App(): ReactElement {
                                     <input
                                         type={"checkbox"}
                                         id={"delay-toggle"}
-                                    />
-                                    <label>Delay</label>
-                                    <input
-                                        type={"range"}
-                                        id={"delay-slider"}
-                                        min={"0"}
-                                        max={"3"}
-                                        defaultValue={sliderSettings.delay}
-                                        step={"0.01"}
                                         onChange = {
                                             (e) => {
                                                 if (e.target.value) {
@@ -450,6 +479,15 @@ function App(): ReactElement {
                                                 // }
                                             }
                                         }
+                                    />
+                                    <label>Delay</label>
+                                    <input
+                                        type={"range"}
+                                        id={"delay-slider"}
+                                        min={"0"}
+                                        max={"3"}
+                                        defaultValue={sliderSettings.delay}
+                                        step={"0.01"}
                                     />
                                 </div>
                                 <div className={"effect"}>
