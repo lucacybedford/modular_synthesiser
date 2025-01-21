@@ -12,9 +12,6 @@ currentSynth.set({
     }
 })
 
-currentSynth.set({oscillator: {}})
-
-
 currentSynth.connect(new Tone.Limiter(-12).toDestination());
 currentSynth.volume.value = -10;
 
