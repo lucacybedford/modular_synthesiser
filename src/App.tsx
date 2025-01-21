@@ -46,13 +46,7 @@ function noteOn(note: number, velocity: number, octave: number = 0){
 
     currentSynth.set({
         oscillator: {
-            type: "fatsine",
-        },
-        envelope: {
-            attack: getSliderValue("attack-slider"),
-            decay: getSliderValue("decay-slider"),
-            sustain: getSliderValue("sustain-slider"),
-            release: getSliderValue("release-slider")
+            type: "sine",
         }
     })
 
@@ -138,9 +132,9 @@ function noteOn(note: number, velocity: number, octave: number = 0){
     console.log(currentSynth.activeVoices);
 }
 
-function getSliderValue(element: string): number {
-    return parseFloat((document.getElementById(element) as HTMLSelectElement).value);
-}
+// function getSliderValue(element: string): number {
+//     return parseFloat((document.getElementById(element) as HTMLSelectElement).value);
+// }
 
 // function getToggle(element: string): boolean {
 //     return (document.getElementById(element) as HTMLInputElement).checked;
@@ -333,7 +327,7 @@ function App(): ReactElement {
                                 max={"3"}
                                 defaultValue={"0.1"}
                                 step={"0.1"}
-                                // onChange={e => setSliderSettings({...sliderSettings, attack: parseFloat(e.target.value)})}
+                                onChange={e => currentSynth.set({envelope: {attack: parseFloat(e.target.value)}})}
                             />
                         </div>
                         <div className={"effect"}>
@@ -345,6 +339,7 @@ function App(): ReactElement {
                                 max={"3"}
                                 defaultValue={"0.2"}
                                 step={"0.1"}
+                                onChange={e => currentSynth.set({envelope: {decay: parseFloat(e.target.value)}})}
                             />
                         </div>
                         <div className={"effect"}>
@@ -356,6 +351,7 @@ function App(): ReactElement {
                                 max={"1"}
                                 defaultValue={"1"}
                                 step={"0.1"}
+                                onChange={e => currentSynth.set({envelope: {sustain: parseFloat(e.target.value)}})}
                             />
                         </div>
                         <div className={"effect"}>
@@ -367,6 +363,7 @@ function App(): ReactElement {
                                 max={"3"}
                                 defaultValue={"0.8"}
                                 step={"0.1"}
+                                onChange={e => currentSynth.set({envelope: {release: parseFloat(e.target.value)}})}
                             />
                         </div>
                     </div>
