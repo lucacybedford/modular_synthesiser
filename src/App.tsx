@@ -10,20 +10,20 @@ function updateSynth() {
     currentSynth.dispose();
     let newSynth: Tone.PolySynth;
 
-    switch (activeEffects.synth) {
+    switch (synthType.synth) {
         case "synth": {
             newSynth = new Tone.PolySynth(Tone.Synth);
             break;
         }
         case "amsynth": {
             newSynth = new Tone.PolySynth(Tone.AMSynth);
-            (newSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity});
+            (newSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: synthType.harmonicity});
             break;
         }
         case "fmsynth": {
             newSynth = new Tone.PolySynth(Tone.FMSynth);
-            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity});
-            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings.modulation_index});
+            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: synthType.harmonicity});
+            (newSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: synthType.modulation_index});
             break;
         }
         default: {
@@ -56,31 +56,60 @@ function noteOff(note: number, octave: number = 0) {
     currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
 } // releases the note
 
-function updateSlider (element: keyof typeof activeEffects) {
-    if (activeEffects[element]) {
-        console.log(`Updating slider ${element}`);
-        if (activeEffects.synth == "amsynth") {
-            if (element == "harmonicity") {
-                (currentSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: sliderSettings.harmonicity})
-            }
-        }
+// function updateSlider (element: keyof typeof activeEffects) {
+//     if (activeEffects[element]) {
+//         console.log(`Updating slider ${element}`);
+//
+//     }
+// } // uses slider to change the sliderSettings values
 
-        else if (activeEffects.synth == "fmsynth") {
-            if (element == "harmonicity") {
-                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: sliderSettings.harmonicity})
-            }
-
-            else if (element == "modulation-index") {
-                (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: sliderSettings.modulation_index})
-            }
+function updateSynthSlider (element: keyof typeof synthType) {
+    console.log(`Updating slider ${element}`);
+    if (synthType.synth == "amsynth") {
+        if (element == "harmonicity") {
+            (currentSynth as Tone.PolySynth<Tone.AMSynth>).set({harmonicity: synthType.harmonicity})
         }
     }
-} // uses slider to change the sliderSettings values
+
+    else if (synthType.synth == "fmsynth") {
+        if (element == "harmonicity") {
+            (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({harmonicity: synthType.harmonicity})
+        }
+
+        else if (element == "modulation_index") {
+            (currentSynth as Tone.PolySynth<Tone.FMSynth>).set({modulationIndex: synthType.modulation_index})
+        }
+    }
+} // updates the sliders associated to the synth type
+
+function updateEnvelope (element: EnvelopeTypes) {
+    switch (element) {
+        case "attack": {
+            currentSynth.set({envelope: {attack: synthEnvelope[element]}});
+            break;
+        }
+        case "decay": {
+            currentSynth.set({envelope: {decay: synthEnvelope[element]}});
+            break;
+        }
+        case "sustain": {
+            currentSynth.set({envelope: {sustain: synthEnvelope[element]}});
+            break;
+        }
+        case "release": {
+            currentSynth.set({envelope: {release: synthEnvelope[element]}});
+            break;
+        }
+        default: {
+            return;
+        }
+    }
+} // updates the synth's envelope
 
 function updateButton () {
-    let oscillatorType = activeEffects.waveform as EffectTypes;
+    let oscillatorType = synthType.waveform as EffectTypes;
     if (oscillatorType!= "pulse" && oscillatorType != "pwm") {
-        oscillatorType = activeEffects.oscillator_type+oscillatorType as EffectTypes;
+        oscillatorType = synthType.oscillator_type+oscillatorType as EffectTypes;
     }
     currentSynth.set({oscillator: {type: oscillatorType as EffectTypes}});
 } // sets the oscillator to the chosen type from buttons
@@ -243,6 +272,12 @@ type EffectTypes =
     | "pulse"
     | "pwm";
 
+type EnvelopeTypes =
+    "attack"
+    | "decay"
+    | "sustain"
+    | "release";
+
 const keyToNote: { [key: string]: number } = {
     q: 48, // C3
     2: 49, // C#3
@@ -284,38 +319,44 @@ const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
-const activeEffects = {
+const synthType = {
     "synth": "synth",
     "waveform": "sine",
     "oscillator_type": "",
-    "harmonicity": true,
-    "modulation-index": true,
-    "highpass": false,
-    "lowpass": false,
-    "bandpass": false,
-    "notch": false,
-    "delay": false,
-    "reverb": false,
-    "feedback": false,
-    "pingpong": false,
-    "chorus": false,
-    "distortion": false,
-    "wah": false,
-    "phaser": false,
-    "widener": false,
-    "vibrato": false,
-    "bitcrusher": false,
-    "chebyshev": false,
-    "partials": false
-};
-
-const sliderSettings = {
     "harmonicity": 3,
-    "modulation_index": 10,
+    "modulation_index": 10
+}
+
+const synthEnvelope = {
     "attack": 0.005,
     "decay": 0.1,
     "sustain": 0.3,
     "release": 1,
+}
+
+// const activeEffects = {
+//     "highpass": false,
+//     "lowpass": false,
+//     "bandpass": false,
+//     "notch": false,
+//     "delay": false,
+//     "reverb": false,
+//     "feedback": false,
+//     "pingpong": false,
+//     "chorus": false,
+//     "distortion": false,
+//     "wah": false,
+//     "phaser": false,
+//     "widener": false,
+//     "vibrato": false,
+//     "bitcrusher": false,
+//     "chebyshev": false,
+//     "partials": false
+// };
+
+const sliderSettings = {
+    "harmonicity": 3,
+    "modulation_index": 10,
     "highpass": 1000,
     "lowpass": 1000,
     "bandpass": 1000,
@@ -425,19 +466,19 @@ function App(): ReactElement {
                     <div className={"vertical"} id={"synth-choices"}>
                         <button onClick={
                             () => {
-                                activeEffects.synth = "synth";
+                                synthType.synth = "synth";
                                 updateSynth();
                             }
                         }>Classic</button>
                         <button onClick={
                             () => {
-                                activeEffects.synth = "amsynth";
+                                synthType.synth = "amsynth";
                                 updateSynth();
                             }
                         }>AMSynth</button>
                         <button onClick={
                             () => {
-                                activeEffects.synth = "fmsynth";
+                                synthType.synth = "fmsynth";
                                 updateSynth();
                             }
                         }>FMSynth</button>
@@ -451,7 +492,7 @@ function App(): ReactElement {
                             onChange={
                                 (e) =>  {
                                     sliderSettings.harmonicity = parseFloat(e.target.value);
-                                    updateSlider("harmonicity");
+                                    updateSynthSlider("harmonicity");
                                 }
                             }
                         />
@@ -465,7 +506,7 @@ function App(): ReactElement {
                             onChange={
                                 (e) =>  {
                                     sliderSettings.modulation_index = parseFloat(e.target.value);
-                                    updateSlider("modulation-index");
+                                    updateSynthSlider("modulation_index");
                                 }
                             }
                         />
@@ -478,37 +519,37 @@ function App(): ReactElement {
                     <div className={"vertical"} id={"waveform-choices"}>
                         <button onClick={
                             () => {
-                                activeEffects.waveform = "sine";
+                                synthType.waveform = "sine";
                                 updateButton();
                             }
                         }>Sine</button>
                         <button onClick={
                             () => {
-                                activeEffects.waveform = "square";
+                                synthType.waveform = "square";
                                 updateButton();
                             }
                         }>Square</button>
                         <button onClick={
                             () => {
-                                activeEffects.waveform = "sawtooth";
+                                synthType.waveform = "sawtooth";
                                 updateButton();
                             }
                         }>Saw</button>
                         <button onClick={
                             () => {
-                                activeEffects.waveform = "triangle";
+                                synthType.waveform = "triangle";
                                 updateButton();
                             }
                         }>Triangle</button>
                         <button onClick={
                             () => {
-                                activeEffects.waveform = "pulse";
+                                synthType.waveform = "pulse";
                                 updateButton();
                             }
                         }>Pulse</button>
                         <button onClick={
                             () => {
-                                activeEffects.waveform = "pwm";
+                                synthType.waveform = "pwm";
                                 updateButton();
                             }
                         }>PWM</button>
@@ -521,14 +562,13 @@ function App(): ReactElement {
                                 id={"attack-slider"}
                                 min={"0.005"}
                                 max={"3"}
-                                defaultValue={sliderSettings.attack}
-                                step={"0.001"}
+                                defaultValue={synthEnvelope.attack}
+                                step={"0.005"}
                                 onChange={
-                                    (e) => currentSynth.set({
-                                        envelope: {
-                                            attack: parseFloat(e.target.value)
-                                        }
-                                    })
+                                    (e) => {
+                                        synthEnvelope.attack = parseFloat(e.target.value);
+                                        updateEnvelope("attack");
+                                    }
                                 }
                             />
                         </div>
@@ -539,16 +579,14 @@ function App(): ReactElement {
                                 id={"decay-slider"}
                                 min={"0.1"}
                                 max={"3"}
-                                defaultValue={sliderSettings.decay}
+                                defaultValue={synthEnvelope.decay}
                                 step={"0.01"}
-                                onChange={(e) => {
-                                    currentSynth.set({
-                                        envelope: {
-                                            decay: parseFloat(e.target.value)
-                                        }
-                                    })
+                                onChange={
+                                    (e) => {
+                                        synthEnvelope.decay = parseFloat(e.target.value);
+                                        updateEnvelope("decay");
+                                    }
                                 }
-                            }
                             />
                         </div>
                         <div className={"effect"}>
@@ -558,9 +596,14 @@ function App(): ReactElement {
                                 id={"sustain-slider"}
                                 min={"0"}
                                 max={"1"}
-                                defaultValue={sliderSettings.sustain}
+                                defaultValue={synthEnvelope.sustain}
                                 step={"0.01"}
-                                onChange={(e) => currentSynth.set({envelope: {sustain: parseFloat(e.target.value)}})}
+                                onChange={
+                                    (e) => {
+                                        synthEnvelope.sustain = parseFloat(e.target.value);
+                                        updateEnvelope("sustain");
+                                    }
+                                }
                             />
                         </div>
                         <div className={"effect"}>
@@ -570,33 +613,38 @@ function App(): ReactElement {
                                 id={"release-slider"}
                                 min={"0.01"}
                                 max={"3"}
-                                defaultValue={sliderSettings.release}
+                                defaultValue={synthEnvelope.release}
                                 step={"0.01"}
-                                onChange={(e) => currentSynth.set({envelope: {release: parseFloat(e.target.value)}})}
+                                onChange={
+                                    (e) => {
+                                        synthEnvelope.release = parseFloat(e.target.value);
+                                        updateEnvelope("release");
+                                    }
+                                }
                             />
                         </div>
 
                         <button onClick={
                             () => {
-                                activeEffects.oscillator_type = "";
+                                synthType.oscillator_type = "";
                                 updateButton();
                             }
                         }>NONE</button>
                         <button onClick={
                             () => {
-                                activeEffects.oscillator_type = "am";
+                                synthType.oscillator_type = "am";
                                 updateButton();
                             }
                         }>AM</button>
                         <button onClick={
                             () => {
-                                activeEffects.oscillator_type = "fm";
+                                synthType.oscillator_type = "fm";
                                 updateButton();
                             }
                         }>FM</button>
                         <button onClick={
                             () => {
-                                activeEffects.oscillator_type = "fat";
+                                synthType.oscillator_type = "fat";
                                 updateButton();
                             }
                         }>FAT</button>
