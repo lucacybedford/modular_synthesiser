@@ -208,7 +208,7 @@ function addModule (moduleType: string) {
 
     moduleChain.pop();
     moduleChain.push(module);
-    // moduleChain.push(limiter);
+    moduleChain.push(limiter);
 
     connectChain();
     console.log(moduleChain);
@@ -345,10 +345,9 @@ const keyToNote: { [key: string]: number } = {
 let currentSynth = new Tone.PolySynth();
 currentSynth.volume.value = -6;
 
-// const limiter = new Tone.Limiter(-6);
+const limiter = new Tone.Limiter(-6);
 
-// const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
-const moduleChain: Tone.ToneAudioNode[] = [currentSynth];
+const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
@@ -419,7 +418,6 @@ function App(): ReactElement {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key == 'ArrowDown') {
-                console.log("octave down");
                 setOctave(octave - 1);
             } else if (event.key == 'ArrowUp') {
                 setOctave(octave + 1);
