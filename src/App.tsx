@@ -59,13 +59,6 @@ function noteOff(note: number, octave: number = 0) {
     currentSynth.triggerRelease(midiToFreq(note + octave * 12), Tone.now());
 } // releases the note
 
-// function updateSlider (element: keyof typeof activeEffects) {
-//     if (activeEffects[element]) {
-//         console.log(`Updating slider ${element}`);
-//
-//     }
-// } // uses slider to change the sliderSettings values
-
 function updateSynthSlider (element: keyof typeof synthType) {
     console.log(`Updating slider ${element}`);
     if (synthType.synth == "amsynth") {
@@ -233,7 +226,7 @@ function removeModule (moduleType: string) {
 
     const chainIndex = moduleChain.indexOf(instance);
     if (chainIndex !== -1) {
-        moduleChain[chainIndex].dispose();
+        instance.dispose();
         moduleChain.splice(chainIndex, 1);
     }
 
