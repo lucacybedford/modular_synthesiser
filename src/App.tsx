@@ -208,7 +208,7 @@ function addModule (moduleType: string) {
 
     moduleChain.pop();
     moduleChain.push(module);
-    moduleChain.push(limiter);
+    // moduleChain.push(limiter);
 
     connectChain();
     console.log(moduleChain);
@@ -345,9 +345,10 @@ const keyToNote: { [key: string]: number } = {
 let currentSynth = new Tone.PolySynth();
 currentSynth.volume.value = -6;
 
-const limiter = new Tone.Limiter(-6);
+// const limiter = new Tone.Limiter(-6);
 
-const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
+// const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
+const moduleChain: Tone.ToneAudioNode[] = [currentSynth];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
@@ -369,26 +370,6 @@ const synthEnvelope = {
     "sustain": 0.3,
     "release": 1,
 }
-
-// const activeEffects = {
-//     "highpass": false,
-//     "lowpass": false,
-//     "bandpass": false,
-//     "notch": false,
-//     "delay": false,
-//     "reverb": false,
-//     "feedback": false,
-//     "pingpong": false,
-//     "chorus": false,
-//     "distortion": false,
-//     "wah": false,
-//     "phaser": false,
-//     "widener": false,
-//     "vibrato": false,
-//     "bitcrusher": false,
-//     "chebyshev": false,
-//     "partials": false
-// };
 
 
 const effectValues = {
