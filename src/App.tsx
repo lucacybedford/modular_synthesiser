@@ -342,6 +342,10 @@ const keyToNote: { [key: string]: number } = {
     m: 76, // E5
 };
 
+
+Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
+Tone.getContext().lookAhead = 0.01;
+
 let currentSynth = new Tone.PolySynth();
 currentSynth.volume.value = -6;
 
