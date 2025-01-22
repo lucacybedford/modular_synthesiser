@@ -37,6 +37,9 @@ function updateSynth() {
     currentSynth = newSynth;
 
     /// SET ALL ENVELOPE AND WAVEFORM AND OSCILLATOR TYPE(AM FM FAT...)
+
+    setEnvelope();
+    setPartials();
     updateButton();
     connectChain();
     console.log(moduleChain[0]);
@@ -106,6 +109,30 @@ function updateEnvelope (element: EnvelopeTypes) {
     }
 } // updates the synth's envelope
 
+function setEnvelope () {
+    currentSynth.set({
+        envelope: {
+            attack: synthEnvelope.attack,
+            decay: synthEnvelope.decay,
+            sustain: synthEnvelope.sustain,
+            release: synthEnvelope.release
+        }
+    })
+}
+
+function setPartials () {
+    currentSynth.set({
+        oscillator: {
+            partials: [
+                synthType.partials1,
+                synthType.partials2,
+                synthType.partials3,
+                synthType.partials4
+            ]
+        }
+    })
+}
+
 function updateButton () {
     let oscillatorType = synthType.waveform as EffectTypes;
     if (oscillatorType!= "pulse" && oscillatorType != "pwm") {
@@ -132,6 +159,18 @@ function addModule (moduleType: string) {
     let module: Tone.ToneAudioNode;
 
     switch (moduleType) {
+        case "highpass":
+            module = new Tone.Filter(effectValues.highpass, "highpass");
+            break;
+        case "lowpass":
+            module = new Tone.Filter(effectValues.lowpass, "lowpass");
+            break;
+        case "bandpass":
+            module = new Tone.Filter(effectValues.bandpass, "bandpass");
+            break;
+        case "notch":
+            module = new Tone.Filter(effectValues.notch, "notch");
+            break;
         case "delay":
             module = new Tone.Delay(effectValues.delay);
             break;
@@ -324,7 +363,11 @@ const synthType = {
     "waveform": "sine",
     "oscillator_type": "",
     "harmonicity": 3,
-    "modulation_index": 10
+    "modulation_index": 10,
+    "partials1": 0,
+    "partials2": 0,
+    "partials3": 0,
+    "partials4": 0
 }
 
 const synthEnvelope = {
@@ -481,6 +524,7 @@ function App(): ReactElement {
                                 updateSynth();
                             }
                         }>FMSynth</button>
+                        <label>Harmonicity</label>
                         <input
                             type={"range"}
                             id={"harmonicity-slider"}
@@ -509,6 +553,67 @@ function App(): ReactElement {
                                 }
                             }
                         />
+
+                        <label>Partials</label>
+
+                        <div className={"vertical"}>
+                            <input
+                                type={"range"}
+                                id={"partials-slider-1"}
+                                min={"0"}
+                                max={"1"}
+                                defaultValue={synthType.partials1}
+                                step={"0.01"}
+                                onChange = {
+                                    (e) => {
+                                        synthType.partials1 = parseFloat(e.target.value);
+                                        setPartials();
+                                    }
+                                }
+                            />
+                            <input
+                                type={"range"}
+                                id={"partials-slider-2"}
+                                min={"0"}
+                                max={"1"}
+                                defaultValue={synthType.partials2}
+                                step={"0.01"}
+                                onChange = {
+                                    (e) => {
+                                        synthType.partials2 = parseFloat(e.target.value);
+                                        setPartials();
+                                    }
+                                }
+                            />
+                            <input
+                                type={"range"}
+                                id={"partials-slider-3"}
+                                min={"0"}
+                                max={"1"}
+                                defaultValue={synthType.partials3}
+                                step={"0.01"}
+                                onChange = {
+                                    (e) => {
+                                        synthType.partials3 = parseFloat(e.target.value);
+                                        setPartials();
+                                    }
+                                }
+                            />
+                            <input
+                                type={"range"}
+                                id={"partials-slider-4"}
+                                min={"0"}
+                                max={"1"}
+                                defaultValue={synthType.partials4}
+                                step={"0.01"}
+                                onChange = {
+                                    (e) => {
+                                        synthType.partials4 = parseFloat(e.target.value);
+                                        setPartials();
+                                    }
+                                }
+                            />
+                        </div>
                     </div>
                 </div>
                 <div className={"vertical"} id={"waveform-column"}>
@@ -660,6 +765,16 @@ function App(): ReactElement {
                                     <input
                                         type={"checkbox"}
                                         id={"highpass-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("highpass");
+                                                }
+                                                else {
+                                                    removeModule("highpass");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>Highpass</label>
                                     <input
@@ -669,12 +784,32 @@ function App(): ReactElement {
                                         max={"5000"}
                                         defaultValue={effectValues.highpass}
                                         step={"1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.highpass = value;
+                                                if (existingModules.some(module => module.id === "highpass")) {
+                                                    const { instance } = existingModules.find(module => module.id === "highpass")!;
+                                                    (instance as Tone.Filter).frequency.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                                 <div className={"effect"}>
                                     <input
                                         type={"checkbox"}
                                         id={"lowpass-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("lowpass");
+                                                }
+                                                else {
+                                                    removeModule("lowpass");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>Lowpass</label>
                                     <input
@@ -684,12 +819,32 @@ function App(): ReactElement {
                                         max={"5000"}
                                         defaultValue={effectValues.lowpass}
                                         step={"1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.lowpass = value;
+                                                if (existingModules.some(module => module.id === "lowpass")) {
+                                                    const { instance } = existingModules.find(module => module.id === "lowpass")!;
+                                                    (instance as Tone.Filter).frequency.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                                 <div className={"effect"}>
                                     <input
                                         type={"checkbox"}
                                         id={"bandpass-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("bandpass");
+                                                }
+                                                else {
+                                                    removeModule("bandpass");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>Bandpass</label>
                                     <input
@@ -699,12 +854,32 @@ function App(): ReactElement {
                                         max={"5000"}
                                         defaultValue={effectValues.bandpass}
                                         step={"1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.bandpass = value;
+                                                if (existingModules.some(module => module.id === "bandpass")) {
+                                                    const { instance } = existingModules.find(module => module.id === "bandpass")!;
+                                                    (instance as Tone.Filter).frequency.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                                 <div className={"effect"}>
                                     <input
                                         type={"checkbox"}
                                         id={"notch-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("notch");
+                                                }
+                                                else {
+                                                    removeModule("notch");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>Notch</label>
                                     <input
@@ -714,6 +889,16 @@ function App(): ReactElement {
                                         max={"5000"}
                                         defaultValue={effectValues.notch}
                                         step={"1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.notch = value;
+                                                if (existingModules.some(module => module.id === "notch")) {
+                                                    const { instance } = existingModules.find(module => module.id === "notch")!;
+                                                    (instance as Tone.Filter).frequency.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                             </div>
@@ -741,6 +926,8 @@ function App(): ReactElement {
                                         max={"1"}
                                         defaultValue={effectValues.delay}
                                         step={"0.01"}
+                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
+                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
                                         onChange = {
                                             (e) => {
                                                 const value = parseFloat(e.target.value);
@@ -757,21 +944,53 @@ function App(): ReactElement {
                                     <input
                                         type={"checkbox"}
                                         id={"reverb-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("reverb");
+                                                }
+                                                else {
+                                                    removeModule("reverb");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>Reverb</label>
                                     <input
                                         type={"range"}
                                         id={"reverb-slider"}
-                                        min={"0"}
+                                        min={"0.01"}
                                         max={"5"}
                                         defaultValue={effectValues.reverb}
                                         step={"0.01"}
+                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
+                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.reverb = value;
+                                                if (existingModules.some(module => module.id === "reverb")) {
+                                                    const { instance } = existingModules.find(module => module.id === "reverb")!;
+                                                    (instance as Tone.Reverb).decay = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                                 <div className={"effect"}>
                                     <input
                                         type={"checkbox"}
                                         id={"feedback-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("feedback");
+                                                }
+                                                else {
+                                                    removeModule("feedback");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>Feedback</label>
                                     <div className={"vertical"}>
@@ -782,6 +1001,18 @@ function App(): ReactElement {
                                             max={"2"}
                                             defaultValue={effectValues.feedback1}
                                             step={"0.01"}
+                                            onMouseDown={() => {Tone.getDestination().mute = true;}}
+                                            onMouseUp={() => {Tone.getDestination().mute = false;}}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.feedback1 = value;
+                                                    if (existingModules.some(module => module.id === "feedback")) {
+                                                        const { instance } = existingModules.find(module => module.id === "feedback")!;
+                                                        (instance as Tone.FeedbackDelay).delayTime.value = value;
+                                                    }
+                                                }
+                                            }
                                         />
                                         <input
                                             type={"range"}
@@ -790,6 +1021,16 @@ function App(): ReactElement {
                                             max={"1"}
                                             defaultValue={effectValues.feedback2}
                                             step={"0.01"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.feedback2 = value;
+                                                    if (existingModules.some(module => module.id === "feedback")) {
+                                                        const { instance } = existingModules.find(module => module.id === "feedback")!;
+                                                        (instance as Tone.FeedbackDelay).feedback.value = value;
+                                                    }
+                                                }
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -797,6 +1038,16 @@ function App(): ReactElement {
                                     <input
                                         type={"checkbox"}
                                         id={"pingpong-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("pingpong");
+                                                }
+                                                else {
+                                                    removeModule("pingpong");
+                                                }
+                                            }
+                                        }
                                     />
                                     <label>PingPong</label>
                                     <div className={"vertical"}>
@@ -807,6 +1058,18 @@ function App(): ReactElement {
                                             max={"2"}
                                             defaultValue={effectValues.pingpong1}
                                             step={"0.01"}
+                                            onMouseDown={() => {Tone.getDestination().mute = true;}}
+                                            onMouseUp={() => {Tone.getDestination().mute = false;}}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.pingpong1 = value;
+                                                    if (existingModules.some(module => module.id === "pingpong")) {
+                                                        const { instance } = existingModules.find(module => module.id === "pingpong")!;
+                                                        (instance as Tone.PingPongDelay).delayTime.value = value;
+                                                    }
+                                                }
+                                            }
                                         />
                                         <input
                                             type={"range"}
@@ -815,6 +1078,16 @@ function App(): ReactElement {
                                             max={"1"}
                                             defaultValue={effectValues.pingpong2}
                                             step={"0.01"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.pingpong2 = value;
+                                                    if (existingModules.some(module => module.id === "pingpong")) {
+                                                        const { instance } = existingModules.find(module => module.id === "pingpong")!;
+                                                        (instance as Tone.PingPongDelay).feedback.value = value;
+                                                    }
+                                                }
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -825,6 +1098,16 @@ function App(): ReactElement {
                                 <input
                                     type={"checkbox"}
                                     id={"chorus-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("chorus");
+                                            }
+                                            else {
+                                                removeModule("chorus");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Chorus</label>
                                 <div className={"vertical"}>
@@ -835,6 +1118,18 @@ function App(): ReactElement {
                                         max={"100"}
                                         defaultValue={effectValues.chorus1}
                                         step={"1"}
+                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
+                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.chorus1 = value;
+                                                if (existingModules.some(module => module.id === "chorus")) {
+                                                    const { instance } = existingModules.find(module => module.id === "chorus")!;
+                                                    (instance as Tone.Chorus).delayTime = value;
+                                                }
+                                            }
+                                        }
                                     />
                                     <input
                                         type={"range"}
@@ -843,6 +1138,18 @@ function App(): ReactElement {
                                         max={"5"}
                                         defaultValue={effectValues.chorus2}
                                         step={"0.1"}
+                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
+                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.chorus2 = value;
+                                                if (existingModules.some(module => module.id === "chorus")) {
+                                                    const { instance } = existingModules.find(module => module.id === "chorus")!;
+                                                    (instance as Tone.Chorus).depth = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                             </div>
@@ -850,6 +1157,16 @@ function App(): ReactElement {
                                 <input
                                     type={"checkbox"}
                                     id={"distortion-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("distortion");
+                                            }
+                                            else {
+                                                removeModule("distortion");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Distortion</label>
                                 <input
@@ -859,12 +1176,32 @@ function App(): ReactElement {
                                     max={"1"}
                                     defaultValue={effectValues.distortion}
                                     step={"0.01"}
+                                    onChange = {
+                                        (e) => {
+                                            const value = parseFloat(e.target.value);
+                                            effectValues.distortion = value;
+                                            if (existingModules.some(module => module.id === "distortion")) {
+                                                const { instance } = existingModules.find(module => module.id === "distortion")!;
+                                                (instance as Tone.Distortion).distortion = value;
+                                            }
+                                        }
+                                    }
                                 />
                             </div>
                             <div className={"effect"}>
                                 <input
                                     type={"checkbox"}
                                     id={"wah-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("wah");
+                                            }
+                                            else {
+                                                removeModule("wah");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Wah</label>
                                 <input
@@ -874,12 +1211,32 @@ function App(): ReactElement {
                                     max={"10"}
                                     defaultValue={effectValues.wah}
                                     step={"0.1"}
+                                    onChange = {
+                                        (e) => {
+                                            const value = parseFloat(e.target.value);
+                                            effectValues.wah = value;
+                                            if (existingModules.some(module => module.id === "wah")) {
+                                                const { instance } = existingModules.find(module => module.id === "wah")!;
+                                                (instance as Tone.AutoWah).octaves = value;
+                                            }
+                                        }
+                                    }
                                 />
                             </div>
                             <div className={"effect"}>
                                 <input
                                     type={"checkbox"}
                                     id={"phaser-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("phaser");
+                                            }
+                                            else {
+                                                removeModule("phaser");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Phaser</label>
                                 <div className={"vertical"}>
@@ -890,6 +1247,16 @@ function App(): ReactElement {
                                         max={"3"}
                                         defaultValue={effectValues.phaser1}
                                         step={"0.01"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.phaser1 = value;
+                                                if (existingModules.some(module => module.id === "phaser")) {
+                                                    const { instance } = existingModules.find(module => module.id === "phaser")!;
+                                                    (instance as Tone.Phaser).frequency.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                     <input
                                         type={"range"}
@@ -898,6 +1265,16 @@ function App(): ReactElement {
                                         max={"10"}
                                         defaultValue={effectValues.phaser2}
                                         step={"0.1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.phaser2 = value;
+                                                if (existingModules.some(module => module.id === "phaser")) {
+                                                    const { instance } = existingModules.find(module => module.id === "phaser")!;
+                                                    (instance as Tone.Phaser).octaves = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                             </div>
@@ -905,6 +1282,16 @@ function App(): ReactElement {
                                 <input
                                     type={"checkbox"}
                                     id={"widener-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("widener");
+                                            }
+                                            else {
+                                                removeModule("widener");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Widener</label>
                                 <input
@@ -914,22 +1301,52 @@ function App(): ReactElement {
                                     max={"1"}
                                     defaultValue={effectValues.widener}
                                     step={"0.01"}
+                                    onChange = {
+                                        (e) => {
+                                            const value = parseFloat(e.target.value);
+                                            effectValues.widener = value;
+                                            if (existingModules.some(module => module.id === "widener")) {
+                                                const { instance } = existingModules.find(module => module.id === "widener")!;
+                                                (instance as Tone.StereoWidener).width.value = value;
+                                            }
+                                        }
+                                    }
                                 />
                             </div>
                             <div className={"effect"}>
                                 <input
                                     type={"checkbox"}
                                     id={"vibrato-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("vibrato");
+                                            }
+                                            else {
+                                                removeModule("vibrato");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Vibrato</label>
                                 <div className={"vertical"}>
                                     <input
                                         type={"range"}
                                         id={"vibrato-slider-1"}
-                                        min={"2"}
+                                        min={"1"}
                                         max={"20"}
                                         defaultValue={effectValues.vibrato1}
                                         step={"0.01"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.vibrato1 = value;
+                                                if (existingModules.some(module => module.id === "vibrato")) {
+                                                    const { instance } = existingModules.find(module => module.id === "vibrato")!;
+                                                    (instance as Tone.Vibrato).frequency.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                     <input
                                         type={"range"}
@@ -938,6 +1355,16 @@ function App(): ReactElement {
                                         max={"1"}
                                         defaultValue={effectValues.vibrato2}
                                         step={"0.01"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.vibrato2 = value;
+                                                if (existingModules.some(module => module.id === "vibrato")) {
+                                                    const { instance } = existingModules.find(module => module.id === "vibrato")!;
+                                                    (instance as Tone.Vibrato).depth.value = value;
+                                                }
+                                            }
+                                        }
                                     />
                                 </div>
                             </div>
@@ -945,21 +1372,51 @@ function App(): ReactElement {
                                 <input
                                     type={"checkbox"}
                                     id={"bitcrusher-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("bitcrusher");
+                                            }
+                                            else {
+                                                removeModule("bitcrusher");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Bit Crusher</label>
                                 <input
                                     type={"range"}
                                     id={"bitcrusher-slider"}
-                                    min={"1"}
+                                    min={"3"}
                                     max={"8"}
                                     defaultValue={effectValues.bitcrusher}
                                     step={"1"}
+                                    onChange = {
+                                        (e) => {
+                                            const value = parseFloat(e.target.value);
+                                            effectValues.bitcrusher = value;
+                                            if (existingModules.some(module => module.id === "bitcrusher")) {
+                                                const { instance } = existingModules.find(module => module.id === "bitcrusher")!;
+                                                (instance as Tone.BitCrusher).bits.value = value;
+                                            }
+                                        }
+                                    }
                                 />
                             </div>
                             <div className={"effect"}>
                                 <input
                                     type={"checkbox"}
                                     id={"chebyshev-toggle"}
+                                    onChange = {
+                                        (e) => {
+                                            if (e.target.checked) {
+                                                addModule("chebyshev");
+                                            }
+                                            else {
+                                                removeModule("chebyshev");
+                                            }
+                                        }
+                                    }
                                 />
                                 <label>Chebyshev</label>
                                 <input
@@ -969,48 +1426,17 @@ function App(): ReactElement {
                                     max={"100"}
                                     defaultValue={effectValues.chebyshev}
                                     step={"1"}
+                                    onChange = {
+                                        (e) => {
+                                            const value = parseFloat(e.target.value);
+                                            effectValues.chebyshev = value;
+                                            if (existingModules.some(module => module.id === "chebyshev")) {
+                                                const { instance } = existingModules.find(module => module.id === "chebyshev")!;
+                                                (instance as Tone.Chebyshev).order = value;
+                                            }
+                                        }
+                                    }
                                 />
-                            </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"partials-toggle"}
-                                />
-                                <label>Partials</label>
-                                <div className={"vertical"}>
-                                    <input
-                                        type={"range"}
-                                        id={"partials-slider-1"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
-                                    />
-                                    <input
-                                        type={"range"}
-                                        id={"partials-slider-2"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
-                                    />
-                                    <input
-                                        type={"range"}
-                                        id={"partials-slider-3"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
-                                    />
-                                    <input
-                                        type={"range"}
-                                        id={"partials-slider-4"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={"1"}
-                                        step={"0.01"}
-                                    />
-                                </div>
                             </div>
                         </div>
                     </div>
