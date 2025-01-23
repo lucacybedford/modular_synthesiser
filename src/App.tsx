@@ -902,16 +902,16 @@ function App(): ReactElement {
                                         max={"1"}
                                         defaultValue={effectValues.delay}
                                         step={"0.01"}
-                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
-                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.delay = value;
+                                        onMouseUp={() => {
                                                 if (existingModules.some(module => module.id === "delay")) {
                                                     const { instance } = existingModules.find(module => module.id === "delay")!;
-                                                    (instance as Tone.Delay).delayTime.value = value;
+                                                    (instance as Tone.Delay).delayTime.value = effectValues.delay;
                                                 }
+                                            }
+                                        }
+                                        onChange = {
+                                            (e) => {
+                                                effectValues.delay = parseFloat(e.target.value);
                                             }
                                         }
                                     />
@@ -939,16 +939,16 @@ function App(): ReactElement {
                                         max={"5"}
                                         defaultValue={effectValues.reverb}
                                         step={"0.01"}
-                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
-                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
+                                        onMouseUp={() => {
+                                            if (existingModules.some(module => module.id === "reverb")) {
+                                                const { instance } = existingModules.find(module => module.id === "reverb")!;
+                                                (instance as Tone.Reverb).decay = effectValues.reverb;
+                                            }
+                                            }
+                                        }
                                         onChange = {
                                             (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.reverb = value;
-                                                if (existingModules.some(module => module.id === "reverb")) {
-                                                    const { instance } = existingModules.find(module => module.id === "reverb")!;
-                                                    (instance as Tone.Reverb).decay = value;
-                                                }
+                                                effectValues.reverb = parseFloat(e.target.value);
                                             }
                                         }
                                     />
@@ -977,16 +977,17 @@ function App(): ReactElement {
                                             max={"2"}
                                             defaultValue={effectValues.feedback1}
                                             step={"0.01"}
-                                            onMouseDown={() => {Tone.getDestination().mute = true;}}
-                                            onMouseUp={() => {Tone.getDestination().mute = false;}}
-                                            onChange = {
-                                                (e) => {
-                                                    const value = parseFloat(e.target.value);
-                                                    effectValues.feedback1 = value;
+                                            onMouseUp={
+                                                () => {
                                                     if (existingModules.some(module => module.id === "feedback")) {
                                                         const { instance } = existingModules.find(module => module.id === "feedback")!;
-                                                        (instance as Tone.FeedbackDelay).delayTime.value = value;
+                                                        (instance as Tone.FeedbackDelay).delayTime.value = effectValues.feedback1;
                                                     }
+                                                }
+                                            }
+                                            onChange = {
+                                                (e) => {
+                                                    effectValues.feedback1 = parseFloat(e.target.value);
                                                 }
                                             }
                                         />
@@ -1034,16 +1035,17 @@ function App(): ReactElement {
                                             max={"2"}
                                             defaultValue={effectValues.pingpong1}
                                             step={"0.01"}
-                                            onMouseDown={() => {Tone.getDestination().mute = true;}}
-                                            onMouseUp={() => {Tone.getDestination().mute = false;}}
-                                            onChange = {
-                                                (e) => {
-                                                    const value = parseFloat(e.target.value);
-                                                    effectValues.pingpong1 = value;
+                                            onMouseUp={
+                                                () => {
                                                     if (existingModules.some(module => module.id === "pingpong")) {
                                                         const { instance } = existingModules.find(module => module.id === "pingpong")!;
-                                                        (instance as Tone.PingPongDelay).delayTime.value = value;
+                                                        (instance as Tone.PingPongDelay).delayTime.value = effectValues.pingpong1;
                                                     }
+                                                }
+                                            }
+                                            onChange = {
+                                                (e) => {
+                                                    effectValues.pingpong1 = parseFloat(e.target.value);
                                                 }
                                             }
                                         />
@@ -1094,16 +1096,17 @@ function App(): ReactElement {
                                         max={"100"}
                                         defaultValue={effectValues.chorus1}
                                         step={"1"}
-                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
-                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.chorus1 = value;
+                                        onMouseUp={
+                                            () => {
                                                 if (existingModules.some(module => module.id === "chorus")) {
                                                     const { instance } = existingModules.find(module => module.id === "chorus")!;
-                                                    (instance as Tone.Chorus).delayTime = value;
+                                                    (instance as Tone.Chorus).delayTime = effectValues.chorus1;
                                                 }
+                                            }
+                                        }
+                                        onChange = {
+                                            (e) => {
+                                                effectValues.chorus1 = parseFloat(e.target.value);
                                             }
                                         }
                                     />
@@ -1114,16 +1117,18 @@ function App(): ReactElement {
                                         max={"5"}
                                         defaultValue={effectValues.chorus2}
                                         step={"0.1"}
-                                        onMouseDown={() => {Tone.getDestination().mute = true;}}
-                                        onMouseUp={() => {Tone.getDestination().mute = false;}}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.chorus2 = value;
+                                        onMouseUp={
+                                            () => {
                                                 if (existingModules.some(module => module.id === "chorus")) {
                                                     const { instance } = existingModules.find(module => module.id === "chorus")!;
-                                                    (instance as Tone.Chorus).depth = value;
+                                                    (instance as Tone.Chorus).depth = effectValues.chorus2;
                                                 }
+                                            }
+                                        }
+                                        onChange = {
+                                            (e) => {
+                                                effectValues.chorus2 = parseFloat(e.target.value);
+
                                             }
                                         }
                                     />
