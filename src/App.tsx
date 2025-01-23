@@ -651,7 +651,7 @@ function App(): ReactElement {
                         }/>
                         <label htmlFor="waveform4" className="radio-label">Triangle</label>
 
-                        <input type="radio" id="waveform15" name="waveform" value="5" onClick={
+                        <input type="radio" id="waveform5" name="waveform" value="5" onClick={
                             () => {
                                 synthType.waveform = "pulse";
                                 updateButton();
