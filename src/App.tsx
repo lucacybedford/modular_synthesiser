@@ -703,32 +703,31 @@ function App(): ReactElement {
                                 }
                             />
                         </div>
-
-                        <button onClick={
-                            () => {
-                                synthType.oscillator_type = "";
-                                updateButton();
-                            }
-                        }>NONE</button>
-                        <button onClick={
-                            () => {
-                                synthType.oscillator_type = "am";
-                                updateButton();
-                            }
-                        }>AM</button>
-                        <button onClick={
-                            () => {
-                                synthType.oscillator_type = "fm";
-                                updateButton();
-                            }
-                        }>FM</button>
-                        <button onClick={
-                            () => {
-                                synthType.oscillator_type = "fat";
-                                updateButton();
-                            }
-                        }>FAT</button>
                     </div>
+                    <button onClick={
+                        () => {
+                            synthType.oscillator_type = "";
+                            updateButton();
+                        }
+                    }>NONE</button>
+                    <button onClick={
+                        () => {
+                            synthType.oscillator_type = "am";
+                            updateButton();
+                        }
+                    }>AM</button>
+                    <button onClick={
+                        () => {
+                            synthType.oscillator_type = "fm";
+                            updateButton();
+                        }
+                    }>FM</button>
+                    <button onClick={
+                        () => {
+                            synthType.oscillator_type = "fat";
+                            updateButton();
+                        }
+                    }>FAT</button>
                 </div>
                 <div className={"vertical"} id={"effects-column"}>
                     <div className={"column-title"}>
