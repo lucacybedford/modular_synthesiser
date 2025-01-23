@@ -21,6 +21,25 @@
   height: 100%;
 }
 
+h3 {
+  margin: 0 0 16px;
+}
+
+.column-title {
+  display: flex;
+  justify-content: center;
+  /*align-content: flex-start;*/
+  /*margin-top: -20px;*/
+  align-items: self-start;
+}
+
+.separator {
+  background-color: #957d6f;
+  height: 2px;
+  border-radius: 1px;
+  margin: 10px;
+}
+
 .card {
   display: flex;
   flex-direction: row;
@@ -60,6 +79,13 @@
   max-width: 50%;
 }
 
+#left {
+  max-width: 45%;
+}
+
+#right {
+  max-width: 45%;
+}
 
 
 .effect {
@@ -67,33 +93,14 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  padding-top: 3%;
-}
-
-div#sustain {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#decay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 label {
   font-weight: 500;
   color: #000000;
   padding-right: 2%
-}
-
-.horizontal2 {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  padding-top: 2%;
 }
 
 .oscillator {
@@ -111,13 +118,6 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-
-
-#envelope-choices {
-  padding-bottom: 5%;
-}
-
-
 
 .effect input[type="range"] {
   margin-left: auto;
@@ -190,10 +190,6 @@ input[type="range"]::-ms-thumb:active {
 }
 
 
-
-
-
-
 button {
   border-radius: 8px;
   border: 2px solid white;
@@ -203,7 +199,7 @@ button {
   font-family: inherit;
   background-color: #c2a38f;
   cursor: pointer;
-  margin-bottom: 3%;
+  margin-bottom: 3px;
   transition: background 0.3s;
 }
 button:hover {
@@ -213,9 +209,6 @@ button:hover {
 button:active {
   background-color: #67554a;
 }
-
-
-
 
 
 
@@ -235,7 +228,8 @@ input[type="radio"] {
   font-weight: 500;
   font-family: inherit;
   background-color: #c2a38f;
-  margin-bottom: 3%;
+  margin-bottom: 3px;
+  margin-top: 3px;
   transition: background 0.3s;
 }
 

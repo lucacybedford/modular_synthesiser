@@ -776,7 +776,7 @@ function App(): ReactElement {
                         <h3>Modular Effects</h3>
                     </div>
                     <div className={"horizontal"}>
-                        <div className={"vertical"}>
+                        <div className={"vertical"} id={"left"}>
                             <div className={"vertical"}>
                                 <div className={"effect"}>
                                     <input
@@ -919,6 +919,7 @@ function App(): ReactElement {
                                     />
                                 </div>
                             </div>
+                            <div className={"separator"}></div>
                             <div className={"vertical"}>
                                 <div className={"effect"}>
                                     <input
@@ -1112,7 +1113,7 @@ function App(): ReactElement {
                                 </div>
                             </div>
                         </div>
-                        <div className={"vertical"}>
+                        <div className={"vertical"} id={"right"}>
                             <div className={"effect"}>
                                 <input
                                     type={"checkbox"}
