@@ -342,6 +342,7 @@ const keyToNote: { [key: string]: number } = {
     m: 76, // E5
 };
 
+let firstTimeLoading = true;
 
 Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
 Tone.getContext().lookAhead = 0.01;
@@ -350,6 +351,7 @@ let currentSynth = new Tone.PolySynth();
 currentSynth.volume.value = -6;
 
 const limiter = new Tone.Limiter(-6);
+
 
 const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
@@ -411,6 +413,18 @@ function App(): ReactElement {
     const [octave, setOctave] = useState(0);
     const [isMIDICompatible, setIsMIDICompatible] = useState(true);
 
+
+    if (firstTimeLoading) {
+        const synthBox: HTMLInputElement = document.getElementById("synth1") as HTMLInputElement;
+        const waveformBox: HTMLInputElement = document.getElementById("waveform1") as HTMLInputElement;
+        const modifierBox: HTMLInputElement = document.getElementById("modifier1") as HTMLInputElement;
+        if (synthBox) {
+            synthBox.checked = true;
+            waveformBox.checked = true;
+            modifierBox.checked = true;
+            firstTimeLoading = false;
+        }
+    }
 
     useEffect(() => {
         if (!navigator.requestMIDIAccess) {
@@ -482,24 +496,32 @@ function App(): ReactElement {
                         <h3>Synth</h3>
                     </div>
                     <div className={"vertical"} id={"synth-choices"}>
-                        <button onClick={
+
+                        <input type="radio" id="synth1" name="synth" value="1" onClick={
                             () => {
                                 synthType.synth = "synth";
                                 updateSynth();
                             }
-                        }>Classic</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="synth1" className="radio-label">Classic</label>
+
+                        <input type="radio" id="synth2" name="synth" value="2" onClick={
                             () => {
                                 synthType.synth = "amsynth";
                                 updateSynth();
                             }
-                        }>AMSynth</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="synth2" className="radio-label">AMSynth</label>
+
+                        <input type="radio" id="synth3" name="synth" value="3" onClick={
                             () => {
                                 synthType.synth = "fmsynth";
                                 updateSynth();
                             }
-                        }>FMSynth</button>
+                        }/>
+                        <label htmlFor="synth3" className="radio-label">FMSynth</label>
+
+
                         <label>Harmonicity</label>
                         <input
                             type={"range"}
@@ -509,7 +531,7 @@ function App(): ReactElement {
                             defaultValue={synthType.harmonicity}
                             step={"1"}
                             onChange={
-                                (e) =>  {
+                                (e) => {
                                     synthType.harmonicity = parseFloat(e.target.value);
                                     updateSynthSlider("harmonicity");
                                 }
@@ -523,7 +545,7 @@ function App(): ReactElement {
                             defaultValue={synthType.modulation_index}
                             step={"1"}
                             onChange={
-                                (e) =>  {
+                                (e) => {
                                     synthType.modulation_index = parseFloat(e.target.value);
                                     updateSynthSlider("modulation_index");
                                 }
@@ -540,7 +562,7 @@ function App(): ReactElement {
                                 max={"1"}
                                 defaultValue={synthType.partials1}
                                 step={"0.01"}
-                                onChange = {
+                                onChange={
                                     (e) => {
                                         synthType.partials1 = parseFloat(e.target.value);
                                         setPartials();
@@ -554,7 +576,7 @@ function App(): ReactElement {
                                 max={"1"}
                                 defaultValue={synthType.partials2}
                                 step={"0.01"}
-                                onChange = {
+                                onChange={
                                     (e) => {
                                         synthType.partials2 = parseFloat(e.target.value);
                                         setPartials();
@@ -568,7 +590,7 @@ function App(): ReactElement {
                                 max={"1"}
                                 defaultValue={synthType.partials3}
                                 step={"0.01"}
-                                onChange = {
+                                onChange={
                                     (e) => {
                                         synthType.partials3 = parseFloat(e.target.value);
                                         setPartials();
@@ -582,7 +604,7 @@ function App(): ReactElement {
                                 max={"1"}
                                 defaultValue={synthType.partials4}
                                 step={"0.01"}
-                                onChange = {
+                                onChange={
                                     (e) => {
                                         synthType.partials4 = parseFloat(e.target.value);
                                         setPartials();
@@ -594,45 +616,57 @@ function App(): ReactElement {
                 </div>
                 <div className={"vertical"} id={"waveform-column"}>
                     <div className={"column-title"}>
-                        <h3>Waveform</h3>
+                    <h3>Waveform</h3>
                     </div>
                     <div className={"vertical"} id={"waveform-choices"}>
-                        <button onClick={
+                        <input type="radio" id="waveform1" name="waveform" value="1" onClick={
                             () => {
                                 synthType.waveform = "sine";
                                 updateButton();
                             }
-                        }>Sine</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="waveform1" className="radio-label">Sine</label>
+
+                        <input type="radio" id="waveform2" name="waveform" value="2" onClick={
                             () => {
                                 synthType.waveform = "square";
                                 updateButton();
                             }
-                        }>Square</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="waveform2" className="radio-label">Square</label>
+
+                        <input type="radio" id="waveform3" name="waveform" value="3" onClick={
                             () => {
                                 synthType.waveform = "sawtooth";
                                 updateButton();
                             }
-                        }>Saw</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="waveform3" className="radio-label">Sawtooth</label>
+
+                        <input type="radio" id="waveform4" name="waveform" value="4" onClick={
                             () => {
                                 synthType.waveform = "triangle";
                                 updateButton();
                             }
-                        }>Triangle</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="waveform4" className="radio-label">Triangle</label>
+
+                        <input type="radio" id="waveform15" name="waveform" value="5" onClick={
                             () => {
                                 synthType.waveform = "pulse";
                                 updateButton();
                             }
-                        }>Pulse</button>
-                        <button onClick={
+                        }/>
+                        <label htmlFor="waveform5" className="radio-label">Pulse</label>
+
+                        <input type="radio" id="waveform6" name="waveform" value="6" onClick={
                             () => {
                                 synthType.waveform = "pwm";
                                 updateButton();
                             }
-                        }>PWM</button>
+                        }/>
+                        <label htmlFor="waveform6" className="radio-label">PWM</label>
+
                     </div>
                     <div className={"vertical"} id={"envelope-choices"}>
                         <div className={"effect"}>
@@ -704,30 +738,38 @@ function App(): ReactElement {
                             />
                         </div>
                     </div>
-                    <button onClick={
+                    <input type="radio" id="modifier1" name="modifier" value="1" onClick={
                         () => {
                             synthType.oscillator_type = "";
                             updateButton();
                         }
-                    }>NONE</button>
-                    <button onClick={
+                    }/>
+                    <label htmlFor="modifier1" className="radio-label">NONE</label>
+
+                    <input type="radio" id="modifier2" name="modifier" value="2" onClick={
                         () => {
                             synthType.oscillator_type = "am";
                             updateButton();
                         }
-                    }>AM</button>
-                    <button onClick={
+                    }/>
+                    <label htmlFor="modifier2" className="radio-label">AM</label>
+
+                    <input type="radio" id="modifier3" name="modifier" value="3" onClick={
                         () => {
                             synthType.oscillator_type = "fm";
                             updateButton();
                         }
-                    }>FM</button>
-                    <button onClick={
+                    }/>
+                    <label htmlFor="modifier3" className="radio-label">FM</label>
+
+                    <input type="radio" id="modifier4" name="modifier" value="4" onClick={
                         () => {
                             synthType.oscillator_type = "fat";
                             updateButton();
                         }
-                    }>FAT</button>
+                    }/>
+                    <label htmlFor="modifier4" className="radio-label">FAT</label>
+
                 </div>
                 <div className={"vertical"} id={"effects-column"}>
                     <div className={"column-title"}>

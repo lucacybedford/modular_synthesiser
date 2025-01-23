@@ -132,6 +132,7 @@ input[type="range"] {
   transition: background 0.3s;
   margin-top: 10px;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 input[type="range"]:hover {
@@ -211,4 +212,39 @@ button:hover {
 
 button:active {
   background-color: #67554a;
+}
+
+
+
+
+
+
+input[type="radio"] {
+  display: none;
+}
+
+/* Style the labels to act like custom radio buttons */
+.radio-label {
+  display: inline-block;
+  cursor: pointer;
+  color: white;
+  border-radius: 8px;
+  border: 2px solid white;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #c2a38f;
+  margin-bottom: 3%;
+  transition: background 0.3s;
+}
+
+/* Change the appearance when a label is selected */
+input[type="radio"]:checked + .radio-label {
+  background-color: #67554a;
+}
+
+/* Hover effect */
+.radio-label:hover {
+  background-color: #957d6f;
 }
