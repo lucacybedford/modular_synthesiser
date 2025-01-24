@@ -4,6 +4,7 @@ import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
 
 
+
 // ------------ Synth Functions ------------
 
 function updateSynth() {
@@ -133,6 +134,8 @@ function updateButton () {
     }
     currentSynth.set({oscillator: {type: oscillatorType as EffectTypes}});
 } // sets the oscillator to the chosen type from buttons
+
+
 
 
 
@@ -341,6 +344,8 @@ const keyToNote: { [key: string]: number } = {
     j: 75, // D#5
     m: 76, // E5
 };
+
+
 
 let firstTimeLoading = true;
 
