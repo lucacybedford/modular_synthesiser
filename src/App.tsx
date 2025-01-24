@@ -782,12 +782,11 @@ function App(): ReactElement {
                                     <input
                                         type={"checkbox"}
                                         id={"highpass-toggle"}
-                                        onChange = {
+                                        onChange={
                                             (e) => {
                                                 if (e.target.checked) {
                                                     addModule("highpass");
-                                                }
-                                                else {
+                                                } else {
                                                     removeModule("highpass");
                                                 }
                                             }
@@ -801,12 +800,12 @@ function App(): ReactElement {
                                         max={"5000"}
                                         defaultValue={effectValues.highpass}
                                         step={"1"}
-                                        onChange = {
+                                        onChange={
                                             (e) => {
                                                 const value = parseFloat(e.target.value);
                                                 effectValues.highpass = value;
                                                 if (existingModules.some(module => module.id === "highpass")) {
-                                                    const { instance } = existingModules.find(module => module.id === "highpass")!;
+                                                    const {instance} = existingModules.find(module => module.id === "highpass")!;
                                                     (instance as Tone.Filter).frequency.value = value;
                                                 }
                                             }
