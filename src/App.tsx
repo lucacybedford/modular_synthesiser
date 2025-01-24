@@ -522,7 +522,7 @@ function App(): ReactElement {
                         <label htmlFor="synth3" className="radio-label">FMSynth</label>
 
 
-                        <label>Harmonicity</label>
+                        <label className={"small-title"}>Harmonicity</label>
                         <input
                             type={"range"}
                             id={"harmonicity-slider"}
@@ -552,7 +552,7 @@ function App(): ReactElement {
                             }
                         />
 
-                        <label>Partials</label>
+                        <label className={"small-title"}>Partials</label>
 
                         <div className={"vertical"}>
                             <input
