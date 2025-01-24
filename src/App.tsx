@@ -384,9 +384,9 @@ const effectValues = {
     "notch": 1000,
     "delay": 0.5,
     "reverb": 1,
-    "feedback1": 1,
+    "feedback1": 0.5,
     "feedback2": 0.5,
-    "pingpong1": 1,
+    "pingpong1": 0.5,
     "pingpong2": 0.5,
     "chorus1": 10,
     "chorus2": 1,
@@ -778,687 +778,719 @@ function App(): ReactElement {
                     <div className={"horizontal"}>
                         <div className={"vertical"} id={"left"}>
                             <div className={"vertical"}>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"highpass-toggle"}
-                                        onChange={
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("highpass");
-                                                } else {
-                                                    removeModule("highpass");
-                                                }
-                                            }
-                                        }
-                                    />
+                                <div className={"effectVertical"}>
                                     <label>Highpass</label>
-                                    <input
-                                        type={"range"}
-                                        id={"highpass-slider"}
-                                        min={"20"}
-                                        max={"5000"}
-                                        defaultValue={effectValues.highpass}
-                                        step={"1"}
-                                        onChange={
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.highpass = value;
-                                                if (existingModules.some(module => module.id === "highpass")) {
-                                                    const {instance} = existingModules.find(module => module.id === "highpass")!;
-                                                    (instance as Tone.Filter).frequency.value = value;
-                                                }
-                                            }
-                                        }
-                                    />
-                                </div>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"lowpass-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("lowpass");
-                                                }
-                                                else {
-                                                    removeModule("lowpass");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>Lowpass</label>
-                                    <input
-                                        type={"range"}
-                                        id={"lowpass-slider"}
-                                        min={"20"}
-                                        max={"5000"}
-                                        defaultValue={effectValues.lowpass}
-                                        step={"1"}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.lowpass = value;
-                                                if (existingModules.some(module => module.id === "lowpass")) {
-                                                    const { instance } = existingModules.find(module => module.id === "lowpass")!;
-                                                    (instance as Tone.Filter).frequency.value = value;
-                                                }
-                                            }
-                                        }
-                                    />
-                                </div>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"bandpass-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("bandpass");
-                                                }
-                                                else {
-                                                    removeModule("bandpass");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>Bandpass</label>
-                                    <input
-                                        type={"range"}
-                                        id={"bandpass-slider"}
-                                        min={"20"}
-                                        max={"5000"}
-                                        defaultValue={effectValues.bandpass}
-                                        step={"1"}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.bandpass = value;
-                                                if (existingModules.some(module => module.id === "bandpass")) {
-                                                    const { instance } = existingModules.find(module => module.id === "bandpass")!;
-                                                    (instance as Tone.Filter).frequency.value = value;
-                                                }
-                                            }
-                                        }
-                                    />
-                                </div>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"notch-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("notch");
-                                                }
-                                                else {
-                                                    removeModule("notch");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>Notch</label>
-                                    <input
-                                        type={"range"}
-                                        id={"notch-slider"}
-                                        min={"20"}
-                                        max={"5000"}
-                                        defaultValue={effectValues.notch}
-                                        step={"1"}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.notch = value;
-                                                if (existingModules.some(module => module.id === "notch")) {
-                                                    const { instance } = existingModules.find(module => module.id === "notch")!;
-                                                    (instance as Tone.Filter).frequency.value = value;
-                                                }
-                                            }
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div className={"separator"}></div>
-                            <div className={"vertical"}>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"delay-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("delay");
-                                                }
-                                                else {
-                                                    removeModule("delay");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>Delay</label>
-                                    <input
-                                        type={"range"}
-                                        id={"delay-slider"}
-                                        min={"0"}
-                                        max={"1"}
-                                        defaultValue={effectValues.delay}
-                                        step={"0.01"}
-                                        onMouseUp={() => {
-                                                if (existingModules.some(module => module.id === "delay")) {
-                                                    const { instance } = existingModules.find(module => module.id === "delay")!;
-                                                    (instance as Tone.Delay).delayTime.value = effectValues.delay;
-                                                }
-                                            }
-                                        }
-                                        onChange = {
-                                            (e) => {
-                                                effectValues.delay = parseFloat(e.target.value);
-                                            }
-                                        }
-                                    />
-                                </div>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"reverb-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("reverb");
-                                                }
-                                                else {
-                                                    removeModule("reverb");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>Reverb</label>
-                                    <input
-                                        type={"range"}
-                                        id={"reverb-slider"}
-                                        min={"0.01"}
-                                        max={"5"}
-                                        defaultValue={effectValues.reverb}
-                                        step={"0.01"}
-                                        onMouseUp={() => {
-                                            if (existingModules.some(module => module.id === "reverb")) {
-                                                const { instance } = existingModules.find(module => module.id === "reverb")!;
-                                                (instance as Tone.Reverb).decay = effectValues.reverb;
-                                            }
-                                            }
-                                        }
-                                        onChange = {
-                                            (e) => {
-                                                effectValues.reverb = parseFloat(e.target.value);
-                                            }
-                                        }
-                                    />
-                                </div>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"feedback-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("feedback");
-                                                }
-                                                else {
-                                                    removeModule("feedback");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>Feedback</label>
-                                    <div className={"vertical"}>
+                                    <div className={"effectHorizontal"}>
                                         <input
-                                            type={"range"}
-                                            id={"feedback-slider-1"}
-                                            min={"0"}
-                                            max={"2"}
-                                            defaultValue={effectValues.feedback1}
-                                            step={"0.01"}
-                                            onMouseUp={
-                                                () => {
-                                                    if (existingModules.some(module => module.id === "feedback")) {
-                                                        const { instance } = existingModules.find(module => module.id === "feedback")!;
-                                                        (instance as Tone.FeedbackDelay).delayTime.value = effectValues.feedback1;
-                                                    }
-                                                }
-                                            }
-                                            onChange = {
+                                            type={"checkbox"}
+                                            id={"highpass-toggle"}
+                                            onChange={
                                                 (e) => {
-                                                    effectValues.feedback1 = parseFloat(e.target.value);
+                                                    if (e.target.checked) {
+                                                        addModule("highpass");
+                                                    } else {
+                                                        removeModule("highpass");
+                                                    }
                                                 }
                                             }
                                         />
                                         <input
                                             type={"range"}
-                                            id={"feedback-slider-2"}
-                                            min={"0"}
-                                            max={"1"}
-                                            defaultValue={effectValues.feedback2}
-                                            step={"0.01"}
-                                            onChange = {
+                                            id={"highpass-slider"}
+                                            min={"20"}
+                                            max={"5000"}
+                                            defaultValue={effectValues.highpass}
+                                            step={"1"}
+                                            onChange={
                                                 (e) => {
                                                     const value = parseFloat(e.target.value);
-                                                    effectValues.feedback2 = value;
-                                                    if (existingModules.some(module => module.id === "feedback")) {
-                                                        const { instance } = existingModules.find(module => module.id === "feedback")!;
-                                                        (instance as Tone.FeedbackDelay).feedback.value = value;
+                                                    effectValues.highpass = value;
+                                                    if (existingModules.some(module => module.id === "highpass")) {
+                                                        const {instance} = existingModules.find(module => module.id === "highpass")!;
+                                                        (instance as Tone.Filter).frequency.value = value;
                                                     }
                                                 }
                                             }
                                         />
                                     </div>
                                 </div>
-                                <div className={"effect"}>
-                                    <input
-                                        type={"checkbox"}
-                                        id={"pingpong-toggle"}
-                                        onChange = {
-                                            (e) => {
-                                                if (e.target.checked) {
-                                                    addModule("pingpong");
-                                                }
-                                                else {
-                                                    removeModule("pingpong");
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <label>PingPong</label>
-                                    <div className={"vertical"}>
+                                <div className={"effectVertical"}>
+                                    <label>Lowpass</label>
+                                    <div className={"effectHorizontal"}>
                                         <input
-                                            type={"range"}
-                                            id={"pingpong-slider-1"}
-                                            min={"0"}
-                                            max={"2"}
-                                            defaultValue={effectValues.pingpong1}
-                                            step={"0.01"}
-                                            onMouseUp={
-                                                () => {
-                                                    if (existingModules.some(module => module.id === "pingpong")) {
-                                                        const { instance } = existingModules.find(module => module.id === "pingpong")!;
-                                                        (instance as Tone.PingPongDelay).delayTime.value = effectValues.pingpong1;
-                                                    }
-                                                }
-                                            }
+                                            type={"checkbox"}
+                                            id={"lowpass-toggle"}
                                             onChange = {
                                                 (e) => {
-                                                    effectValues.pingpong1 = parseFloat(e.target.value);
+                                                    if (e.target.checked) {
+                                                        addModule("lowpass");
+                                                    }
+                                                    else {
+                                                        removeModule("lowpass");
+                                                    }
                                                 }
                                             }
                                         />
                                         <input
                                             type={"range"}
-                                            id={"pingpong-slider-2"}
-                                            min={"0"}
-                                            max={"1"}
-                                            defaultValue={effectValues.pingpong2}
-                                            step={"0.01"}
+                                            id={"lowpass-slider"}
+                                            min={"20"}
+                                            max={"5000"}
+                                            defaultValue={effectValues.lowpass}
+                                            step={"1"}
                                             onChange = {
                                                 (e) => {
                                                     const value = parseFloat(e.target.value);
-                                                    effectValues.pingpong2 = value;
-                                                    if (existingModules.some(module => module.id === "pingpong")) {
-                                                        const { instance } = existingModules.find(module => module.id === "pingpong")!;
-                                                        (instance as Tone.PingPongDelay).feedback.value = value;
+                                                    effectValues.lowpass = value;
+                                                    if (existingModules.some(module => module.id === "lowpass")) {
+                                                        const { instance } = existingModules.find(module => module.id === "lowpass")!;
+                                                        (instance as Tone.Filter).frequency.value = value;
                                                     }
                                                 }
                                             }
                                         />
+                                    </div>
+                                </div>
+                                <div className={"effectVertical"}>
+                                    <label>Bandpass</label>
+                                    <div className={"effectHorizontal"}>
+                                        <input
+                                            type={"checkbox"}
+                                            id={"bandpass-toggle"}
+                                            onChange = {
+                                                (e) => {
+                                                    if (e.target.checked) {
+                                                        addModule("bandpass");
+                                                    }
+                                                    else {
+                                                        removeModule("bandpass");
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"bandpass-slider"}
+                                            min={"20"}
+                                            max={"5000"}
+                                            defaultValue={effectValues.bandpass}
+                                            step={"1"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.bandpass = value;
+                                                    if (existingModules.some(module => module.id === "bandpass")) {
+                                                        const { instance } = existingModules.find(module => module.id === "bandpass")!;
+                                                        (instance as Tone.Filter).frequency.value = value;
+                                                    }
+                                                }
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className={"effectVertical"}>
+                                    <label>Notch</label>
+                                    <div className={"effectHorizontal"}>
+                                        <input
+                                            type={"checkbox"}
+                                            id={"notch-toggle"}
+                                            onChange = {
+                                                (e) => {
+                                                    if (e.target.checked) {
+                                                        addModule("notch");
+                                                    }
+                                                    else {
+                                                        removeModule("notch");
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"notch-slider"}
+                                            min={"20"}
+                                            max={"5000"}
+                                            defaultValue={effectValues.notch}
+                                            step={"1"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.notch = value;
+                                                    if (existingModules.some(module => module.id === "notch")) {
+                                                        const { instance } = existingModules.find(module => module.id === "notch")!;
+                                                        (instance as Tone.Filter).frequency.value = value;
+                                                    }
+                                                }
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"separator"}></div>
+                            <div className={"vertical"}>
+                                <div className={"effectVertical"}>
+                                    <label>Delay</label>
+                                    <div className={"effectHorizontal"}>
+                                        <input
+                                            type={"checkbox"}
+                                            id={"delay-toggle"}
+                                            onChange = {
+                                                (e) => {
+                                                    if (e.target.checked) {
+                                                        addModule("delay");
+                                                    }
+                                                    else {
+                                                        removeModule("delay");
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"delay-slider"}
+                                            min={"0"}
+                                            max={"1"}
+                                            defaultValue={effectValues.delay}
+                                            step={"0.01"}
+                                            onMouseUp={() => {
+                                                    if (existingModules.some(module => module.id === "delay")) {
+                                                        const { instance } = existingModules.find(module => module.id === "delay")!;
+                                                        (instance as Tone.Delay).delayTime.value = effectValues.delay;
+                                                    }
+                                                }
+                                            }
+                                            onChange = {
+                                                (e) => {
+                                                    effectValues.delay = parseFloat(e.target.value);
+                                                }
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className={"effectVertical"}>
+                                    <label>Reverb</label>
+                                    <div className={"effectHorizontal"}>
+                                        <input
+                                            type={"checkbox"}
+                                            id={"reverb-toggle"}
+                                            onChange = {
+                                                (e) => {
+                                                    if (e.target.checked) {
+                                                        addModule("reverb");
+                                                    }
+                                                    else {
+                                                        removeModule("reverb");
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"reverb-slider"}
+                                            min={"0.01"}
+                                            max={"5"}
+                                            defaultValue={effectValues.reverb}
+                                            step={"0.01"}
+                                            onMouseUp={() => {
+                                                if (existingModules.some(module => module.id === "reverb")) {
+                                                    const { instance } = existingModules.find(module => module.id === "reverb")!;
+                                                    (instance as Tone.Reverb).decay = effectValues.reverb;
+                                                }
+                                                }
+                                            }
+                                            onChange = {
+                                                (e) => {
+                                                    effectValues.reverb = parseFloat(e.target.value);
+                                                }
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className={"effectVertical"}>
+                                    <label>Feedback</label>
+                                    <div className={"effectHorizontal"}>
+                                        <input
+                                            type={"checkbox"}
+                                            id={"feedback-toggle"}
+                                            onChange = {
+                                                (e) => {
+                                                    if (e.target.checked) {
+                                                        addModule("feedback");
+                                                    }
+                                                    else {
+                                                        removeModule("feedback");
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <div className={"vertical"}>
+                                            <input
+                                                type={"range"}
+                                                id={"feedback-slider-1"}
+                                                min={"0"}
+                                                max={"2"}
+                                                defaultValue={effectValues.feedback1}
+                                                step={"0.01"}
+                                                onMouseUp={
+                                                    () => {
+                                                        if (existingModules.some(module => module.id === "feedback")) {
+                                                            const { instance } = existingModules.find(module => module.id === "feedback")!;
+                                                            (instance as Tone.FeedbackDelay).delayTime.value = effectValues.feedback1;
+                                                        }
+                                                    }
+                                                }
+                                                onChange = {
+                                                    (e) => {
+                                                        effectValues.feedback1 = parseFloat(e.target.value);
+                                                    }
+                                                }
+                                            />
+                                            <input
+                                                type={"range"}
+                                                id={"feedback-slider-2"}
+                                                min={"0"}
+                                                max={"1"}
+                                                defaultValue={effectValues.feedback2}
+                                                step={"0.01"}
+                                                onChange = {
+                                                    (e) => {
+                                                        const value = parseFloat(e.target.value);
+                                                        effectValues.feedback2 = value;
+                                                        if (existingModules.some(module => module.id === "feedback")) {
+                                                            const { instance } = existingModules.find(module => module.id === "feedback")!;
+                                                            (instance as Tone.FeedbackDelay).feedback.value = value;
+                                                        }
+                                                    }
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={"effectVertical"}>
+                                    <label>PingPong</label>
+                                    <div className={"effectHorizontal"}>
+                                        <input
+                                            type={"checkbox"}
+                                            id={"pingpong-toggle"}
+                                            onChange = {
+                                                (e) => {
+                                                    if (e.target.checked) {
+                                                        addModule("pingpong");
+                                                    }
+                                                    else {
+                                                        removeModule("pingpong");
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <div className={"vertical"}>
+                                            <input
+                                                type={"range"}
+                                                id={"pingpong-slider-1"}
+                                                min={"0"}
+                                                max={"2"}
+                                                defaultValue={effectValues.pingpong1}
+                                                step={"0.01"}
+                                                onMouseUp={
+                                                    () => {
+                                                        if (existingModules.some(module => module.id === "pingpong")) {
+                                                            const { instance } = existingModules.find(module => module.id === "pingpong")!;
+                                                            (instance as Tone.PingPongDelay).delayTime.value = effectValues.pingpong1;
+                                                        }
+                                                    }
+                                                }
+                                                onChange = {
+                                                    (e) => {
+                                                        effectValues.pingpong1 = parseFloat(e.target.value);
+                                                    }
+                                                }
+                                            />
+                                            <input
+                                                type={"range"}
+                                                id={"pingpong-slider-2"}
+                                                min={"0"}
+                                                max={"1"}
+                                                defaultValue={effectValues.pingpong2}
+                                                step={"0.01"}
+                                                onChange = {
+                                                    (e) => {
+                                                        const value = parseFloat(e.target.value);
+                                                        effectValues.pingpong2 = value;
+                                                        if (existingModules.some(module => module.id === "pingpong")) {
+                                                            const { instance } = existingModules.find(module => module.id === "pingpong")!;
+                                                            (instance as Tone.PingPongDelay).feedback.value = value;
+                                                        }
+                                                    }
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className={"vertical"} id={"right"}>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"chorus-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("chorus");
-                                            }
-                                            else {
-                                                removeModule("chorus");
-                                            }
-                                        }
-                                    }
-                                />
+                            <div className={"effectVertical"}>
                                 <label>Chorus</label>
-                                <div className={"vertical"}>
+                                <div className={"effectHorizontal"}>
                                     <input
-                                        type={"range"}
-                                        id={"chorus-slider-1"}
-                                        min={"0"}
-                                        max={"100"}
-                                        defaultValue={effectValues.chorus1}
-                                        step={"1"}
-                                        onMouseUp={
-                                            () => {
-                                                if (existingModules.some(module => module.id === "chorus")) {
-                                                    const { instance } = existingModules.find(module => module.id === "chorus")!;
-                                                    (instance as Tone.Chorus).delayTime = effectValues.chorus1;
-                                                }
-                                            }
-                                        }
+                                        type={"checkbox"}
+                                        id={"chorus-toggle"}
                                         onChange = {
                                             (e) => {
-                                                effectValues.chorus1 = parseFloat(e.target.value);
+                                                if (e.target.checked) {
+                                                    addModule("chorus");
+                                                }
+                                                else {
+                                                    removeModule("chorus");
+                                                }
                                             }
                                         }
                                     />
-                                    <input
-                                        type={"range"}
-                                        id={"chorus-slider-2"}
-                                        min={"0"}
-                                        max={"5"}
-                                        defaultValue={effectValues.chorus2}
-                                        step={"0.1"}
-                                        onMouseUp={
-                                            () => {
-                                                if (existingModules.some(module => module.id === "chorus")) {
-                                                    const { instance } = existingModules.find(module => module.id === "chorus")!;
-                                                    (instance as Tone.Chorus).depth = effectValues.chorus2;
+                                    <div className={"vertical"}>
+                                        <input
+                                            type={"range"}
+                                            id={"chorus-slider-1"}
+                                            min={"0"}
+                                            max={"100"}
+                                            defaultValue={effectValues.chorus1}
+                                            step={"1"}
+                                            onMouseUp={
+                                                () => {
+                                                    if (existingModules.some(module => module.id === "chorus")) {
+                                                        const { instance } = existingModules.find(module => module.id === "chorus")!;
+                                                        (instance as Tone.Chorus).delayTime = effectValues.chorus1;
+                                                    }
                                                 }
                                             }
-                                        }
-                                        onChange = {
-                                            (e) => {
-                                                effectValues.chorus2 = parseFloat(e.target.value);
+                                            onChange = {
+                                                (e) => {
+                                                    effectValues.chorus1 = parseFloat(e.target.value);
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"chorus-slider-2"}
+                                            min={"0"}
+                                            max={"5"}
+                                            defaultValue={effectValues.chorus2}
+                                            step={"0.1"}
+                                            onMouseUp={
+                                                () => {
+                                                    if (existingModules.some(module => module.id === "chorus")) {
+                                                        const { instance } = existingModules.find(module => module.id === "chorus")!;
+                                                        (instance as Tone.Chorus).depth = effectValues.chorus2;
+                                                    }
+                                                }
+                                            }
+                                            onChange = {
+                                                (e) => {
+                                                    effectValues.chorus2 = parseFloat(e.target.value);
 
+                                                }
                                             }
-                                        }
-                                    />
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"distortion-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("distortion");
-                                            }
-                                            else {
-                                                removeModule("distortion");
-                                            }
-                                        }
-                                    }
-                                />
+                            <div className={"effectVertical"}>
                                 <label>Distortion</label>
-                                <input
-                                    type={"range"}
-                                    id={"distortion-slider"}
-                                    min={"0"}
-                                    max={"1"}
-                                    defaultValue={effectValues.distortion}
-                                    step={"0.01"}
-                                    onChange = {
-                                        (e) => {
-                                            const value = parseFloat(e.target.value);
-                                            effectValues.distortion = value;
-                                            if (existingModules.some(module => module.id === "distortion")) {
-                                                const { instance } = existingModules.find(module => module.id === "distortion")!;
-                                                (instance as Tone.Distortion).distortion = value;
-                                            }
-                                        }
-                                    }
-                                />
-                            </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"wah-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("wah");
-                                            }
-                                            else {
-                                                removeModule("wah");
-                                            }
-                                        }
-                                    }
-                                />
-                                <label>Wah</label>
-                                <input
-                                    type={"range"}
-                                    id={"wah-slider"}
-                                    min={"0"}
-                                    max={"10"}
-                                    defaultValue={effectValues.wah}
-                                    step={"0.1"}
-                                    onChange = {
-                                        (e) => {
-                                            const value = parseFloat(e.target.value);
-                                            effectValues.wah = value;
-                                            if (existingModules.some(module => module.id === "wah")) {
-                                                const { instance } = existingModules.find(module => module.id === "wah")!;
-                                                (instance as Tone.AutoWah).octaves = value;
-                                            }
-                                        }
-                                    }
-                                />
-                            </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"phaser-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("phaser");
-                                            }
-                                            else {
-                                                removeModule("phaser");
-                                            }
-                                        }
-                                    }
-                                />
-                                <label>Phaser</label>
-                                <div className={"vertical"}>
+                                <div className={"effectHorizontal"}>
                                     <input
-                                        type={"range"}
-                                        id={"phaser-slider-1"}
-                                        min={"0"}
-                                        max={"3"}
-                                        defaultValue={effectValues.phaser1}
-                                        step={"0.01"}
+                                        type={"checkbox"}
+                                        id={"distortion-toggle"}
                                         onChange = {
                                             (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.phaser1 = value;
-                                                if (existingModules.some(module => module.id === "phaser")) {
-                                                    const { instance } = existingModules.find(module => module.id === "phaser")!;
-                                                    (instance as Tone.Phaser).frequency.value = value;
+                                                if (e.target.checked) {
+                                                    addModule("distortion");
+                                                }
+                                                else {
+                                                    removeModule("distortion");
                                                 }
                                             }
                                         }
                                     />
                                     <input
                                         type={"range"}
-                                        id={"phaser-slider-2"}
-                                        min={"0"}
-                                        max={"10"}
-                                        defaultValue={effectValues.phaser2}
-                                        step={"0.1"}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.phaser2 = value;
-                                                if (existingModules.some(module => module.id === "phaser")) {
-                                                    const { instance } = existingModules.find(module => module.id === "phaser")!;
-                                                    (instance as Tone.Phaser).octaves = value;
-                                                }
-                                            }
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"widener-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("widener");
-                                            }
-                                            else {
-                                                removeModule("widener");
-                                            }
-                                        }
-                                    }
-                                />
-                                <label>Widener</label>
-                                <input
-                                    type={"range"}
-                                    id={"widener-slider"}
-                                    min={"0"}
-                                    max={"1"}
-                                    defaultValue={effectValues.widener}
-                                    step={"0.01"}
-                                    onChange = {
-                                        (e) => {
-                                            const value = parseFloat(e.target.value);
-                                            effectValues.widener = value;
-                                            if (existingModules.some(module => module.id === "widener")) {
-                                                const { instance } = existingModules.find(module => module.id === "widener")!;
-                                                (instance as Tone.StereoWidener).width.value = value;
-                                            }
-                                        }
-                                    }
-                                />
-                            </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"vibrato-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("vibrato");
-                                            }
-                                            else {
-                                                removeModule("vibrato");
-                                            }
-                                        }
-                                    }
-                                />
-                                <label>Vibrato</label>
-                                <div className={"vertical"}>
-                                    <input
-                                        type={"range"}
-                                        id={"vibrato-slider-1"}
-                                        min={"1"}
-                                        max={"20"}
-                                        defaultValue={effectValues.vibrato1}
-                                        step={"0.01"}
-                                        onChange = {
-                                            (e) => {
-                                                const value = parseFloat(e.target.value);
-                                                effectValues.vibrato1 = value;
-                                                if (existingModules.some(module => module.id === "vibrato")) {
-                                                    const { instance } = existingModules.find(module => module.id === "vibrato")!;
-                                                    (instance as Tone.Vibrato).frequency.value = value;
-                                                }
-                                            }
-                                        }
-                                    />
-                                    <input
-                                        type={"range"}
-                                        id={"vibrato-slider-2"}
+                                        id={"distortion-slider"}
                                         min={"0"}
                                         max={"1"}
-                                        defaultValue={effectValues.vibrato2}
+                                        defaultValue={effectValues.distortion}
                                         step={"0.01"}
                                         onChange = {
                                             (e) => {
                                                 const value = parseFloat(e.target.value);
-                                                effectValues.vibrato2 = value;
-                                                if (existingModules.some(module => module.id === "vibrato")) {
-                                                    const { instance } = existingModules.find(module => module.id === "vibrato")!;
-                                                    (instance as Tone.Vibrato).depth.value = value;
+                                                effectValues.distortion = value;
+                                                if (existingModules.some(module => module.id === "distortion")) {
+                                                    const { instance } = existingModules.find(module => module.id === "distortion")!;
+                                                    (instance as Tone.Distortion).distortion = value;
                                                 }
                                             }
                                         }
                                     />
                                 </div>
                             </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"bitcrusher-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("bitcrusher");
-                                            }
-                                            else {
-                                                removeModule("bitcrusher");
-                                            }
-                                        }
-                                    }
-                                />
-                                <label>Bit Crusher</label>
-                                <input
-                                    type={"range"}
-                                    id={"bitcrusher-slider"}
-                                    min={"3"}
-                                    max={"8"}
-                                    defaultValue={effectValues.bitcrusher}
-                                    step={"1"}
-                                    onChange = {
-                                        (e) => {
-                                            const value = parseFloat(e.target.value);
-                                            effectValues.bitcrusher = value;
-                                            if (existingModules.some(module => module.id === "bitcrusher")) {
-                                                const { instance } = existingModules.find(module => module.id === "bitcrusher")!;
-                                                (instance as Tone.BitCrusher).bits.value = value;
+                            <div className={"effectVertical"}>
+                                <label>Wah</label>
+                                <div className={"effectHorizontal"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"wah-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("wah");
+                                                }
+                                                else {
+                                                    removeModule("wah");
+                                                }
                                             }
                                         }
-                                    }
-                                />
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"wah-slider"}
+                                        min={"0"}
+                                        max={"10"}
+                                        defaultValue={effectValues.wah}
+                                        step={"0.1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.wah = value;
+                                                if (existingModules.some(module => module.id === "wah")) {
+                                                    const { instance } = existingModules.find(module => module.id === "wah")!;
+                                                    (instance as Tone.AutoWah).octaves = value;
+                                                }
+                                            }
+                                        }
+                                    />
+                                </div>
                             </div>
-                            <div className={"effect"}>
-                                <input
-                                    type={"checkbox"}
-                                    id={"chebyshev-toggle"}
-                                    onChange = {
-                                        (e) => {
-                                            if (e.target.checked) {
-                                                addModule("chebyshev");
-                                            }
-                                            else {
-                                                removeModule("chebyshev");
+                            <div className={"effectVertical"}>
+                                <label>Phaser</label>
+                                <div className={"effectHorizontal"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"phaser-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("phaser");
+                                                }
+                                                else {
+                                                    removeModule("phaser");
+                                                }
                                             }
                                         }
-                                    }
-                                />
+                                    />
+                                    <div className={"vertical"}>
+                                        <input
+                                            type={"range"}
+                                            id={"phaser-slider-1"}
+                                            min={"0"}
+                                            max={"3"}
+                                            defaultValue={effectValues.phaser1}
+                                            step={"0.01"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.phaser1 = value;
+                                                    if (existingModules.some(module => module.id === "phaser")) {
+                                                        const { instance } = existingModules.find(module => module.id === "phaser")!;
+                                                        (instance as Tone.Phaser).frequency.value = value;
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"phaser-slider-2"}
+                                            min={"0"}
+                                            max={"10"}
+                                            defaultValue={effectValues.phaser2}
+                                            step={"0.1"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.phaser2 = value;
+                                                    if (existingModules.some(module => module.id === "phaser")) {
+                                                        const { instance } = existingModules.find(module => module.id === "phaser")!;
+                                                        (instance as Tone.Phaser).octaves = value;
+                                                    }
+                                                }
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"effectVertical"}>
+                                <label>Widener</label>
+                                <div className={"effectHorizontal"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"widener-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("widener");
+                                                }
+                                                else {
+                                                    removeModule("widener");
+                                                }
+                                            }
+                                        }
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"widener-slider"}
+                                        min={"0"}
+                                        max={"1"}
+                                        defaultValue={effectValues.widener}
+                                        step={"0.01"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.widener = value;
+                                                if (existingModules.some(module => module.id === "widener")) {
+                                                    const { instance } = existingModules.find(module => module.id === "widener")!;
+                                                    (instance as Tone.StereoWidener).width.value = value;
+                                                }
+                                            }
+                                        }
+                                    />
+                                </div>
+                            </div>
+                            <div className={"effectVertical"}>
+                                <label>Vibrato</label>
+                                <div className={"effectHorizontal"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"vibrato-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("vibrato");
+                                                }
+                                                else {
+                                                    removeModule("vibrato");
+                                                }
+                                            }
+                                        }
+                                    />
+                                    <div className={"vertical"}>
+                                        <input
+                                            type={"range"}
+                                            id={"vibrato-slider-1"}
+                                            min={"1"}
+                                            max={"20"}
+                                            defaultValue={effectValues.vibrato1}
+                                            step={"0.01"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.vibrato1 = value;
+                                                    if (existingModules.some(module => module.id === "vibrato")) {
+                                                        const { instance } = existingModules.find(module => module.id === "vibrato")!;
+                                                        (instance as Tone.Vibrato).frequency.value = value;
+                                                    }
+                                                }
+                                            }
+                                        />
+                                        <input
+                                            type={"range"}
+                                            id={"vibrato-slider-2"}
+                                            min={"0"}
+                                            max={"1"}
+                                            defaultValue={effectValues.vibrato2}
+                                            step={"0.01"}
+                                            onChange = {
+                                                (e) => {
+                                                    const value = parseFloat(e.target.value);
+                                                    effectValues.vibrato2 = value;
+                                                    if (existingModules.some(module => module.id === "vibrato")) {
+                                                        const { instance } = existingModules.find(module => module.id === "vibrato")!;
+                                                        (instance as Tone.Vibrato).depth.value = value;
+                                                    }
+                                                }
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"effectVertical"}>
+                                <label>Bit Crusher</label>
+                                <div className={"effectHorizontal"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"bitcrusher-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("bitcrusher");
+                                                }
+                                                else {
+                                                    removeModule("bitcrusher");
+                                                }
+                                            }
+                                        }
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"bitcrusher-slider"}
+                                        min={"3"}
+                                        max={"8"}
+                                        defaultValue={effectValues.bitcrusher}
+                                        step={"1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.bitcrusher = value;
+                                                if (existingModules.some(module => module.id === "bitcrusher")) {
+                                                    const { instance } = existingModules.find(module => module.id === "bitcrusher")!;
+                                                    (instance as Tone.BitCrusher).bits.value = value;
+                                                }
+                                            }
+                                        }
+                                    />
+                                </div>
+                            </div>
+                            <div className={"effectVertical"}>
                                 <label>Chebyshev</label>
-                                <input
-                                    type={"range"}
-                                    id={"chebyshev-slider"}
-                                    min={"1"}
-                                    max={"100"}
-                                    defaultValue={effectValues.chebyshev}
-                                    step={"1"}
-                                    onChange = {
-                                        (e) => {
-                                            const value = parseFloat(e.target.value);
-                                            effectValues.chebyshev = value;
-                                            if (existingModules.some(module => module.id === "chebyshev")) {
-                                                const { instance } = existingModules.find(module => module.id === "chebyshev")!;
-                                                (instance as Tone.Chebyshev).order = value;
+                                <div className={"effectHorizontal"}>
+                                    <input
+                                        type={"checkbox"}
+                                        id={"chebyshev-toggle"}
+                                        onChange = {
+                                            (e) => {
+                                                if (e.target.checked) {
+                                                    addModule("chebyshev");
+                                                }
+                                                else {
+                                                    removeModule("chebyshev");
+                                                }
                                             }
                                         }
-                                    }
-                                />
+                                    />
+                                    <input
+                                        type={"range"}
+                                        id={"chebyshev-slider"}
+                                        min={"1"}
+                                        max={"100"}
+                                        defaultValue={effectValues.chebyshev}
+                                        step={"1"}
+                                        onChange = {
+                                            (e) => {
+                                                const value = parseFloat(e.target.value);
+                                                effectValues.chebyshev = value;
+                                                if (existingModules.some(module => module.id === "chebyshev")) {
+                                                    const { instance } = existingModules.find(module => module.id === "chebyshev")!;
+                                                    (instance as Tone.Chebyshev).order = value;
+                                                }
+                                            }
+                                        }
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -28,8 +28,6 @@ h3 {
 .column-title {
   display: flex;
   justify-content: center;
-  /*align-content: flex-start;*/
-  /*margin-top: -20px;*/
   align-items: self-start;
 }
 
@@ -53,20 +51,6 @@ h3 {
   width: 100%;
 }
 
-.horizontal {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-}
-
-.vertical {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-}
-
 #synth-column {
   max-width: 20%;
 }
@@ -87,27 +71,9 @@ h3 {
   max-width: 45%;
 }
 
-
-.effect {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
 label {
   font-weight: 500;
   color: #000000;
-  padding-right: 2%;
-}
-
-.oscillator {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
 }
 
 .keyboard-mockup {
@@ -119,143 +85,44 @@ h1 {
   line-height: 1.1;
 }
 
-.effect input[type="range"] {
-  margin-left: auto;
+
+.horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
 }
 
-input[type="range"] {
-  -webkit-appearance: none;
-  height: 5px;
-  background: #ddd;
-  border-radius: 5px;
-  outline: none;
-  transition: background 0.3s;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
+.vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
 }
 
-input[type="range"]:hover {
-  background: #ccc;
+.effect {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 10px;
-  height: 20px;
-  background: #c2a38f;
-  border-radius: 20%;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  background: #957d6f;
-}
-
-input[type="range"]::-webkit-slider-thumb:active {
-  background: #67554a;
-}
-
-input[type="range"]::-moz-range-thumb {
-  height: 5px;
-  background: #ddd;
-  border-radius: 5px;
-  outline: none;
-  transition: background 0.3s;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-input[type="range"]::-moz-range-thumb:hover {
-  background: #ccc;
-}
-
-input[type="range"]::-ms-thumb {
-  appearance: none;
-  width: 10px;
-  height: 20px;
-  background: #c2a38f;
-  border-radius: 20%;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-input[type="range"]::-ms-thumb:hover {
-  background: #957d6f;
-}
-input[type="range"]::-ms-thumb:active {
-  background: #67554a;
-}
-
-
-button {
-  border-radius: 8px;
-  border: 2px solid white;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #c2a38f;
-  cursor: pointer;
-  margin-bottom: 3px;
-  transition: background 0.3s;
-}
-button:hover {
-  background-color: #957d6f;
-}
-
-button:active {
-  background-color: #67554a;
-}
-
-
-
-input[type="radio"] {
-  display: none;
-}
-
-/* Style the labels to act like custom radio buttons */
-.radio-label {
-  display: inline-block;
-  cursor: pointer;
-  color: white;
-  border-radius: 8px;
-  border: 2px solid white;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #c2a38f;
-  margin-bottom: 3px;
+.effectVertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   margin-top: 3px;
-  transition: background 0.3s;
+  margin-bottom: 3px;
+  width: 100%;
 }
 
-/* Change the appearance when a label is selected */
-input[type="radio"]:checked + .radio-label {
-  background-color: #67554a;
-}
-
-/* Hover effect */
-.radio-label:hover {
-  background-color: #957d6f;
-}
-
-
-input[type="checkbox"] {
-  aspect-ratio: 1;
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-  appearance: none;
-  border: 2px solid #957d6f;
-  border-radius: 4px;
-  background-color: #957d6f;
-  transition: background-color 0.3s ease;
-}
-
-input[type="checkbox"]:checked {
-  background-color: white;
+.effectHorizontal {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
