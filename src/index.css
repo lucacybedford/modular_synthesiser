@@ -93,6 +93,10 @@ h1 {
   line-height: 1.1;
 }
 
+#reset-label {
+  color: white;
+}
+
 .horizontal {
   display: flex;
   justify-content: space-between;

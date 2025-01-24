@@ -46,6 +46,18 @@ function updateSynth() {
     console.log(moduleChain[0]);
 } // updates the base synth object with all its parameters
 
+function resetPartials() {
+    synthType.partials1 = 0;
+    synthType.partials2 = 0;
+    synthType.partials3 = 0;
+    synthType.partials4 = 0;
+    (document.getElementById("partials-slider-1") as HTMLInputElement).value = '0';
+    (document.getElementById("partials-slider-2") as HTMLInputElement).value = '0';
+    (document.getElementById("partials-slider-3") as HTMLInputElement).value = '0';
+    (document.getElementById("partials-slider-4") as HTMLInputElement).value = '0';
+    updateSynth();
+}
+
 function midiToFreq(number: number) {
     const a = 440;
     return (a/32) * (2 ** ((number - 9) / 12));
@@ -558,6 +570,14 @@ function App(): ReactElement {
                         />
 
                         <label className={"small-title"}>Partials</label>
+
+                        <div className={"reset-button"} onClick={
+                            () => {
+                                resetPartials();
+                            }
+                        }>
+                            <label id={"reset-label"}>Reset</label>
+                        </div>
 
                         <div className={"vertical"}>
                             <input
