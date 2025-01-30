@@ -2,6 +2,7 @@ import './App.css'
 import {ReactElement, useEffect, useState} from "react";
 import keyboardMockup from './assets/keyboard.png';
 import * as Tone from "tone";
+import $ from "jquery";
 
 
 
@@ -37,26 +38,15 @@ function updateSynth() {
     moduleChain[0] = newSynth;
     currentSynth = newSynth;
 
-    /// SET ALL ENVELOPE AND WAVEFORM AND OSCILLATOR TYPE(AM FM FAT...)
 
     setEnvelope();
-    setPartials();
+    // setPartials();
+    resetPartials();
     updateButton();
     connectChain();
+
     console.log(moduleChain[0]);
 } // updates the base synth object with all its parameters
-
-function resetPartials() {
-    synthType.partials1 = 0;
-    synthType.partials2 = 0;
-    synthType.partials3 = 0;
-    synthType.partials4 = 0;
-    (document.getElementById("partials-slider-1") as HTMLInputElement).value = '0';
-    (document.getElementById("partials-slider-2") as HTMLInputElement).value = '0';
-    (document.getElementById("partials-slider-3") as HTMLInputElement).value = '0';
-    (document.getElementById("partials-slider-4") as HTMLInputElement).value = '0';
-    updateSynth();
-}
 
 function midiToFreq(number: number) {
     const a = 440;
@@ -139,12 +129,30 @@ function setPartials () {
     })
 }
 
+function resetPartials() {
+    synthType.partials1 = 0;
+    synthType.partials2 = 0;
+    synthType.partials3 = 0;
+    synthType.partials4 = 0;
+
+    $("#partials-slider-1").val("0");
+    $("#partials-slider-2").val("0");
+    $("#partials-slider-3").val("0");
+    $("#partials-slider-4").val("0");
+
+    // when setting partials instead of running updateSynth() the notes don't always get triggered after
+    setPartials();
+}
+
 function updateButton () {
     let oscillatorType = synthType.waveform as EffectTypes;
     if (oscillatorType!= "pulse" && oscillatorType != "pwm") {
         oscillatorType = synthType.oscillator_type+oscillatorType as EffectTypes;
     }
     currentSynth.set({oscillator: {type: oscillatorType as EffectTypes}});
+    // setPartials();
+    // resetPartials();
+    // updateSynth();
 } // sets the oscillator to the chosen type from buttons
 
 
@@ -294,6 +302,15 @@ function navigatorBegin() {
     }
 }
 
+function startup() {
+
+    navigatorBegin();
+
+    connectChain();
+
+    updateSynth();
+}
+
 
 type EffectTypes =
     "sine"
@@ -369,7 +386,6 @@ currentSynth.volume.value = -6;
 
 const limiter = new Tone.Limiter(-6);
 
-
 const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
@@ -418,12 +434,7 @@ const effectValues = {
     "chebyshev": 1
 };
 
-
-navigatorBegin();
-
-connectChain();
-
-updateSynth();
+startup();
 
 function App(): ReactElement {
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
@@ -487,7 +498,6 @@ function App(): ReactElement {
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, [pressedKeys, octave]);
-
 
     return (
         <div id={"body"}>
@@ -573,7 +583,8 @@ function App(): ReactElement {
 
                         <div className={"reset-button"} onClick={
                             () => {
-                                resetPartials();
+                                // resetPartials();
+                                updateSynth();
                             }
                         }>
                             <label id={"reset-label"}>Reset</label>
@@ -647,7 +658,8 @@ function App(): ReactElement {
                         <input type="radio" id="waveform1" name="waveform" value="1" onClick={
                             () => {
                                 synthType.waveform = "sine";
-                                updateButton();
+                                updateSynth();
+                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform1" className="radio-label">Sine</label>
@@ -655,7 +667,8 @@ function App(): ReactElement {
                         <input type="radio" id="waveform2" name="waveform" value="2" onClick={
                             () => {
                                 synthType.waveform = "square";
-                                updateButton();
+                                updateSynth();
+                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform2" className="radio-label">Square</label>
@@ -663,7 +676,8 @@ function App(): ReactElement {
                         <input type="radio" id="waveform3" name="waveform" value="3" onClick={
                             () => {
                                 synthType.waveform = "sawtooth";
-                                updateButton();
+                                updateSynth();
+                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform3" className="radio-label">Sawtooth</label>
@@ -671,7 +685,8 @@ function App(): ReactElement {
                         <input type="radio" id="waveform4" name="waveform" value="4" onClick={
                             () => {
                                 synthType.waveform = "triangle";
-                                updateButton();
+                                updateSynth();
+                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform4" className="radio-label">Triangle</label>
@@ -679,7 +694,8 @@ function App(): ReactElement {
                         <input type="radio" id="waveform5" name="waveform" value="5" onClick={
                             () => {
                                 synthType.waveform = "pulse";
-                                updateButton();
+                                updateSynth();
+                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform5" className="radio-label">Pulse</label>
@@ -687,7 +703,8 @@ function App(): ReactElement {
                         <input type="radio" id="waveform6" name="waveform" value="6" onClick={
                             () => {
                                 synthType.waveform = "pwm";
-                                updateButton();
+                                updateSynth();
+                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform6" className="radio-label">PWM</label>
@@ -766,7 +783,8 @@ function App(): ReactElement {
                     <input type="radio" id="modifier1" name="modifier" value="1" onClick={
                         () => {
                             synthType.oscillator_type = "";
-                            updateButton();
+                            // updateButton();
+                            updateSynth();
                         }
                     }/>
                     <label htmlFor="modifier1" className="radio-label">NONE</label>
@@ -774,7 +792,8 @@ function App(): ReactElement {
                     <input type="radio" id="modifier2" name="modifier" value="2" onClick={
                         () => {
                             synthType.oscillator_type = "am";
-                            updateButton();
+                            // updateButton();
+                            updateSynth();
                         }
                     }/>
                     <label htmlFor="modifier2" className="radio-label">AM</label>
@@ -782,7 +801,8 @@ function App(): ReactElement {
                     <input type="radio" id="modifier3" name="modifier" value="3" onClick={
                         () => {
                             synthType.oscillator_type = "fm";
-                            updateButton();
+                            // updateButton();
+                            updateSynth();
                         }
                     }/>
                     <label htmlFor="modifier3" className="radio-label">FM</label>
@@ -790,7 +810,8 @@ function App(): ReactElement {
                     <input type="radio" id="modifier4" name="modifier" value="4" onClick={
                         () => {
                             synthType.oscillator_type = "fat";
-                            updateButton();
+                            // updateButton();
+                            updateSynth();
                         }
                     }/>
                     <label htmlFor="modifier4" className="radio-label">FAT</label>
