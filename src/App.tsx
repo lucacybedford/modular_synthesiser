@@ -711,73 +711,81 @@ function App(): ReactElement {
 
                     </div>
                     <div className={"vertical"} id={"envelope-choices"}>
-                        <div className={"effect"}>
+                        <div className={"effect2"}>
                             <label>Attack</label>
-                            <input
-                                type={"range"}
-                                id={"attack-slider"}
-                                min={"0.005"}
-                                max={"3"}
-                                defaultValue={synthEnvelope.attack}
-                                step={"0.005"}
-                                onChange={
-                                    (e) => {
-                                        synthEnvelope.attack = parseFloat(e.target.value);
-                                        updateEnvelope("attack");
+                            <div className={"sliderContainer"}>
+                                <input
+                                    type={"range"}
+                                    id={"attack-slider"}
+                                    min={"0.005"}
+                                    max={"3"}
+                                    defaultValue={synthEnvelope.attack}
+                                    step={"0.005"}
+                                    onChange={
+                                        (e) => {
+                                            synthEnvelope.attack = parseFloat(e.target.value);
+                                            updateEnvelope("attack");
+                                        }
                                     }
-                                }
-                            />
+                                />
+                            </div>
                         </div>
-                        <div className={"effect"}>
+                        <div className={"effect2"}>
                             <label>Decay</label>
-                            <input
-                                type={"range"}
-                                id={"decay-slider"}
-                                min={"0.1"}
-                                max={"3"}
-                                defaultValue={synthEnvelope.decay}
-                                step={"0.01"}
-                                onChange={
-                                    (e) => {
-                                        synthEnvelope.decay = parseFloat(e.target.value);
-                                        updateEnvelope("decay");
+                            <div className={"sliderContainer"}>
+                                <input
+                                    type={"range"}
+                                    id={"decay-slider"}
+                                    min={"0.1"}
+                                    max={"3"}
+                                    defaultValue={synthEnvelope.decay}
+                                    step={"0.01"}
+                                    onChange={
+                                        (e) => {
+                                            synthEnvelope.decay = parseFloat(e.target.value);
+                                            updateEnvelope("decay");
+                                        }
                                     }
-                                }
-                            />
+                                />
+                            </div>
                         </div>
-                        <div className={"effect"}>
+                        <div className={"effect2"}>
                             <label>Sustain</label>
-                            <input
-                                type={"range"}
-                                id={"sustain-slider"}
-                                min={"0"}
-                                max={"1"}
-                                defaultValue={synthEnvelope.sustain}
-                                step={"0.01"}
-                                onChange={
-                                    (e) => {
-                                        synthEnvelope.sustain = parseFloat(e.target.value);
-                                        updateEnvelope("sustain");
+                            <div className={"sliderContainer"}>
+                                <input
+                                    type={"range"}
+                                    id={"sustain-slider"}
+                                    min={"0"}
+                                    max={"1"}
+                                    defaultValue={synthEnvelope.sustain}
+                                    step={"0.01"}
+                                    onChange={
+                                        (e) => {
+                                            synthEnvelope.sustain = parseFloat(e.target.value);
+                                            updateEnvelope("sustain");
+                                        }
                                     }
-                                }
-                            />
+                                />
+                            </div>
                         </div>
-                        <div className={"effect"}>
+                        <div className={"effect2"}>
                             <label>Release</label>
-                            <input
-                                type={"range"}
-                                id={"release-slider"}
-                                min={"0.01"}
-                                max={"5"}
-                                defaultValue={synthEnvelope.release}
-                                step={"0.01"}
-                                onChange={
-                                    (e) => {
-                                        synthEnvelope.release = parseFloat(e.target.value);
-                                        updateEnvelope("release");
+                            <div className={"sliderContainer"}>
+                                <input
+                                    type={"range"}
+                                    id={"release-slider"}
+                                    min={"0.01"}
+                                    max={"5"}
+                                    defaultValue={synthEnvelope.release}
+                                    step={"0.01"}
+                                    onChange={
+                                        (e) => {
+                                            synthEnvelope.release = parseFloat(e.target.value);
+                                            updateEnvelope("release");
+                                        }
                                     }
-                                }
-                            />
+                                />
+                            </div>
                         </div>
                     </div>
                     <input type="radio" id="modifier1" name="modifier" value="1" onClick={
