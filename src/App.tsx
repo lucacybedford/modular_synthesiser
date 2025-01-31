@@ -390,6 +390,23 @@ const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
+function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+}
+
+
 const synthType = {
     "synth": "synth",
     "waveform": "sine",
@@ -516,6 +533,7 @@ function App(): ReactElement {
                     }}
                 />
             </div>
+            {detectMob() && (<input type="text" placeholder="Type here..." />)}
             <div className={"card"}>
 
                 <div className={"vertical"} id={"synth-column"}>
