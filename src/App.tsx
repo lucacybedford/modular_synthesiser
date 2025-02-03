@@ -40,7 +40,6 @@ function updateSynth() {
 
 
     setEnvelope();
-    // setPartials();
     resetPartials();
     updateButton();
     connectChain();
@@ -140,7 +139,6 @@ function resetPartials() {
     $("#partials-slider-3").val("0");
     $("#partials-slider-4").val("0");
 
-    // when setting partials instead of running updateSynth() the notes don't always get triggered after
     setPartials();
 }
 
@@ -150,11 +148,7 @@ function updateButton () {
         oscillatorType = synthType.oscillator_type+oscillatorType as EffectTypes;
     }
     currentSynth.set({oscillator: {type: oscillatorType as EffectTypes}});
-    // setPartials();
-    // resetPartials();
-    // updateSynth();
 } // sets the oscillator to the chosen type from buttons
-
 
 
 
@@ -167,6 +161,13 @@ function connectChain() {
         const second = moduleChain[i+1];
         first.disconnect();
         first.connect(second);
+        if (isDelayType(second)) {
+            let y=i+2;
+            while (isDelayType(moduleChain[y])) {
+                y+=1;
+            }
+            first.connect(moduleChain[y]);
+        }
     }
     moduleChain[moduleChain.length-1].toDestination();
 }
@@ -255,6 +256,12 @@ function removeModule (moduleType: string) {
 
     connectChain();
     console.log(moduleChain);
+}
+
+function isDelayType(module: Tone.ToneAudioNode) {
+    // return typeof module == typeof Tone.Delay || typeof module == typeof Tone.FeedbackDelay || typeof module == typeof Tone.PingPongDelay;
+    const delayNames = ["Delay", "FeedbackDelay", "PingPongDelay"]
+    return delayNames.includes(module.name);
 }
 
 
