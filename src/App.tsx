@@ -43,8 +43,6 @@ function updateSynth() {
     resetPartials();
     updateButton();
     connectChain();
-
-    console.log(moduleChain[0]);
 } // updates the base synth object with all its parameters
 
 function midiToFreq(number: number) {
@@ -55,8 +53,8 @@ function midiToFreq(number: number) {
 function noteOn(note: number, velocity: number, octave: number = 0){
     currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
     console.log(currentSynth.activeVoices);
-    console.log(effectValues);
-    console.log(synthType);
+    // console.log(effectValues);
+    // console.log(synthType);
 } // triggers a note
 
 function noteOff(note: number, octave: number = 0) {
@@ -166,6 +164,18 @@ function setPreset(number: number) {
         case 2:
             setPreset2();
             break;
+        case 3:
+            setPreset3();
+            break;
+        case 4:
+            setPreset4();
+            break;
+        case 5:
+            setPreset5();
+            break;
+        case 6:
+            setPreset6();
+            break;
         default:
             break;
     }
@@ -175,7 +185,113 @@ function setPreset(number: number) {
 }
 
 function setPresetRandom() {
-    return;
+    let randomIsOn;
+    const notModules = ["bitcrusher", "highpass", "lowpass", "notch", "bandpass","phaser1", "phaser2", "feedback1", "feedback2", "pingpong1", "pingpong2", "chorus1", "chorus2", "vibrato1", "vibrato2"];
+
+    const synthNumber = (Math.random() * 4).toFixed(0);
+    switch (synthNumber) {
+        case "0":
+            synthType["synth"] = "synth";
+            $("#synth1").prop("checked", true);
+            break;
+        case "1":
+            synthType["synth"] = "amsynth";
+            $("#synth2").prop("checked", true);
+            break;
+        case "2":
+            synthType["synth"] = "fmsynth";
+            $("#synth3").prop("checked", true);
+            break;
+    }
+
+    const waveformNumber = (Math.random() * 7).toFixed(0);
+    switch (waveformNumber) {
+        case "0":
+            synthType["waveform"] = "sine";
+            $("#waveform1").prop("checked", true);
+            break;
+        case "1":
+            synthType["waveform"] = "square";
+            $("#waveform2").prop("checked", true);
+            break;
+        case "2":
+            synthType["waveform"] = "sawtooth";
+            $("#waveform3").prop("checked", true);
+            break;
+        case "3":
+            synthType["waveform"] = "triangle";
+            $("#waveform4").prop("checked", true);
+            break;
+        case "4":
+            synthType["waveform"] = "pulse";
+            $("#waveform5").prop("checked", true);
+            break;
+        case "5":
+            synthType["waveform"] = "pwm";
+            $("#waveform6").prop("checked", true);
+            break;
+    }
+
+    const modifierNumber = (Math.random() * 5).toFixed(0);
+    switch (modifierNumber) {
+        case "0":
+            synthType["oscillator_type"] = "";
+            $("#modifier1").prop("checked", true);
+            break;
+        case "1":
+            synthType["oscillator_type"] = "am";
+            $("#modifier2").prop("checked", true);
+            break;
+        case "2":
+            synthType["oscillator_type"] = "fm";
+            $("#modifier3").prop("checked", true);
+            break;
+        case "3":
+            synthType["oscillator_type"] = "fat";
+            $("#modifier4").prop("checked", true);
+            break;
+    }
+
+    for (const name of Object.keys(effectValues)) {
+
+        randomIsOn = Math.random();
+        if (randomIsOn > 0.66 && !notModules.includes(name)) {
+            $("#" + name + "-toggle").prop("checked", true);
+
+
+            if (name == "feedback" || name == "pingpong" || name == "chorus" || name == "vibrato" || name == "phaser") {
+                const name1 = name + "1";
+                const name2 = name + "2";
+                const randomValue1 = Math.random();
+                const randomValue2 = Math.random();
+                const slider1 = $("#" + name1 + "-slider");
+                const slider2 = $("#" + name2 + "-slider");
+
+                const min1 = slider1.attr("min");
+                const max1 = slider1.attr("max");
+                const min2 = slider2.attr("min");
+                const max2 = slider2.attr("max");
+
+                const step1 = slider1.attr("step");
+                const step2 = slider2.attr("step");
+                if (min1 && max1 && min2 && max2 && step1 && step2) {
+                    effectValues[name1] = parseFloat((randomValue1 * parseFloat(max1) + parseFloat(min1)).toFixed(Math.max(0, -Math.log10(parseFloat(step1)))));
+                    effectValues[name2] = parseFloat((randomValue2 * parseFloat(max2) + parseFloat(min2)).toFixed(Math.max(0, -Math.log10(parseFloat(step2)))));
+                }
+            } else {
+                const randomValue = Math.random();
+                const slider = $("#" + name + "-slider");
+                const min = slider.attr("min");
+                const max = slider.attr("max");
+                const step = slider.attr("step");
+
+                if (min && max && step) {
+                    effectValues[name] = parseFloat((randomValue * parseFloat(max) + parseFloat(min)).toFixed(Math.max(0, -Math.log10(parseFloat(step)))));
+                }
+            }
+            addModule(name);
+        }
+    }
 }
 
 function setPreset1() {
@@ -206,7 +322,6 @@ function setPreset1() {
     $("#synth1").prop("checked", true);
     $("#waveform1").prop("checked", true);
     $("#modifier4").prop("checked", true);
-    updateSynth();
 
     $("#reverb-toggle").prop("checked", true);
     addModule("reverb");
@@ -248,6 +363,140 @@ function setPreset2() {
 }
 
 
+function setPreset3() {
+    Object.assign(synthType,{
+        "synth": "fmsynth",
+        "waveform": "triangle",
+        "oscillator_type": "fm"
+    });
+
+    Object.assign(synthEnvelope, {
+        "attack": 0.005,
+        "decay": 0.1,
+        "sustain": 0.3,
+        "release": 3,
+    });
+
+    Object.assign(effectValues, {
+        "lowpass": 400,
+        "wah": 9
+    });
+
+    $("#synth3").prop("checked", true);
+    $("#waveform4").prop("checked", true);
+    $("#modifier3").prop("checked", true);
+
+    $("#lowpass-toggle").prop("checked", true);
+    addModule("lowpass");
+    $("#wah-toggle").prop("checked", true);
+    addModule("wah");
+}
+
+function setPreset4() {
+    Object.assign(synthType,{
+        "synth": "amsynth",
+        "waveform": "pwm",
+        "oscillator_type": ""
+    });
+
+    Object.assign(synthEnvelope, {
+        "attack": 0.005,
+        "decay": 0.1,
+        "sustain": 0.3,
+        "release": 0.2,
+    });
+
+    Object.assign(effectValues, {
+        "reverb": 4.5,
+        "feedback1": 0.8,
+        "feedback2": 0.5,
+        "wah": 4.5,
+        "phaser1": 2.2,
+        "phaser2": 3.5
+    });
+
+    $("#synth2").prop("checked", true);
+    $("#waveform6").prop("checked", true);
+    $("#modifier1").prop("checked", true);
+
+    $("#reverb-toggle").prop("checked", true);
+    addModule("reverb");
+    $("#feedback-toggle").prop("checked", true);
+    addModule("feedback");
+    $("#wah-toggle").prop("checked", true);
+    addModule("wah");
+    $("#phaser-toggle").prop("checked", true);
+    addModule("phaser");
+}
+
+function setPreset5() {
+    Object.assign(synthType,{
+        "synth": "amsynth",
+        "waveform": "sine",
+        "oscillator_type": "fm"
+    });
+
+    Object.assign(synthEnvelope, {
+        "attack": 0.005,
+        "decay": 0.1,
+        "sustain": 1,
+        "release": 4,
+    });
+
+    Object.assign(effectValues, {
+        "reverb": 5
+    });
+
+    $("#synth2").prop("checked", true);
+    $("#waveform1").prop("checked", true);
+    $("#modifier3").prop("checked", true);
+
+    $("#reverb-toggle").prop("checked", true);
+    addModule("reverb");
+}
+
+function setPreset6() {
+    Object.assign(synthType,{
+        "synth": "fmsynth",
+        "waveform": "triangle",
+        "oscillator_type": "am"
+    });
+
+    Object.assign(synthEnvelope, {
+        "attack": 0.005,
+        "decay": 0.1,
+        "sustain": 0.3,
+        "release": 0.2,
+    });
+
+    Object.assign(effectValues, {
+        "reverb": 2,
+        "chorus1": 53,
+        "chorus2": 1.5,
+        "distortion": 0.5,
+        "widener": 0.8,
+        "vibrato1": 1.7,
+        "vibrato2": 0.52,
+    });
+
+    $("#synth3").prop("checked", true);
+    $("#waveform4").prop("checked", true);
+    $("#modifier2").prop("checked", true);
+
+
+    $("#chorus-toggle").prop("checked", true);
+    addModule("chorus");
+    $("#distortion-toggle").prop("checked", true);
+    addModule("distortion");
+    $("#widener-toggle").prop("checked", true);
+    addModule("widener");
+    $("#vibrato-toggle").prop("checked", true);
+    addModule("vibrato");
+    $("#reverb-toggle").prop("checked", true);
+    addModule("reverb");
+}
+
+
 function resetCheckboxes() {
     for (const name of Object.keys(effectValues)) {
         $("#"+name+"-toggle").prop("checked", false);
@@ -286,7 +535,13 @@ function connectChain() {
 }
 
 function resetChain() {
-    moduleChain = [currentSynth, limiter];
+    console.log("RESETTING CHAIN of length "+ moduleChain.length);
+    const originalChainLength = moduleChain.length;
+    for (let i = 1; i < originalChainLength - 1; i++) {
+        console.log("removing " + moduleChain[1]);
+        removeModule({moduleObject: moduleChain[1]})
+    }
+    console.log("RESET CHAIN: " + moduleChain);
     connectChain();
 }
 
@@ -343,7 +598,7 @@ function addModule (moduleType: string) {
             module = new Tone.Chebyshev(effectValues.chebyshev);
             break;
         default:
-            console.warn(`Unknown module type: ${moduleType}`)
+            console.warn("Unknown module Type: "+moduleType);
             return;
     }
     existingModules.push({id: moduleType, instance: module});
@@ -356,20 +611,38 @@ function addModule (moduleType: string) {
     console.log(moduleChain);
 }
 
-function removeModule (moduleType: string) {
-    const moduleIndex = existingModules.findIndex(module => module.id == moduleType);
-    if (moduleIndex === -1) {
-        console.warn(`Module ${moduleType} not found`);
-        return;
-    }
+function removeModule ({ moduleType, moduleObject }: { moduleType?: string; moduleObject?: Tone.ToneAudioNode }) {
+    if (moduleObject) {
+        const moduleIndex = existingModules.findIndex(module => module.instance === moduleObject);
+        if (moduleIndex === -1) {
+            console.warn(`Module ${moduleType} not found`);
+            return;
+        }
 
-    const { instance } = existingModules[moduleIndex];
-    existingModules.splice(moduleIndex, 1);
+        existingModules.splice(moduleIndex, 1);
 
-    const chainIndex = moduleChain.indexOf(instance);
-    if (chainIndex !== -1) {
-        instance.dispose();
+        const chainIndex = moduleChain.indexOf(moduleObject);
+        if (chainIndex === -1) {
+            console.warn(`Module ${moduleType} not found`);
+            return;
+        }
+        moduleObject.dispose();
         moduleChain.splice(chainIndex, 1);
+    } else if (moduleType) {
+        const moduleIndex = existingModules.findIndex(module => module.id == moduleType);
+        if (moduleIndex === -1) {
+            console.warn(`Module ${moduleType} not found`);
+            return;
+        }
+
+        const {instance} = existingModules[moduleIndex];
+        existingModules.splice(moduleIndex, 1);
+
+        const chainIndex = moduleChain.indexOf(instance);
+        if (chainIndex !== -1) {
+            instance.dispose();
+            moduleChain.splice(chainIndex, 1);
+        }
     }
 
     connectChain();
@@ -511,7 +784,7 @@ currentSynth.volume.value = -6;
 
 const limiter = new Tone.Limiter(-6);
 
-let moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
+const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
@@ -964,7 +1237,7 @@ function App(): ReactElement {
                                                     if (e.target.checked) {
                                                         addModule("highpass");
                                                     } else {
-                                                        removeModule("highpass");
+                                                        removeModule({moduleType: "highpass"});
                                                     }
                                                 }
                                             }
@@ -1001,7 +1274,7 @@ function App(): ReactElement {
                                                         addModule("lowpass");
                                                     }
                                                     else {
-                                                        removeModule("lowpass");
+                                                        removeModule({moduleType: "lowpass"});
                                                     }
                                                 }
                                             }
@@ -1038,7 +1311,7 @@ function App(): ReactElement {
                                                         addModule("bandpass");
                                                     }
                                                     else {
-                                                        removeModule("bandpass");
+                                                        removeModule({moduleType: "bandpass"});
                                                     }
                                                 }
                                             }
@@ -1075,7 +1348,7 @@ function App(): ReactElement {
                                                         addModule("notch");
                                                     }
                                                     else {
-                                                        removeModule("notch");
+                                                        removeModule({moduleType: "notch"});
                                                     }
                                                 }
                                             }
@@ -1115,7 +1388,7 @@ function App(): ReactElement {
                                                         addModule("delay");
                                                     }
                                                     else {
-                                                        removeModule("delay");
+                                                        removeModule({moduleType: "delay"});
                                                     }
                                                 }
                                             }
@@ -1154,7 +1427,7 @@ function App(): ReactElement {
                                                         addModule("reverb");
                                                     }
                                                     else {
-                                                        removeModule("reverb");
+                                                        removeModule({moduleType: "reverb"});
                                                     }
                                                 }
                                             }
@@ -1193,7 +1466,7 @@ function App(): ReactElement {
                                                         addModule("feedback");
                                                     }
                                                     else {
-                                                        removeModule("feedback");
+                                                        removeModule({moduleType: "feedback"});
                                                     }
                                                 }
                                             }
@@ -1253,7 +1526,7 @@ function App(): ReactElement {
                                                         addModule("pingpong");
                                                     }
                                                     else {
-                                                        removeModule("pingpong");
+                                                        removeModule({moduleType: "pingpong"});
                                                     }
                                                 }
                                             }
@@ -1316,7 +1589,7 @@ function App(): ReactElement {
                                                     addModule("chorus");
                                                 }
                                                 else {
-                                                    removeModule("chorus");
+                                                    removeModule({moduleType: "chorus"});
                                                 }
                                             }
                                         }
@@ -1380,7 +1653,7 @@ function App(): ReactElement {
                                                     addModule("distortion");
                                                 }
                                                 else {
-                                                    removeModule("distortion");
+                                                    removeModule({moduleType: "distortion"});
                                                 }
                                             }
                                         }
@@ -1417,7 +1690,7 @@ function App(): ReactElement {
                                                     addModule("wah");
                                                 }
                                                 else {
-                                                    removeModule("wah");
+                                                    removeModule({moduleType: "wah"});
                                                 }
                                             }
                                         }
@@ -1454,7 +1727,7 @@ function App(): ReactElement {
                                                     addModule("phaser");
                                                 }
                                                 else {
-                                                    removeModule("phaser");
+                                                    removeModule({moduleType: "phaser"});
                                                 }
                                             }
                                         }
@@ -1511,7 +1784,7 @@ function App(): ReactElement {
                                                     addModule("widener");
                                                 }
                                                 else {
-                                                    removeModule("widener");
+                                                    removeModule({moduleType: "widener"});
                                                 }
                                             }
                                         }
@@ -1548,7 +1821,7 @@ function App(): ReactElement {
                                                     addModule("vibrato");
                                                 }
                                                 else {
-                                                    removeModule("vibrato");
+                                                    removeModule({moduleType: "vibrato"});
                                                 }
                                             }
                                         }
@@ -1605,7 +1878,7 @@ function App(): ReactElement {
                                                     addModule("bitcrusher");
                                                 }
                                                 else {
-                                                    removeModule("bitcrusher");
+                                                    removeModule({moduleType: "bitcrusher"});
                                                 }
                                             }
                                         }
@@ -1642,7 +1915,7 @@ function App(): ReactElement {
                                                     addModule("chebyshev");
                                                 }
                                                 else {
-                                                    removeModule("chebyshev");
+                                                    removeModule({moduleType: "chebyshev"});
                                                 }
                                             }
                                         }
@@ -1687,7 +1960,12 @@ function App(): ReactElement {
                                 ()=> {
                                     setPreset(3);
                                 }
-                            }>Preset 3</button>
+                            }>Organic Bass</button>
+                            <button onClick={
+                                () => {
+                                    setPreset(5);
+                                }
+                            }>Organ</button>
                         </div>
                         <div className={"vertical"}>
                             <button onClick={
@@ -1699,7 +1977,12 @@ function App(): ReactElement {
                                 ()=> {
                                     setPreset(4);
                                 }
-                            }>Preset 4</button>
+                            }>Submarine</button>
+                            <button onClick={
+                                ()=> {
+                                    setPreset(6);
+                                }
+                            }>Alien Violin</button>
                         </div>
                     </div>
                 </div>
