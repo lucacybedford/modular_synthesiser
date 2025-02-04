@@ -338,8 +338,8 @@ function setPreset2() {
 
     Object.assign(synthEnvelope, {
         "attack": 0.005,
-        "decay": 0.1,
-        "sustain": 0.3,
+        "decay": 2.4,
+        "sustain": 0.0,
         "release": 2.5,
     });
 
