@@ -7,7 +7,8 @@ button {
     font-family: inherit;
     background-color: #c2a38f;
     cursor: pointer;
-    margin-bottom: 3px;
+    /*margin-bottom: 3px;*/
+    margin: 3px;
     transition: background 0.3s;
 }
 button:hover {

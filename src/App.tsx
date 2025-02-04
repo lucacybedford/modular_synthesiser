@@ -151,6 +151,28 @@ function updateButton () {
 } // sets the oscillator to the chosen type from buttons
 
 
+function setPreset(number: number) {
+    switch (number) {
+        case 1:
+            setPreset1();
+            break;
+        case 2:
+            setPreset2();
+            break;
+        default:
+            break;
+    }
+    connectChain();
+    updateButton();
+}
+
+function setPreset1() {
+    return;
+}
+
+function setPreset2() {
+    return;
+}
 
 
 // ------------ Module Chain Functions ------------
@@ -1554,6 +1576,39 @@ function App(): ReactElement {
                                     />
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div className={"separator"} />
+                    <h3>Presets</h3>
+                    <button onClick={
+                        ()=> {
+                            setPreset(0);
+                        }
+                    }>Randomise</button>
+                    <div className={"horizontal"}>
+                        <div className={"vertical"}>
+                            <button onClick={
+                                ()=> {
+                                    setPreset(1);
+                                }
+                            }>Preset 1</button>
+                            <button onClick={
+                                ()=> {
+                                    setPreset(3);
+                                }
+                            }>Preset 3</button>
+                        </div>
+                        <div className={"vertical"}>
+                            <button onClick={
+                                ()=> {
+                                    setPreset(2);
+                                }
+                            }>Preset 2</button>
+                            <button onClick={
+                                ()=> {
+                                    setPreset(4);
+                                }
+                            }>Preset 4</button>
                         </div>
                     </div>
                 </div>
