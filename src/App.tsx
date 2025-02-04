@@ -55,6 +55,8 @@ function midiToFreq(number: number) {
 function noteOn(note: number, velocity: number, octave: number = 0){
     currentSynth.triggerAttack(midiToFreq(note + octave * 12), Tone.now(), velocity / 127);
     console.log(currentSynth.activeVoices);
+    console.log(effectValues);
+    console.log(synthType);
 } // triggers a note
 
 function noteOff(note: number, octave: number = 0) {
@@ -134,10 +136,10 @@ function resetPartials() {
     synthType.partials3 = 0;
     synthType.partials4 = 0;
 
-    $("#partials-slider-1").val("0");
-    $("#partials-slider-2").val("0");
-    $("#partials-slider-3").val("0");
-    $("#partials-slider-4").val("0");
+    $("#partials1-slider").val("0");
+    $("#partials2-slider").val("0");
+    $("#partials3-slider").val("0");
+    $("#partials4-slider").val("0");
 
     setPartials();
 }
@@ -152,7 +154,12 @@ function updateButton () {
 
 
 function setPreset(number: number) {
+    resetChain();
+    resetCheckboxes();
     switch (number) {
+        case 0:
+            setPresetRandom();
+            break;
         case 1:
             setPreset1();
             break;
@@ -162,18 +169,102 @@ function setPreset(number: number) {
         default:
             break;
     }
+    setSliders();
     connectChain();
-    updateButton();
+    updateSynth();
+}
+
+function setPresetRandom() {
+    return;
 }
 
 function setPreset1() {
-    return;
+    Object.assign(synthType,{
+        "synth": "synth",
+        "waveform": "sine",
+        "oscillator_type": "fat",
+        "partials1": 0,
+        "partials2": 0,
+        "partials3": 0,
+        "partials4": 0
+    });
+
+    Object.assign(synthEnvelope, {
+        "attack": 0.005,
+        "decay": 0.1,
+        "sustain": 0.3,
+        "release": 1,
+    });
+
+
+    Object.assign(effectValues, {
+        "reverb": 4.2,
+        "pingpong1": 0.5,
+        "pingpong2": 0.5,
+    });
+
+    $("#synth1").prop("checked", true);
+    $("#waveform1").prop("checked", true);
+    $("#modifier4").prop("checked", true);
+    updateSynth();
+
+    $("#reverb-toggle").prop("checked", true);
+    addModule("reverb");
+    $("#pingpong-toggle").prop("checked", true);
+    addModule("pingpong");
 }
 
 function setPreset2() {
-    return;
+    Object.assign(synthType,{
+        "synth": "synth",
+        "waveform": "triangle",
+        "oscillator_type": ""
+    });
+
+    Object.assign(synthEnvelope, {
+        "attack": 0.005,
+        "decay": 0.1,
+        "sustain": 0.3,
+        "release": 2.5,
+    });
+
+    Object.assign(effectValues, {
+        "lowpass": 610,
+        "feedback1": 0.04,
+        "feedback2": 0.5,
+        "widener": 1
+    });
+
+    $("#synth1").prop("checked", true);
+    $("#waveform4").prop("checked", true);
+    $("#modifier1").prop("checked", true);
+
+    $("#lowpass-toggle").prop("checked", true);
+    addModule("lowpass");
+    $("#feedback-toggle").prop("checked", true);
+    addModule("feedback");
+    $("#widener-toggle").prop("checked", true);
+    addModule("widener");
 }
 
+
+function resetCheckboxes() {
+    for (const name of Object.keys(effectValues)) {
+        $("#"+name+"-toggle").prop("checked", false);
+    }
+}
+
+function setSliders() {
+    for (const [name, value] of Object.entries(effectValues)) {
+        $("#" + name+"-slider").val(value);
+    }
+    for (const [name, value] of Object.entries(synthEnvelope)) {
+        $("#" + name+"-slider").val(value);
+    }
+    for (const [name, value] of Object.entries(synthType)) {
+        $("#" + name+"-slider").val(value);
+    }
+}
 
 // ------------ Module Chain Functions ------------
 
@@ -192,6 +283,11 @@ function connectChain() {
         }
     }
     moduleChain[moduleChain.length-1].toDestination();
+}
+
+function resetChain() {
+    moduleChain = [currentSynth, limiter];
+    connectChain();
 }
 
 function addModule (moduleType: string) {
@@ -415,7 +511,7 @@ currentSynth.volume.value = -6;
 
 const limiter = new Tone.Limiter(-6);
 
-const moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
+let moduleChain: Tone.ToneAudioNode[] = [currentSynth, limiter];
 
 const existingModules: { id: string, instance: Tone.ToneAudioNode }[] = [];
 
@@ -430,34 +526,39 @@ const synthType = {
     "partials2": 0,
     "partials3": 0,
     "partials4": 0
-}
+};
 
 const synthEnvelope = {
     "attack": 0.005,
     "decay": 0.1,
     "sustain": 0.3,
     "release": 1,
-}
+};
 
 
-const effectValues = {
+const effectValues: Record<string, number> = {
     "highpass": 1000,
     "lowpass": 1000,
     "bandpass": 1000,
     "notch": 1000,
     "delay": 0.5,
     "reverb": 1,
+    "feedback": 0,
     "feedback1": 0.5,
     "feedback2": 0.5,
+    "pingpong": 0,
     "pingpong1": 0.5,
     "pingpong2": 0.5,
+    "chorus": 0,
     "chorus1": 10,
     "chorus2": 1,
     "distortion": 0.5,
     "wah": 1,
+    "phaser": 0,
     "phaser1": 1,
     "phaser2": 1,
     "widener": 0.5,
+    "vibrato": 0,
     "vibrato1": 5,
     "vibrato2": 0.1,
     "bitcrusher": 4,
@@ -623,7 +724,7 @@ function App(): ReactElement {
                         <div className={"vertical"}>
                             <input
                                 type={"range"}
-                                id={"partials-slider-1"}
+                                id={"partials1-slider"}
                                 min={"0"}
                                 max={"1"}
                                 defaultValue={synthType.partials1}
@@ -637,7 +738,7 @@ function App(): ReactElement {
                             />
                             <input
                                 type={"range"}
-                                id={"partials-slider-2"}
+                                id={"partials2-slider"}
                                 min={"0"}
                                 max={"1"}
                                 defaultValue={synthType.partials2}
@@ -651,7 +752,7 @@ function App(): ReactElement {
                             />
                             <input
                                 type={"range"}
-                                id={"partials-slider-3"}
+                                id={"partials3-slider"}
                                 min={"0"}
                                 max={"1"}
                                 defaultValue={synthType.partials3}
@@ -665,7 +766,7 @@ function App(): ReactElement {
                             />
                             <input
                                 type={"range"}
-                                id={"partials-slider-4"}
+                                id={"partials4-slider"}
                                 min={"0"}
                                 max={"1"}
                                 defaultValue={synthType.partials4}
@@ -689,7 +790,6 @@ function App(): ReactElement {
                             () => {
                                 synthType.waveform = "sine";
                                 updateSynth();
-                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform1" className="radio-label">Sine</label>
@@ -698,7 +798,6 @@ function App(): ReactElement {
                             () => {
                                 synthType.waveform = "square";
                                 updateSynth();
-                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform2" className="radio-label">Square</label>
@@ -707,7 +806,6 @@ function App(): ReactElement {
                             () => {
                                 synthType.waveform = "sawtooth";
                                 updateSynth();
-                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform3" className="radio-label">Sawtooth</label>
@@ -716,7 +814,6 @@ function App(): ReactElement {
                             () => {
                                 synthType.waveform = "triangle";
                                 updateSynth();
-                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform4" className="radio-label">Triangle</label>
@@ -725,7 +822,6 @@ function App(): ReactElement {
                             () => {
                                 synthType.waveform = "pulse";
                                 updateSynth();
-                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform5" className="radio-label">Pulse</label>
@@ -734,7 +830,6 @@ function App(): ReactElement {
                             () => {
                                 synthType.waveform = "pwm";
                                 updateSynth();
-                                // updateButton();
                             }
                         }/>
                         <label htmlFor="waveform6" className="radio-label">PWM</label>
@@ -821,7 +916,6 @@ function App(): ReactElement {
                     <input type="radio" id="modifier1" name="modifier" value="1" onClick={
                         () => {
                             synthType.oscillator_type = "";
-                            // updateButton();
                             updateSynth();
                         }
                     }/>
@@ -830,7 +924,6 @@ function App(): ReactElement {
                     <input type="radio" id="modifier2" name="modifier" value="2" onClick={
                         () => {
                             synthType.oscillator_type = "am";
-                            // updateButton();
                             updateSynth();
                         }
                     }/>
@@ -839,7 +932,6 @@ function App(): ReactElement {
                     <input type="radio" id="modifier3" name="modifier" value="3" onClick={
                         () => {
                             synthType.oscillator_type = "fm";
-                            // updateButton();
                             updateSynth();
                         }
                     }/>
@@ -848,7 +940,6 @@ function App(): ReactElement {
                     <input type="radio" id="modifier4" name="modifier" value="4" onClick={
                         () => {
                             synthType.oscillator_type = "fat";
-                            // updateButton();
                             updateSynth();
                         }
                     }/>
@@ -1110,7 +1201,7 @@ function App(): ReactElement {
                                         <div className={"vertical"}>
                                             <input
                                                 type={"range"}
-                                                id={"feedback-slider-1"}
+                                                id={"feedback1-slider"}
                                                 min={"0"}
                                                 max={"2"}
                                                 defaultValue={effectValues.feedback1}
@@ -1131,7 +1222,7 @@ function App(): ReactElement {
                                             />
                                             <input
                                                 type={"range"}
-                                                id={"feedback-slider-2"}
+                                                id={"feedback2-slider"}
                                                 min={"0"}
                                                 max={"1"}
                                                 defaultValue={effectValues.feedback2}
@@ -1170,7 +1261,7 @@ function App(): ReactElement {
                                         <div className={"vertical"}>
                                             <input
                                                 type={"range"}
-                                                id={"pingpong-slider-1"}
+                                                id={"pingpong1-slider"}
                                                 min={"0"}
                                                 max={"2"}
                                                 defaultValue={effectValues.pingpong1}
@@ -1191,7 +1282,7 @@ function App(): ReactElement {
                                             />
                                             <input
                                                 type={"range"}
-                                                id={"pingpong-slider-2"}
+                                                id={"pingpong2-slider"}
                                                 min={"0"}
                                                 max={"1"}
                                                 defaultValue={effectValues.pingpong2}
@@ -1233,7 +1324,7 @@ function App(): ReactElement {
                                     <div className={"vertical"}>
                                         <input
                                             type={"range"}
-                                            id={"chorus-slider-1"}
+                                            id={"chorus1-slider"}
                                             min={"0"}
                                             max={"100"}
                                             defaultValue={effectValues.chorus1}
@@ -1254,7 +1345,7 @@ function App(): ReactElement {
                                         />
                                         <input
                                             type={"range"}
-                                            id={"chorus-slider-2"}
+                                            id={"chorus2-slider"}
                                             min={"0"}
                                             max={"5"}
                                             defaultValue={effectValues.chorus2}
@@ -1371,7 +1462,7 @@ function App(): ReactElement {
                                     <div className={"vertical"}>
                                         <input
                                             type={"range"}
-                                            id={"phaser-slider-1"}
+                                            id={"phaser1-slider"}
                                             min={"0"}
                                             max={"3"}
                                             defaultValue={effectValues.phaser1}
@@ -1389,7 +1480,7 @@ function App(): ReactElement {
                                         />
                                         <input
                                             type={"range"}
-                                            id={"phaser-slider-2"}
+                                            id={"phaser2-slider"}
                                             min={"0"}
                                             max={"10"}
                                             defaultValue={effectValues.phaser2}
@@ -1465,7 +1556,7 @@ function App(): ReactElement {
                                     <div className={"vertical"}>
                                         <input
                                             type={"range"}
-                                            id={"vibrato-slider-1"}
+                                            id={"vibrato1-slider"}
                                             min={"1"}
                                             max={"20"}
                                             defaultValue={effectValues.vibrato1}
@@ -1483,7 +1574,7 @@ function App(): ReactElement {
                                         />
                                         <input
                                             type={"range"}
-                                            id={"vibrato-slider-2"}
+                                            id={"vibrato2-slider"}
                                             min={"0"}
                                             max={"1"}
                                             defaultValue={effectValues.vibrato2}
@@ -1591,7 +1682,7 @@ function App(): ReactElement {
                                 ()=> {
                                     setPreset(1);
                                 }
-                            }>Preset 1</button>
+                            }>Atmospheric</button>
                             <button onClick={
                                 ()=> {
                                     setPreset(3);
@@ -1603,7 +1694,7 @@ function App(): ReactElement {
                                 ()=> {
                                     setPreset(2);
                                 }
-                            }>Preset 2</button>
+                            }>Harp</button>
                             <button onClick={
                                 ()=> {
                                     setPreset(4);
