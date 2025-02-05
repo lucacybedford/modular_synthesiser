@@ -362,7 +362,6 @@ function setPreset2() {
     addModule("widener");
 }
 
-
 function setPreset3() {
     Object.assign(synthType,{
         "synth": "fmsynth",
