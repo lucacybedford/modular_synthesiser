@@ -23,6 +23,13 @@ input[type="radio"] {
     display: none;
 }
 
+.preset {
+    color: white;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+}
+
 .radio-label {
     display: inline-block;
     cursor: pointer;

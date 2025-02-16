@@ -1947,41 +1947,48 @@ function App(): ReactElement {
                         ()=> {
                             setPreset(0);
                         }
-                    }>Randomise</button>
+                    }>
+                        <label className={"preset"}>Randomise</label></button>
                     <div className={"horizontal"}>
                         <div className={"vertical"}>
                             <button onClick={
                                 ()=> {
                                     setPreset(1);
                                 }
-                            }>Atmospheric</button>
+                            }>
+                                <label className={"preset"}>Atmospheric</label></button>
                             <button onClick={
                                 ()=> {
                                     setPreset(3);
                                 }
-                            }>Organic Bass</button>
+                            }>
+                                <label className={"preset"}>Organic Bass</label></button>
                             <button onClick={
                                 () => {
                                     setPreset(5);
                                 }
-                            }>Organ</button>
+                            }>
+                                <label className={"preset"}>Organ</label></button>
                         </div>
                         <div className={"vertical"}>
                             <button onClick={
                                 ()=> {
                                     setPreset(2);
                                 }
-                            }>Harp</button>
+                            }>
+                                <label className={"preset"}>Harp</label></button>
                             <button onClick={
                                 ()=> {
                                     setPreset(4);
                                 }
-                            }>Submarine</button>
+                            }>
+                                <label className={"preset"}>Submarine</label></button>
                             <button onClick={
                                 ()=> {
                                     setPreset(6);
                                 }
-                            }>Alien Violin</button>
+                            }>
+                                <label className={"preset"}>Alien Violin</label></button>
                         </div>
                     </div>
                 </div>
