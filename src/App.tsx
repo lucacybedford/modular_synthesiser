@@ -670,6 +670,8 @@ function handleInput(input: MIDIMessageEvent) {
             const velocity = input.data[2];
             if (velocity > 0) {
                 noteOn(note, velocity);
+            } else {
+                noteOff(note);
             }
         } else if (command == 128) {
             noteOff(note);
