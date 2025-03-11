@@ -6,7 +6,6 @@
 input[type="range"] {
     -webkit-appearance: none;
     height: 5px;
-    /*height: 5px;*/
     background: #ddd;
     border-radius: 5px;
     outline: none;

@@ -19,17 +19,10 @@ All you need is a device with an internet connection – no downloads, installat
 
 •	Interactive and Fun: Responsive with visual feedback for every tweak and adjustment.
 
-### 🚀 Key Features
-•	Modular Interface: Drag and drop modules to design your custom synthesizer layout.
-
-•	Wide Range of Modules: A multitude of oscillators and filters to help you craft unique sounds.
-
-•	Real-Time Playback: Experiment with sounds live and hear the results immediately.
-
 ### 💡 Getting Started
-1.	Open the App: Navigate to the web app in your browser.
-2.	Start Building: Drag modules into the workspace and connect them to create your sound.
-3.	Experiment: Adjust parameters, add effects, and let your creativity take over.
+1.	Click on the Synth and Waveform buttons to customise the base sound.
+2.	Add a modifier to change the sound even further.
+3.	Experiment by clicking on the squares next to the effect modules to add them to your synth.
 
 ### 🛠️ Built for Creativity
 
